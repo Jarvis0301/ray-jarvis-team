@@ -494,7 +494,7 @@ function formatStockRow(s) {
         cost_sv: `
             <div>
                 <div class="text-orange">${currSym}${s.cost_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
-                <div class="text-teal">${AppCalc.formatSV(s.sv_point, 'INTERNAL')} SV</div>
+                <div class="text-teal">${formatSV(s.sv_point, 'INTERNAL')} SV</div>
             </div>
         `,
         status: statusBadge,

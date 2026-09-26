@@ -592,7 +592,7 @@ function renderKpis() {
 
     $('#kpiTotalBoxes').text(`${totalBoxes.toLocaleString()} 盒 / ${totalPieces.toLocaleString()} 支`);
     $('#kpiTotalSales').text(formatCurrency(totalSales, 'TWD'));
-    $('#kpiTotalSv').text(AppCalc.formatSV(totalSv, 'INTERNAL'));
+    $('#kpiTotalSv').text(formatSV(totalSv, 'INTERNAL'));
     $('#kpiTotalProfit').text(formatCurrency(totalProfit, 'TWD'));
 }
 
@@ -946,7 +946,7 @@ function formatTableRow(item) {
                 ` : ''}
             </div>
         `,
-        sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
+        sv: `<span class="text-teal fw-bold">${formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
         hold: holdBadge,
         status: statusBadge,
         actions: actionButtons
@@ -1167,7 +1167,7 @@ function openEditOutboundModal(id) {
     $('#fieldTotalPieces').val(totalPieces);
 
     $('#fieldRawTotalSv').val(totalSv);
-    $('#fieldTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+    $('#fieldTotalSv').val(`${formatSV(totalSv, 'INTERNAL')} SV`);
 
     $('#fieldRawProductAmount').val(prodAmt);
     $('#fieldProductAmount').val(formatCurrency(prodAmt, curr));
@@ -1269,12 +1269,12 @@ function renderOutboundItemsTableFromStaging(isLocked) {
                     </td>
                     <td class="text-yellow text-end">${formatCurrency(it.unit_price, curr)}</td>
                     <td class="text-red text-end">${formatCurrency(it.unit_cost, curr)}</td>
-                    <td class="text-teal text-end">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
+                    <td class="text-teal text-end">${formatSV(it.unit_sv, 'INTERNAL')} SV</td>
                     <td class="text-end">${it.ordered_qty} / ${it.shipped_qty}</td>
                     <td class="fw-bold text-orange text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
                     <td class="fw-bold text-accent text-end">${formatCurrency(it.subtotal_cost, curr)}</td>
                     <td class="fw-bold text-info text-end">${formatCurrency(it.subtotal_profit, curr)}</td>
-                    <td class="fw-bold text-teal text-end">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
+                    <td class="fw-bold text-teal text-end">${formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
                         <div class="text-secondary small">${AppDate.toDisplay(it.expiry_date) || '-'}</div>
@@ -1301,7 +1301,7 @@ function renderOutboundItemsTableFromStaging(isLocked) {
     $('#sumSalesAmount').text(formatCurrency(sumSales, curr));
     $('#sumCostAmount').text(formatCurrency(sumCost, curr));
     $('#sumProfitAmount').text(formatCurrency(sumProfit, curr));
-    $('#sumTotalSv').text(`${AppCalc.formatSV(sumSv, 'INTERNAL')} SV`);
+    $('#sumTotalSv').text(`${formatSV(sumSv, 'INTERNAL')} SV`);
 }
 
 // ==========================================================================
@@ -1476,7 +1476,7 @@ function onInlineProductSelectChange() {
         $('#inlineUnitCost').val(formatCurrency(estimatedCost, curr));
 
         $('#inlineRawUnitSv').val(spec.unitSV);
-        $('#inlineUnitSv').val(`${AppCalc.formatSV(spec.unitSV, 'INTERNAL')} SV`);
+        $('#inlineUnitSv').val(`${formatSV(spec.unitSV, 'INTERNAL')} SV`);
 
         const matchedStock = appState.stocks
             .filter(s => s.product_id === code && s.warehouse_id === targetWh && s.available_qty > 0)
@@ -1565,7 +1565,7 @@ function editInlineItem(itemId) {
     $('#inlineRawUnitCost').val(item.unit_cost);
     $('#inlineUnitCost').val(formatCurrency(item.unit_cost, curr));
     $('#inlineRawUnitSv').val(item.unit_sv);
-    $('#inlineUnitSv').val(`${AppCalc.formatSV(item.unit_sv, 'INTERNAL')} SV`);
+    $('#inlineUnitSv').val(`${formatSV(item.unit_sv, 'INTERNAL')} SV`);
 
     $('#inlineOrderedQty').val(item.ordered_qty);
     $('#inlineShippedQty').val(item.shipped_qty);
@@ -1956,7 +1956,7 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出庫 SV</div>
-                <div class="col-7 text-teal fw-bold text-end fs-6">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</div>
+                <div class="col-7 text-teal fw-bold text-end fs-6">${formatSV(item.total_sv, 'INTERNAL')} SV</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">付款方式 / 平台</div>

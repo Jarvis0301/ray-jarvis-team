@@ -834,7 +834,7 @@ function renderAdjustmentsTable() {
         const typeBadge = UIBadges.psi.adjustType(a.adj_type);
         const operatorResolved = EntityResolver.partner(a.operator_partner_id, appState.partners, appState.persons, 1);
         const prospectResolved = a.target_prospect_id ? EntityResolver.customer(a.target_prospect_id, appState.customers, appState.persons, 1) : '';
-        const svDisplay = `${AppCalc.formatSV(a.total_sv, 'INTERNAL')} SV`;
+        const svDisplay = `${formatSV(a.total_sv, 'INTERNAL')} SV`;
 
         const qtyTag = a.quantity > 0 
             ? `<span class="fw-bold text-success">+${a.quantity}</span>` 
@@ -959,7 +959,7 @@ function renderTransfersTable() {
             `,
             quantity: `<span class="text-info">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
             cost: `<span class="text-orange fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
-            sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(t.total_sv, 'INTERNAL')} SV</span>`,
+            sv: `<span class="text-teal fw-bold">${formatSV(t.total_sv, 'INTERNAL')} SV</span>`,
             operator: `<span class="text-light">${operatorResolved}</span>`,
             actions: actionButtons
         };
@@ -1003,8 +1003,8 @@ function openAdjustmentDetailModal(adjId) {
     const qtyDisplay = (item.quantity > 0 ? `+${item.quantity.toLocaleString()}` : item.quantity.toLocaleString()) + ` ${item.adj_unit}`;
     const costDisplay = formatCurrency(item.total_cost, item.currency_code);
     const unitCostDisplay = formatCurrency(item.unit_cost, item.currency_code);
-    const svDisplay = `${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV`;
-    const unitSvDisplay = `${AppCalc.formatSV(item.unit_sv, 'INTERNAL')} SV`;
+    const svDisplay = `${formatSV(item.total_sv, 'INTERNAL')} SV`;
+    const unitSvDisplay = `${formatSV(item.unit_sv, 'INTERNAL')} SV`;
 
     const html = `
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
@@ -1442,13 +1442,13 @@ function calculateAuditVariance() {
     } else if (diff < 0) {
         $tag.attr('class', 'fw-bold text-danger').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i>盤虧短少 (${diff})`);
         $lblCost.text(`-${formatCurrency(totalCost, currency)}`);
-        $lblSv.text(`-${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+        $lblSv.text(`-${formatSV(totalSv, 'INTERNAL')} SV`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤虧');
     } else {
         $tag.attr('class', 'fw-bold text-success').html(`<i class="fa-solid fa-plus me-1"></i>盤盈溢出 (+${diff})`);
         $lblCost.text(`+${formatCurrency(totalCost, currency)}`);
-        $lblSv.text(`+${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+        $lblSv.text(`+${formatSV(totalSv, 'INTERNAL')} SV`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤盈');
     }
@@ -1598,7 +1598,7 @@ function updateTransferCostCalc() {
     const totalSv = AppCalc.multiply(Math.abs(qty), unitSv, 2);
 
     $('#trInputTotalCost').val(formatCurrency(totalCost, currency));
-    $('#trInputTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+    $('#trInputTotalSv').val(`${formatSV(totalSv, 'INTERNAL')} SV`);
 
     updateTransferStockFeedback();
 }
@@ -1927,7 +1927,7 @@ function calculateModalTotals() {
     const totalSv = AppCalc.multiply(reqQty, sv, 2);
 
     $('#fieldTotalCost').val(formatCurrency(totalCost, curr));
-    $('#fieldTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+    $('#fieldTotalSv').val(`${formatSV(totalSv, 'INTERNAL')} SV`);
 }
 
 function updateQuantitySignUI(adjType) {

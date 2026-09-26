@@ -66,13 +66,18 @@ const SheetAdapter = (function() {
 
             const response = await fetch(apiUrl, {
                 method: "POST",
+                // 關鍵：必須保持 text/plain，切勿改為 application/json，否則必定觸發 CORS 預檢阻斷
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+                throw new Error(`<i class="fa-solid fa-triangle-exclamation"></i> 伺服器通訊異常，HTTP 狀態碼：${response.status}`);
+            }
+
             const resData = await response.json();
             if (resData.status !== "success") {
-                throw new Error(resData.message || "伺服器拒絕操作");
+                throw new Error(resData.message || '<i class="fa-solid fa-circle-exclamation"></i> 伺服器拒絕操作');
             }
             return resData;
         } catch (err) {

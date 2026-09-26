@@ -142,18 +142,5 @@ const AppCalc = {
             splitJarvis: jarvisCent / 100,
             hasCentAdjust: remainder !== 0
         };
-    },
-
-    /**
-     * 官方 SV 與內部權重 SV 格式化輸出
-     * @param {number} sv SV 數值
-     * @param {string} mode 'OFFICIAL' (整數結算) | 'INTERNAL' (保留小數點)
-     */
-    formatSV(sv, mode = 'OFFICIAL') {
-        const val = Number(sv) || 0;
-        if (mode === 'OFFICIAL') {
-            return Math.floor(val).toLocaleString();
-        }
-        return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     }
 };

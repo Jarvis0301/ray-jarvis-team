@@ -176,7 +176,7 @@
                                             <tr>
                                                 <th>職級名稱</th>
                                                 <th>累積整組 SV 條件</th>
-                                                <th>回饋比例</th>
+                                                <th class="text-end">回饋比例</th>
                                                 <th>階差回饋優勢</th>
                                             </tr>
                                         </thead>
@@ -207,6 +207,12 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+
+                                <!-- 未達 160 SV 警語 -->
+                                <div class="alert alert-warning small my-3">
+                                    <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                    <strong>領獎資格警語：</strong>當月累積未達 <strong>160 SV</strong>，沒有個人回饋金、階差獎金。
                                 </div>
 
                                 <div class="card-incard p-3 my-2">
@@ -268,44 +274,52 @@
                                     </p>
                                     <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
                                         <span class="text-warning small"><i class="fa-solid fa-coins me-1"></i>2026 最新單月雙獎金合計已達：</span>
-                                        <span class="text-warning fw-bold fs-5">約 NT$ 17,000 / 月</span>
+                                        <span class="text-warning fw-bold fs-5">NT$ 19,000 / 月</span>
                                     </div>
                                     <small class="text-muted d-block mt-1">隨著馬來西亞與海外市場拓展，全球業績水庫持續擴大，分紅池水漲船高！</small>
                                 </div>
 
+                                <!-- 表格更新 2026 最新定額 -->
                                 <div class="table-responsive my-3">
                                     <table class="table table-dark-custom align-middle w-100">
                                         <thead>
                                             <tr>
                                                 <th>分紅項目</th>
-                                                <th>全球提撥率</th>
+                                                <th class="text-end">全球提撥率</th>
                                                 <th>領取資格門檻</th>
-                                                <th>單月預估分紅</th>
+                                                <th class="text-end">2026 新制分紅額</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-users me-1 text-info"></i>合格經理獎金</span></td>
                                                 <td class="text-end"><span class="badge badge-secondary">5.0%</span></td>
-                                                <td class="text-end">個人 160 SV + 合併後小組 3,200 SV</td>
-                                                <td class="text-end text-info fw-bold">≒ NT$ 5,000 ~ 6,000</td>
+                                                <td>個人 160 SV + 合併後小組 3,200 SV</td>
+                                                <td class="text-end text-info fw-bold">NT$ 7,000</td>
                                             </tr>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-users-gear me-1 text-warning"></i>合格小組獎金</span></td>
                                                 <td class="text-end"><span class="badge badge-secondary">10.0%</span></td>
-                                                <td class="text-end">個人 160 SV + 當月個人小組 3,200 SV</td>
-                                                <td class="text-end text-warning fw-bold">≒ NT$ 11,000 ~ 12,000</td>
+                                                <td>個人 160 SV + 當月個人小組實質 3,200 SV</td>
+                                                <td class="text-end text-warning fw-bold">NT$ 12,000</td>
                                             </tr>
                                             <tr class="border-top border-secondary">
-                                                <td colspan="3" class="text-end text-white fw-bold">2026 現行合格雙獎金合計預估：</td>
-                                                <td class="text-end text-warning fw-bold fs-6">≒ NT$ 17,000 / 月</td>
+                                                <td colspan="3" class="text-end text-white fw-bold">2026 現行合格雙獎金合計：</td>
+                                                <td class="text-end text-warning fw-bold fs-6">NT$ 19,000 / 月</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
 
-                                <div class="alert alert-dark border-secondary mb-0 small">
-                                    <i class="fa-solid fa-circle-info text-info me-1"></i><strong>新晉升經理提醒：</strong> 新晉升經理當月個人小組需達 6,400 SV 以上，即可同時領取合格小組與合格經理獎金；達標後次月起回復常態 3,200 SV 門檻。
+                                <!-- 合格小組獎金嚴格實質達標警語 -->
+                                <div class="alert alert-warning mb-0 small">
+                                    <div class="mb-1">
+                                        <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                        <strong>合格小組獎金考核警語：</strong>合格小組獎金<strong>一定要當月個人小組實質業績達標 3,200 SV</strong>（珍珠 5 線之業績自動補救機制不算，自動補救僅能保住經理與領導/分紅資格）。
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="fa-solid fa-circle-info text-info me-1"></i><strong>新晉升經理提醒：</strong> 新晉升經理當月個人小組需達 6,400 SV 以上，即可同時領取合格小組與合格經理獎金；達標後次月起回復常態 3,200 SV 門檻。
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -358,7 +372,7 @@
                                     <div class="col-md-6">
                                         <div class="card-incard border border-warning p-3 h-100">
                                             <div class="text-warning fw-bold mb-1"><i class="fa-solid fa-faucet-drip me-1"></i>珍珠 5 線自動補救 (Rescue)</div>
-                                            <small class="text-secondary">培育達 5 線經理，系統自動撥用第 5 線業績直接抵扣個人小組 3,200 SV 責任額缺額，本人自備 160 SV 即可全領高階各項獎金，無後顧之憂。</small>
+                                            <small class="text-secondary">培育達 5 線經理，系統自動撥用第 5 線業績直接抵扣個人小組 3,200 SV 責任額缺額，本人自備 160 SV 即可全領高階各項獎金，無後顧之憂（★ 合格小組獎金除外，仍須實質達標）。</small>
                                         </div>
                                     </div>
                                 </div>
@@ -369,43 +383,62 @@
                                             <tr>
                                                 <th>職級名稱</th>
                                                 <th>培育合格經理線</th>
-                                                <th>領導獎金領取深度</th>
+                                                <th class="text-end">領導獎金領取深度</th>
                                                 <th>權益優勢</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-tree me-1 text-info"></i>松柏</span></td>
-                                                <td class="text-end">1 條合格線</td>
+                                                <td>1 條合格線</td>
                                                 <td class="text-end"><span class="badge badge-info">第 1 ~ 2 代 (各 6%)</span></td>
                                                 <td>初階管線成型，開始領取代數獎金</td>
                                             </tr>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-seedling me-1 text-info"></i>長青</span></td>
-                                                <td class="text-end">2 ~ 3 條合格線</td>
+                                                <td>2 ~ 3 條合格線</td>
                                                 <td class="text-end"><span class="badge badge-info">第 1 ~ 3 代 (各 6%)</span></td>
                                                 <td>領導代數延伸至第 3 代</td>
                                             </tr>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-gem me-1 text-pink"></i>珍珠</span></td>
-                                                <td class="text-end">4 條合格線</td>
+                                                <td>4 條合格線</td>
                                                 <td class="text-end"><span class="badge badge-pink">第 1 ~ 4 代 (各 6%)</span></td>
                                                 <td>滿 5 線啟動自動補救，解鎖高階分紅</td>
                                             </tr>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-award me-1 text-teal"></i>翡翠</span></td>
-                                                <td class="text-end">連 3 個月 6 條合格線</td>
+                                                <td>連 3 個月 6 條合格線</td>
                                                 <td class="text-end"><span class="badge badge-teal">第 1 ~ 5 代 (各 6%)</span></td>
                                                 <td>深耕至第 5 代，組織自主運轉</td>
                                             </tr>
                                             <tr>
                                                 <td><span class="fw-bold text-white"><i class="fa-solid fa-crown me-1 text-warning"></i>藍鑽以上</span></td>
-                                                <td class="text-end">連 4 個月 10 線 (含 3 珍珠)</td>
+                                                <td>連 4 個月 10 線 (含 3 珍珠)</td>
                                                 <td class="text-end"><span class="badge badge-warning">第 1 ~ 6 代 (各 6%)</span></td>
                                                 <td>領滿頂規黃金 6 代完整提撥</td>
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+
+                                <!-- 組織認定規則與高階獎金連動警語 -->
+                                <div class="card-incard p-3 mt-3 border-secondary">
+                                    <div class="text-warning fw-bold small mb-2">
+                                        <i class="fa-solid fa-sitemap me-1"></i>組織合格線與實動線判定標準：
+                                    </div>
+                                    <ul class="text-secondary small mb-2 ps-3">
+                                        <li class="mb-1">
+                                            <strong class="text-light">合格經理線：</strong>每一個直屬下線含其傘下組織為一線，只要此線中有任一直銷商符合合格經理資格，則此線即為一合格經理線。
+                                        </li>
+                                        <li class="mb-0">
+                                            <strong class="text-light">實動線數：</strong>以直屬下線（合併前或合併後組織之直屬下線會有不同）是否為一合格經理線為計算基準。
+                                        </li>
+                                    </ul>
+                                    <div class="alert alert-warning small mb-0 py-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                        <strong>高階體系連動警語：</strong>高階體系合格線與領導代數（合格經理線）等等規則，會直接影響是否具備領取<strong>「全球領導獎金、珍鑽分紅、珍鑽年度卓越獎金、珍鑽旅遊獎勵金」</strong>之權益。
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -486,16 +519,41 @@
                                     </div>
                                 </div>
 
-                                <!-- 贈車不是配車核心解析 -->
+                                <!-- 購車基金給付細節 -->
                                 <div class="card-incard border border-warning p-3 mb-3">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fa-solid fa-key text-warning fa-lg me-1"></i>
-                                        <span class="text-white fw-bold">關鍵尊榮：贈車不是配車 ‧ 車輛產權完全歸個人</span>
+                                        <span class="text-white fw-bold">關鍵尊榮：贈車真產權 ‧ 購車基金達標給付明細</span>
                                     </div>
                                     <ul class="text-secondary small mb-0 ps-3">
-                                        <li class="mb-1"><strong class="text-light">真產權過戶：</strong> 新晉升藍鑽贈送 Mercedes-Benz 或 BMW 當年度未掛牌新車，首期款 NT$ 700,000 由公司直接給付，<strong>行照車主直接登記直銷商個人名下</strong>，絕非一般企業的租賃配車，完全沒有還車與扣薪壓力。</li>
-                                        <li class="mb-1"><strong class="text-light">月度貸款補助：</strong> 購車後公司按月補貼約 NT$ 27,000 元（分 36 期），輕鬆擁有頂級進口車。</li>
-                                        <li class="mb-0"><strong class="text-light">期滿再領現金：</strong> 任期滿 3 年晉升雙星、四星、六星、耀星藍鑽，可再次請領購車款或<strong>直接領取最高 NT$ 1,700,000 現金</strong>。</li>
+                                        <li class="mb-1">
+                                            <strong class="text-light">達標給付內容：</strong>藍鑽購車基金達標包含<strong>新台幣 70 萬元頭期款贈與</strong>及<strong> 36 期每月補貼款（每月約 NT$ 27,000）</strong>。
+                                        </li>
+                                        <li class="mb-1">
+                                            <strong class="text-light">行照個人真產權：</strong>首期購車頭期款 70 萬元由公司直接給付，<strong>行照車主直接登記於直銷商個人名下</strong>，絕非租賃車，無還車與扣薪負擔。
+                                        </li>
+                                        <li class="mb-0">
+                                            <strong class="text-light">期滿再領現金：</strong>任期滿 3 年晉升雙星、四星、六星、耀星藍鑽，可再次請領購車款或<strong>直接領取最高 NT$ 1,700,000 現金</strong>。
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- 珍鑽獎勵發放期程與資格維持罰則警語 -->
+                                <div class="card-incard small mb-3">
+                                    <div class="text-secondary fw-bold mb-2">
+                                        <i class="fa-solid fa-calendar-check me-1"></i>高階珍鑽獎勵發放期程與資格維持規範：
+                                    </div>
+                                    <ul class="text-secondary mb-0 ps-3">
+                                        <li class="mb-1">
+                                            <strong class="text-light">珍鑽年度卓越獎金：</strong>採月累計至 12 月合併，於<strong>每年 12 月</strong>發放。
+                                        </li>
+                                        <li class="mb-1">
+                                            <strong class="text-light">珍鑽旅遊獎金：</strong>採 7 月至翌年 6 月累計，於<strong>每年 6 月</strong>發放。
+                                        </li>
+                                        <li class="mb-0 text-warning">
+                                            <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                            <strong>資格維持重要警語：</strong>年度中若有<strong>一個月未維持合格經理資格</strong>，其當年前期所得累積之「珍鑽年度卓越獎勵金」將全數提撥出，由其他合格者重新分配。
+                                        </li>
                                     </ul>
                                 </div>
 
@@ -529,8 +587,55 @@
 
             </div>
 
-            <!-- 底部：獎金試算案例與精算公式拆解區塊 -->
-            <section class="mt-5 mb-4" id="bonus-cases-section">
+            <!-- ================================================================= -->
+            <!-- 全新語意化區塊：業績結算規章與獎金發放權益須知 -->
+            <!-- ================================================================= -->
+            <section class="mt-4 mb-4">
+                <div class="row g-3">
+                    <!-- 業績結算方式 -->
+                    <div class="col-12 col-lg-6">
+                        <div class="card p-3 h-100">
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-calendar-days text-secondary me-1"></i>業績結算方式
+                            </h3>
+                            <ol class="text-secondary small mb-0 ps-3">
+                                <li class="mb-2">
+                                    <strong class="text-light">結算週期：</strong>每月業績計算期間為<strong>上月結業績日隔日起至當月結業績日止</strong>；若遇國定假日或不可抗力之情形，則視情況調整將提前或順延。各月份之結業績日請見各營運中心或公司官方網站公告。
+                                </li>
+                                <li class="mb-2">
+                                    <strong class="text-light">珍珠以上補業績規定：</strong>珍珠級經理（含）以上會員若於業績截止日後仍需補足業績者，<strong>請於業績截止日前至各中心或線上填寫「職級補貨暨檢查表」申請業績遞延即可</strong>，未申請者恕不接受補業績。
+                                </li>
+                                <li class="mb-0">
+                                    <strong class="text-light">諮詢管道：</strong>補業績相關辦法請洽各營運中心及顧客服務部。
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- 獎金發放方式 -->
+                    <div class="col-12 col-lg-6">
+                        <div class="card p-3 h-100">
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-money-bill-transfer text-warning me-1"></i>獎金發放方式
+                            </h3>
+                            <ol class="text-secondary small mb-0 ps-3">
+                                <li class="mb-2">
+                                    <strong class="text-light">發放日期與管道：</strong>為了讓直銷商能迅速方便領取獎金，葡眾公司獎金採匯款方式發放，訂於<strong>每月 15 日</strong>將獎金直接撥入直銷商之金融機構帳戶；若遇國定假日或不可抗力情形（颱風假或其他特殊情形），則視情況調整。
+                                </li>
+                                <li class="mb-2">
+                                    <strong class="text-light">匯款手續費標準：</strong>獎金發放方式僅限匯款至指定之金融機構帳戶，逐筆發放獎金將扣除匯款手續費，實際手續費需依各行庫規定為準（<strong>合作金庫、彰化銀行、華南銀行、UOB Bank 免手續費</strong>，其餘行庫扣除 <strong>NT$ 9、RM 0.1</strong> 手續費）。
+                                </li>
+                                <li class="mb-0">
+                                    <strong class="text-light">溢發追溯權：</strong>若有溢發獎金情事，公司自發放當日起算<strong>兩年內保留追溯追回權利</strong>。
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 底部：獎金試算案例與精算公式拆解區塊 (全面同步 2026 最新雙獎金額度) -->
+            <section class="mt-4 mb-4" id="bonus-cases-section">
                 <!-- 區塊標題與核心參數定義 -->
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
                     <div>
@@ -552,11 +657,11 @@
                         <div>
                             <span class="badge bg-secondary mb-1">經營型態 I</span>
                             <h3 class="h5 fw-bold text-white mb-0"><i class="fa-solid fa-user-clock text-info me-1"></i>兼差型 ‧ 合格經理（MR）</h3>
-                            <small class="text-muted">個人自用 400 SV，零售與小組累計 2,800 SV（小組合計達 3,200 SV 合格責任額門檻）</small>
+                            <small class="text-muted">個人自用 400 SV，零售與小組累計 2,800 SV（小組合計實質達 3,200 SV 合格責任額門檻）</small>
                         </div>
                         <div class="text-md-end mt-2 mt-md-0">
                             <span class="text-muted small d-block">預估月收入合計</span>
-                            <span class="h4 fw-bold text-info mb-0">約 NT$ 24,000 ~ 26,000</span>
+                            <span class="h4 fw-bold text-info mb-0">約 NT$ 28,000</span>
                         </div>
                     </div>
 
@@ -568,9 +673,9 @@
                             <li class="mb-1"><strong class="text-light">小組階差獎金：</strong> 小組業績 2,800 SV × 平均階差率 10% × PV 25 = <span class="text-white fw-bold">NT$ 7,000</span><br/>
                                 <span class="text-muted">※ 說明：下線包含會員 (5%)、主任 (10%)、副理 (15%)，與經理階 20% 產生 5%～15% 差額，平均以 10% 估算。</span>
                             </li>
-                            <li class="mb-1"><strong class="text-light">合格經理獎金 (5%)：</strong> (全球總業績 × 5%) ÷ 全球合格經理總人數 × PV ≒ <span class="text-white fw-bold">NT$ 5,000</span></li>
-                            <li class="mb-0"><strong class="text-light">合格小組獎金 (10%)：</strong> (全球總業績 × 10%) ÷ 全球合格經理總人數 × PV ≒ <span class="text-white fw-bold">NT$ 10,000</span><br/>
-                                <span class="text-warning">※ 2026 最新趨勢：大馬市場拓展挹注後，全球大水庫擴大，雙全球獎金合計已成長至約 NT$ 17,000 / 月。</span>
+                            <li class="mb-1"><strong class="text-light">合格經理獎金 (5%)：</strong> 2026 最新合格經理固定分紅 ≒ <span class="text-white fw-bold">NT$ 7,000</span></li>
+                            <li class="mb-0"><strong class="text-light">合格小組獎金 (10%)：</strong> 2026 最新合格小組固定分紅 ≒ <span class="text-white fw-bold">NT$ 12,000</span><br/>
+                                <span class="text-warning">※ 2026 最新規章：雙全球獎金合計已成長至 NT$ 19,000 / 月；合格小組獎金必須當月個人小組實質達標 3,200 SV（自動補救不算）。</span>
                             </li>
                         </ol>
                     </div>
@@ -582,9 +687,9 @@
                                 <tr>
                                     <th>獎金項目</th>
                                     <th>計算對象與基數</th>
-                                    <th>提撥比例</th>
-                                    <th>折算公式</th>
-                                    <th>預估金額 (TWD)</th>
+                                    <th class="text-end">提撥比例</th>
+                                    <th class="text-end">折算公式</th>
+                                    <th class="text-end">預估金額 (TWD)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -606,19 +711,19 @@
                                     <td>合格經理獎金</td>
                                     <td>合併小組達 3,200 SV</td>
                                     <td class="text-end">全球提撥 5.0%</td>
-                                    <td class="text-end">全球提撥 pool 均分</td>
-                                    <td class="text-end text-white">≒ NT$ 5,000</td>
+                                    <td class="text-end">2026 全球分紅額度</td>
+                                    <td class="text-end text-white">NT$ 7,000</td>
                                 </tr>
                                 <tr>
                                     <td>合格小組獎金</td>
-                                    <td>當月小組達 3,200 SV</td>
+                                    <td>當月實質小組達 3,200 SV</td>
                                     <td class="text-end">全球提撥 10.0%</td>
-                                    <td class="text-end">全球提撥 pool 均分</td>
-                                    <td class="text-end text-white">≒ NT$ 10,000</td>
+                                    <td class="text-end">2026 全球分紅額度</td>
+                                    <td class="text-end text-white">NT$ 12,000</td>
                                 </tr>
                                 <tr class="border-top border-secondary">
                                     <td colspan="4" class="text-end text-info fw-bold">兼差型合格經理單月預估收益合計：</td>
-                                    <td class="text-end text-info fw-bold fs-6">≒ NT$ 24,000</td>
+                                    <td class="text-end text-info fw-bold fs-6">NT$ 28,000</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -637,7 +742,7 @@
                         </div>
                         <div class="text-md-end mt-2 mt-md-0">
                             <span class="text-muted small d-block">預估月收入合計</span>
-                            <span class="h4 fw-bold text-cyan mb-0">約 NT$ 145,000</span>
+                            <span class="h4 fw-bold text-cyan mb-0">約 NT$ 149,000</span>
                         </div>
                     </div>
 
@@ -645,7 +750,7 @@
                     <div class="card-incard p-3 mb-3">
                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-square-root-variable me-1"></i>計算公式與拆解邏輯：</div>
                         <ol class="text-secondary small mb-0 ps-3">
-                            <li class="mb-1"><strong class="text-light">基礎零售與經理分紅：</strong> 個人回饋 (NT$ 2,000) + 小組階差 (NT$ 7,000) + 經理獎金 (NT$ 5,000) + 小組獎金 (NT$ 10,000) = <strong class="text-white">NT$ 24,000</strong></li>
+                            <li class="mb-1"><strong class="text-light">基礎零售與經理分紅：</strong> 個人回饋 (NT$ 2,000) + 小組階差 (NT$ 7,000) + 經理獎金 (NT$ 7,000) + 小組獎金 (NT$ 12,000) = <strong class="text-white">NT$ 28,000</strong></li>
                             <li class="mb-1"><strong class="text-light">組織全球領導獎金 (提撥 20%)：</strong>
                                 <div class="text-light my-1 ps-2 border-start border-2 border-info">
                                     經理基本責任額 3,200 SV × 13 位合格經理 (13MR) × 每代 6% × 點值 0.70 × PV 25<br/>
@@ -660,12 +765,12 @@
                             </li>
                             <li class="mb-1"><strong class="text-light">珍鑽海外旅遊獎勵金 (提撥 1.5%，年中獎金折算)：</strong>
                                 <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                    (全球總業績 × 1.5%) × (個人實動 7 線 ÷ 全球總實動線數) × PV ≒ 約 <strong class="text-cyan">NT$ 10,000 / 月</strong>（每年 6 月核發約 NT$ 120,000）
+                                    (全球總業績 × 1.5%) × (個人實動 7 線 ÷ 全球總實動線數) × PV ≒ 約 <strong class="text-cyan">NT$ 10,000 / 月</strong>（採 7 月至翌年 6 月累計，每年 6 月核發約 NT$ 120,000）
                                 </div>
                             </li>
                             <li class="mb-0"><strong class="text-light">珍鑽年度卓越獎勵金 (提撥 5%，年終獎金折算)：</strong>
                                 <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                    加權 4 代總業績 (2.5%) + 實動線數加權 (2.5%) ≒ 約 <strong class="text-cyan">NT$ 25,000 / 月</strong>（全年度 12 個月維持合格，12 月併發約 NT$ 300,000）
+                                    加權 4 代總業績 (2.5%) + 實動線數加權 (2.5%) ≒ 約 <strong class="text-cyan">NT$ 25,000 / 月</strong>（採月累計至 12 月合併，12 月併發約 NT$ 300,000；年度中若有一個月未維持合格經理資格則取消該筆前期累積）
                                 </div>
                             </li>
                         </ol>
@@ -678,18 +783,18 @@
                                 <tr>
                                     <th>獎金項目</th>
                                     <th>計算基準與代數</th>
-                                    <th>公式拆解</th>
-                                    <th>計算過程與點值</th>
-                                    <th>預估金額 (TWD)</th>
+                                    <th class="text-end">公式拆解</th>
+                                    <th class="text-end">計算過程與點值</th>
+                                    <th class="text-end">預估金額 (TWD)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>基礎零售與小組經理分紅</td>
                                     <td>個人 400 + 小組 2,800 SV</td>
-                                    <td class="text-end">階差 + 雙全球獎金</td>
-                                    <td class="text-end">2,000 + 7,000 + 15,000</td>
-                                    <td class="text-end text-white">NT$ 24,000</td>
+                                    <td class="text-end">階差 + 2026 雙全球獎金</td>
+                                    <td class="text-end">2,000 + 7,000 + 19,000</td>
+                                    <td class="text-end text-white">NT$ 28,000</td>
                                 </tr>
                                 <tr>
                                     <td>全球領導獎金 (4 代內)</td>
@@ -709,19 +814,19 @@
                                     <td>珍鑽旅遊基金 (年中獎金折算)</td>
                                     <td>直屬 7 條實動經理線</td>
                                     <td class="text-end">全球 1.5% 實動線加權</td>
-                                    <td class="text-end">按月累計折算 (6月發放)</td>
+                                    <td class="text-end">7~翌年6月累計 (6月發放)</td>
                                     <td class="text-end text-white">≒ NT$ 10,000</td>
                                 </tr>
                                 <tr>
                                     <td>年度卓越獎金 (年終獎金折算)</td>
                                     <td>4 代業績 + 7 條實動線</td>
                                     <td class="text-end">全球 5.0% 雙重加權</td>
-                                    <td class="text-end">全年度維持 (12月發放)</td>
+                                    <td class="text-end">1~12月全勤維持 (12月發放)</td>
                                     <td class="text-end text-white">≒ NT$ 25,000</td>
                                 </tr>
                                 <tr class="border-top border-secondary">
                                     <td colspan="4" class="text-end text-cyan fw-bold">專職型珍珠經理單月預估總收益：</td>
-                                    <td class="text-end text-cyan fw-bold fs-6">≒ NT$ 145,000</td>
+                                    <td class="text-end text-cyan fw-bold fs-6">≒ NT$ 149,000</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -740,7 +845,7 @@
                         </div>
                         <div class="text-md-end mt-2 mt-md-0">
                             <span class="text-muted small d-block">平均年收入預估（含購車貸款補助）</span>
-                            <span class="h4 fw-bold text-warning mb-0">約 NT$ 3,000,000 / 年</span>
+                            <span class="h4 fw-bold text-warning mb-0">約 NT$ 3,000,000+ / 年</span>
                         </div>
                     </div>
 
@@ -748,7 +853,7 @@
                     <div class="card-incard p-3 mb-3">
                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-square-root-variable me-1"></i>計算公式與拆解邏輯：</div>
                         <ol class="text-secondary small mb-0 ps-3">
-                            <li class="mb-1"><strong class="text-light">基礎與經理小組分紅：</strong> 個人 400 SV + 小組 2,800 SV + 經理獎金 + 小組獎金 = <strong class="text-white">NT$ 24,000 / 月</strong></li>
+                            <li class="mb-1"><strong class="text-light">基礎與經理小組分紅：</strong> 個人 400 SV + 小組 2,800 SV + 2026 經理獎金 (NT$ 7,000) + 2026 小組獎金 (NT$ 12,000) = <strong class="text-white">NT$ 28,000 / 月</strong></li>
                             <li class="mb-1"><strong class="text-light">黃金六代領導獎金 (提撥 20%)：</strong>
                                 <div class="text-light my-1 ps-2 border-start border-2 border-warning">
                                     經理責任額 3,200 SV × 六代 22 位經理 (22MR) × 每代 6% × 點值 0.70 × PV 25<br/>
@@ -759,8 +864,8 @@
                             <li class="mb-1"><strong class="text-light">年中旅遊獎勵 + 年終卓越獎金 (折算月度)：</strong> 旅遊基金約 NT$ 19,000 / 月 + 年度卓越分紅約 NT$ 46,000 / 月 = <strong class="text-warning">NT$ 65,000 / 月</strong></li>
                             <li class="mb-1"><strong class="text-light">購車基金 (提撥 3.5%)：</strong>
                                 <ul class="ps-3 mt-1 mb-0">
-                                    <li><strong class="text-warning">首期購車頭期款：</strong> 晉升合格後，公司直接給付 <strong class="text-warning">NT$ 700,000</strong>（行照登記直銷商名下，非公司租賃車）。</li>
-                                    <li><strong class="text-warning">購車分期補貼：</strong> 貸款 100 萬元由公司分 36 期月度補貼，每月約 <strong class="text-warning">NT$ 27,000</strong>。</li>
+                                    <li><strong class="text-warning">首期購車頭期款贈與：</strong> 晉升合格後，公司直接給付 <strong class="text-warning">NT$ 700,000</strong>（行照登記直銷商名下真產權，非公司租賃車）。</li>
+                                    <li><strong class="text-warning">購車分期補貼：</strong> 貸款由公司分 36 期月度補貼，每月約 <strong class="text-warning">NT$ 27,000</strong>。</li>
                                 </ul>
                             </li>
                             <li class="mb-0"><strong class="text-light">雙星至耀星藍鑽延續權益：</strong> 藍鑽任期滿 3 年晉升雙星、四星、六星、耀星藍鑽，每期滿 3 年達標可再請領購車款或<strong class="text-warning">最高 NT$ 1,700,000 現金獎勵</strong>。</li>
@@ -774,18 +879,18 @@
                                 <tr>
                                     <th>獎金與榮耀項目</th>
                                     <th>計算基準與參數</th>
-                                    <th>公式拆解</th>
-                                    <th>計算過程與點值</th>
-                                    <th>單月折算預估</th>
+                                    <th class="text-end">公式拆解</th>
+                                    <th class="text-end">計算過程與點值</th>
+                                    <th class="text-end">單月折算預估</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>基礎零售與經理小組分紅</td>
                                     <td>個人 400 + 小組 2,800 SV</td>
-                                    <td class="text-end">階差 + 雙全球獎金</td>
-                                    <td class="text-end">2,000 + 7,000 + 15,000</td>
-                                    <td class="text-end text-white">NT$ 24,000</td>
+                                    <td class="text-end">階差 + 2026 雙全球獎金</td>
+                                    <td class="text-end">2,000 + 7,000 + 19,000</td>
+                                    <td class="text-end text-white">NT$ 28,000</td>
                                 </tr>
                                 <tr>
                                     <td>黃金六代領導獎金 (全深度)</td>
@@ -805,30 +910,30 @@
                                     <td>年中海外旅遊獎勵金</td>
                                     <td>10 條合格經理實動線</td>
                                     <td class="text-end">全球 1.5% 實動線加權</td>
-                                    <td class="text-end">按月累計折算 (6月發放)</td>
+                                    <td class="text-end">7~翌年6月累計 (6月發放)</td>
                                     <td class="text-end text-white">≒ NT$ 19,000</td>
                                 </tr>
                                 <tr>
                                     <td>年終年度卓越獎勵金</td>
                                     <td>4 代總業績 + 10 條實動線</td>
                                     <td class="text-end">全球 5.0% 雙重加權</td>
-                                    <td class="text-end">全年度維持合格 (12月發放)</td>
+                                    <td class="text-end">1~12月全勤維持 (12月發放)</td>
                                     <td class="text-end text-white">≒ NT$ 46,000</td>
                                 </tr>
                                 <tr>
                                     <td>進口車月度貸款補貼</td>
                                     <td>36 期購車基金補助款</td>
-                                    <td class="text-end">100 萬貸款 ÷ 36 期</td>
+                                    <td class="text-end">購車基金按月撥款</td>
                                     <td class="text-end">每月定額補助入帳</td>
                                     <td class="text-end text-white">≒ NT$ 27,000</td>
                                 </tr>
                                 <tr class="border-top border-secondary">
                                     <td colspan="4" class="text-end text-warning fw-bold">藍鑽經理常態月收入預估合計：</td>
-                                    <td class="text-end text-warning fw-bold fs-6">≒ NT$ 250,000 / 月</td>
+                                    <td class="text-end text-warning fw-bold fs-6">≒ NT$ 254,000 / 月</td>
                                 </tr>
                                 <tr class="bg-black">
-                                    <td colspan="4" class="text-end text-warning fw-bold">年度總收益折算（NT$ 250,000 × 12 個月）：</td>
-                                    <td class="text-end text-warning fw-bold fs-5">≒ NT$ 3,000,000 / 年</td>
+                                    <td colspan="4" class="text-end text-warning fw-bold">年度總收益折算（約 NT$ 254,000 × 12 個月）：</td>
+                                    <td class="text-end text-warning fw-bold fs-5">≒ NT$ 3,048,000 / 年</td>
                                 </tr>
                             </tbody>
                         </table>

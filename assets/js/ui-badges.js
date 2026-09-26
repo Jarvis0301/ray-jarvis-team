@@ -416,7 +416,8 @@ const UIBadges = (function () {
              * 職級權益膠囊標籤
              */
             rightPill(text, isGold = false) {
-                return `<span class="badge-right-pill ${isGold ? 'gold' : ''}"><i class="fa-solid fa-medal me-1"></i>${text}</span>`;
+                const pillClass = isGold ? 'badge-yellow-subtle' : 'badge-primary-subtle';
+                return `<span class="badge ${pillClass} p-2 m-2 rounded-pill"><i class="fa-solid fa-medal me-1"></i>${text}</span>`;
             }
         },
 

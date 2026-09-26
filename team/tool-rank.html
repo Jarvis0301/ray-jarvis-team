@@ -23,33 +23,39 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
             <!-- 頂部控制面板 -->
-            <section class="card mb-4">
+            <header class="card mb-4">
                 <div class="row g-3 align-items-center justify-content-between">
-                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-start gap-1">
-                        <span class="text-secondary small">
-                            <i class="fa-solid fa-earth-asia text-primary me-1"></i>雙幣別即時換算
-                        </span>
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <h4 class="fw-bold text-light mb-0">
+                            <i class="fa-solid fa-solid fa-chart-line text-primary me-1"></i>職級計算
+                        </h4>
                     </div>
 
-                    <div class="col-12 col-lg-6 d-flex flex-wrap justify-content-center align-items-center gap-2">
-                        <div class="input-group input-group-sm" style="max-width: 250px;">
-                            <span class="input-group-text bg-dark text-secondary border-secondary border-opacity-50">
-                                <i class="fa-solid fa-scale-balanced me-1"></i>匯率 (MYR/TWD)
-                            </span>
-                            <input type="number" class="form-control form-control-sm text-end" id="inputExchangeRate" value="8.00" step="0.05" min="0.01" placeholder="8.00">
-                        </div>
-                        <div class="btn-group" role="group" id="currencyToggleGroup">
-                            <button type="button" class="btn btn-sm btn-outline-secondary active" data-currency="TWD">
-                                <i class="fa-solid fa-money-bill-wave me-1"></i>新台幣 (NTD)
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-currency="MYR">
-                                <i class="fa-solid fa-coins me-1"></i>馬幣 (MYR)
-                            </button>
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <div class="row g-3 align-items-center">
+                            <!-- 幣別切換按鈕群組 (TWD / MYR) -->
+                            <div class="col-12 col-md-6 col-xl-6">
+                                <div class="btn-group" role="group" id="currencyToggleGroup">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">新台幣 (TWD)</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">馬幣 (MYR)</button>
+                                </div>
+                            </div>
+
+                            <!-- 匯率輸入框 (預設 8.00 TWD) -->
+                            <div class="col-12 col-md-6 col-xl-6">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i>匯率 (1 MYR =)：</span>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="inputExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.01">
+                                        <span class="input-group-text">TWD</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-end gap-1">
-                        <button type="button" class="filter-pill-btn btn-preset active" id="btnPresetPartTime">
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <button type="button" class="filter-pill-btn btn-preset" id="btnPresetPartTime">
                             <i class="fa-solid fa-user-check me-1"></i>經理
                         </button>
                         <button type="button" class="filter-pill-btn btn-preset" id="btnPresetFullTime">
@@ -58,9 +64,12 @@
                         <button type="button" class="filter-pill-btn btn-preset" id="btnPresetDiamond">
                             <i class="fa-solid fa-crown me-1"></i>藍鑽
                         </button>
+                        <button type="button" class="filter-pill-btn btn-preset text-danger border-danger border-opacity-50" id="btnClearParams" title="清空現況參數">
+                            <i class="fa-solid fa-rotate-left me-1"></i>清空
+                        </button>
                     </div>
                 </div>
-            </section>
+            </header>
 
             <!-- 核心診斷指標卡組 (KPI Matrix) -->
             <section class="kpi-matrix">
@@ -129,17 +138,23 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-sm-6">
                                     <label for="inputPersonalSv" class="form-label">
-                                        <i class="fa-solid fa-cart-shopping me-1"></i>當月個人業績 (SV)
+                                        <i class="fa-solid fa-cart-shopping me-1"></i>當月個人 SV
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputPersonalSv" value="160" min="0" step="10">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputPersonalSv" value="0" min="0" step="10">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
                                     <div class="form-text text-muted small">基本盤：需達 160 SV 領取各項獎金。</div>
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label for="inputMonthGroupSv" class="form-label">
-                                        <i class="fa-solid fa-users me-1"></i>當月小組責任額 (SV)
+                                        <i class="fa-solid fa-users-viewfinder me-1"></i>當月個人小組 SV
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputMonthGroupSv" value="3200" min="0" step="100">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputMonthGroupSv" value="0" min="0" step="100">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
                                     <div class="form-text text-muted small">合格經理責任額門檻 3,200 SV。</div>
                                 </div>
                             </div>
@@ -147,17 +162,23 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-sm-6">
                                     <label for="inputTotalOrgSv" class="form-label">
-                                        <i class="fa-solid fa-globe me-1"></i>當月整組總業績 (SV)
+                                        <i class="fa-solid fa-globe me-1"></i>當月全組織整組總 SV
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputTotalOrgSv" value="3200" min="0" step="100">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputTotalOrgSv" value="0" min="0" step="3200">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
                                     <div class="form-text text-muted small">藍鑽晉升需當月達 100,000 SV。</div>
                                 </div>
 
                                 <div class="col-12 col-sm-6">
                                     <label for="inputCumGroupSv" class="form-label">
-                                        <i class="fa-solid fa-boxes-stacked me-1"></i>整組累計業績 (SV)
+                                        <i class="fa-solid fa-timeline me-1"></i>整組歷史累計 SV
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputCumGroupSv" value="12000" min="0" step="100">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputCumGroupSv" value="0" min="0" step="1000">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
                                     <div class="form-text text-muted small">主任 1.2K / 副理 6K / 經理 12K SV。</div>
                                 </div>
                             </div>
@@ -165,21 +186,30 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-sm-4">
                                     <label for="inputManagerLines" class="form-label">
-                                        <i class="fa-solid fa-network-wired me-1"></i>經理線 (條)
+                                        <i class="fa-solid fa-diagram-project me-1"></i>實動經理線 (條)
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputManagerLines" value="0" min="0">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputManagerLines" value="0" min="0">
+                                        <span class="input-group-text">條</span>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputPearlLines" class="form-label">
-                                        <i class="fa-solid fa-gem text-secondary me-1"></i>珍珠線 (條)
+                                        <i class="fa-solid fa-gem text-secondary me-1"></i>實動珍珠線 (條)
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputPearlLines" value="0" min="0">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputPearlLines" value="0" min="0">
+                                        <span class="input-group-text">條</span>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputConsecutiveMonths" class="form-label">
                                         <i class="fa-solid fa-calendar-check me-1"></i>連續考核月
                                     </label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="inputConsecutiveMonths" value="1" min="1">
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputConsecutiveMonths" value="1" min="1">
+                                        <span class="input-group-text">月</span>
+                                    </div>
                                 </div>
                             </div>
 

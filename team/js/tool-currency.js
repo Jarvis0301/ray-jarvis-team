@@ -232,12 +232,11 @@ function bindUIEvents() {
     });
 }
 
-window.setQuickRate = function (rate) {
+function setQuickRate(rate) {
     $('#fxRateRange').val(rate).trigger('input');
-    AppToast.info(`已切換結算匯率至 1 MYR = ${rate.toFixed(2)} TWD`);
 };
 
-window.adjustRate = function (delta) {
+function adjustRate(delta) {
     let current = parseFloat($('#fxRateInput').val()) || appState.exchangeRate;
     let target = Math.round((current + delta) * 100) / 100;
     $('#fxRateRange').val(target).trigger('input');

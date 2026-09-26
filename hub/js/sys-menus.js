@@ -132,7 +132,7 @@ function switchPortal(portal) {
     appState.selectedMenuId = firstNode ? firstNode.menu_id : '';
 
     refreshView();
-    AppToast.info(`已切換至【${portal}】維度`);
+    AppToast.info(`已切換至【${portal}】`);
 }
 
 function refreshView() {

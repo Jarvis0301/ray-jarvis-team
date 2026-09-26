@@ -41,6 +41,19 @@ function formatCurrency(amount, currencyCode = 'TWD') {
 }
 
 /**
+ * 官方 SV 與內部權重 SV 格式化輸出
+ * @param {number} sv SV 數值
+ * @param {string} mode 'OFFICIAL' (整數結算) | 'INTERNAL' (保留小數點)
+ */
+function formatSV(sv, mode = 'OFFICIAL') {
+    const val = Number(sv) || 0;
+    if (mode === 'OFFICIAL') {
+        return Math.floor(val).toLocaleString();
+    }
+    return val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+/**
  * Google 試算表 CSV 跨表非同步抓取器 (GVIZ API)
  */
 async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {

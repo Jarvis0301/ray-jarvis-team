@@ -933,6 +933,8 @@ function updateCartSummary() {
         $("#sticky-total-sv").text(`0 SV`);
         $("#sticky-rebate-cash").text(`${currSymbol}0`);
 
+        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none"); // ★ 隱藏警語
+
         updateAllChartsData();
         return;
     }
@@ -1065,6 +1067,13 @@ function updateCartSummary() {
     $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
     $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    const svActiveThreshold = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
+    if (totalSV < svActiveThreshold) {
+        $("#rebate-sv-warning, #sticky-rebate-warning").removeClass("d-none");
+    } else {
+        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none");
+    }
 
     updateAllChartsData();
 }
@@ -1417,6 +1426,10 @@ function exportOrderToExcel() {
     excelData.push(["", "", "", "", "", "", "", "", "物流運費：", Math.round(shipping), ""]);
     excelData.push(["", "", "", "", "", "", "", "", "應付總金額：", Math.round(grandTotal), ""]);
     excelData.push(["", "", "", "", "", "", "", "", "預估現金回饋：", Math.round(rebate), ""]);
+
+    if (totalSV < (APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160)) {
+        excelData.push(["", "", "", "", "", "", "", "", "※ 備註：", "當月累積須達160SV方可領取階差獎金", ""]);
+    }
 
     const ws = XLSX.utils.aoa_to_sheet(excelData);
     const wb = XLSX.utils.book_new();
@@ -1925,6 +1938,13 @@ function updateCartSummaryTotalsOnly() {
     $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
     $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    const svActiveThreshold = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
+    if (totalSV < svActiveThreshold) {
+        $("#rebate-sv-warning, #sticky-rebate-warning").removeClass("d-none");
+    } else {
+        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none");
+    }
 
     updateAllChartsData();
 }

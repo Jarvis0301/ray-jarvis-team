@@ -397,7 +397,7 @@ function renderKpis() {
 
     $('#kpiTotalBoxes').text(totalBoxes.toLocaleString());
     $('#kpiTotalCost').text(formatCurrency(totalCost, 'TWD'));
-    $('#kpiTotalSv').text(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+    $('#kpiTotalSv').text(`${formatSV(totalSv, 'INTERNAL')} SV`);
     $('#kpiDecoupledOrders').text(decoupledCount.toLocaleString());
 }
 
@@ -643,7 +643,7 @@ function formatTableRow(item) {
                 ` : ''}
             </div>
         `,
-        total_sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
+        total_sv: `<span class="text-teal fw-bold">${formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
         status: statusBadge,
         actions: actionButtons
     };
@@ -844,7 +844,7 @@ function openEditModal(orderId) {
 
     $('#fieldTotalBoxes').val(totalBoxes);
     $('#fieldRawTotalSv').val(totalSv);
-    $('#fieldTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+    $('#fieldTotalSv').val(`${formatSV(totalSv, 'INTERNAL')} SV`);
 
     $('#fieldRemarks').val(item.remarks || '');
 
@@ -917,10 +917,10 @@ function renderInboundItemsTableFromStaging(isLocked) {
                     </td>
                     <td>${UIBadges.psi.feeItem(it.is_fee_item)}</td>
                     <td class="text-yellow text-end">${formatCurrency(it.unit_cost, curr)}</td>
-                    <td class="text-teal text-end">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
+                    <td class="text-teal text-end">${formatSV(it.unit_sv, 'INTERNAL')} SV</td>
                     <td class="text-end">${it.ordered_qty} / ${it.official_shipped_qty || 0} / ${it.received_qty || 0}</td>
                     <td class="fw-bold text-orange text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
-                    <td class="fw-bold text-teal text-end">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
+                    <td class="fw-bold text-teal text-end">${formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
                         <div class="text-secondary small">${AppDate.toDisplay(it.expiry_date) || '-'}</div>
@@ -946,7 +946,7 @@ function renderInboundItemsTableFromStaging(isLocked) {
     $('#sumReceivedQty').text(sumReceived.toLocaleString());
     $('#sumCurrencySymbol').text(currSym.trim());
     $('#sumTotalAmount').text(sumAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
-    $('#sumTotalSv').text(AppCalc.formatSV(sumSv, 'INTERNAL'));
+    $('#sumTotalSv').text(formatSV(sumSv, 'INTERNAL'));
 }
 
 // ==========================================================================
@@ -2023,7 +2023,7 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">總 SV</div>
-                <div class="col-7 text-teal fw-bold text-end fs-6">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</div>
+                <div class="col-7 text-teal fw-bold text-end fs-6">${formatSV(item.total_sv, 'INTERNAL')} SV</div>
             </div>
         </article>
 
