@@ -335,12 +335,9 @@ function runSimulation() {
     for (let r of sortedRanks) {
         const isPersonalPass = (pSv >= r.month_personal_sv_req);
         
-        let isGroupPass = (r.month_group_sv_req === 0) || (mSv >= r.month_group_sv_req);
-        // 珍珠級 (level >= 70) 以上培育滿 5 條經理線，啟動業績自動補救防線 (免除保級顧慮)
-        if (r.rank_level >= 70 && lines >= 5) {
-            isGroupPass = true;
-            hasAutoRescue = true;
-        }
+        // 檢查該階級是否符合 5 線補救資格 (必須是珍珠級 level >= 70 且 lines >= 5)
+        const canUseRescue = (r.rank_level >= 70 && lines >= 5);
+        const isGroupPass = (r.month_group_sv_req === 0) || (mSv >= r.month_group_sv_req) || canUseRescue;
 
         const isCumPass = (r.cum_group_sv_req === 0) || (cSv >= r.cum_group_sv_req);
         const isLinesPass = (lines >= r.qualified_lines_req);
@@ -350,6 +347,8 @@ function runSimulation() {
 
         if (isPersonalPass && isGroupPass && isCumPass && isLinesPass && isPearlPass && isOrgSvPass && isMonthsPass) {
             currentRank = r;
+            // ✅ 修復：只有在實質達到珍珠級以上且 lines >= 5 時，才正式確認啟動補救
+            hasAutoRescue = (currentRank.rank_level >= 70 && lines >= 5);
             break;
         }
     }
@@ -406,10 +405,10 @@ function runSimulation() {
     // 珍鑽實質合格基底：具備合格經理身分 + 珍珠級以上 + 合格經理線達標 (珍珠≥4, 翡翠≥6, 藍鑽≥10) + 珍珠線達標
     const isPearlTierQualified = isManagerQualified && (currentRank.rank_level >= 70) && (lines >= reqPearlLines) && isPearlLinesPass;
 
-    // 1. 全球領導獎金 (合格經理 + 具備領導代數 + 直屬合格經理線達標) × 0.7 點值
+    // 1. 全球領導獎金：合格經理人數 × 3,200 SV × 6% × 點值(0.7) × PV
     const isLeadershipQualified = isManagerQualified && currentRank.leadership_gen_depth > 0 && (lines >= reqActiveLines);
     let rawLeadership = isLeadershipQualified 
-        ? (currentRank.leadership_gen_depth * managerSvLine * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines) 
+        ? AppCalc.multiply(AppCalc.multiply(AppCalc.multiply(managerSvLine, currentRank.leadership_gen_rate, 4), pointValue, 4), pv, 2) * lines
         : 0;
 
     // 2. 珍鑽分紅 (5% 提撥)：需珍鑽體系實動經理線與珍珠線達標
@@ -491,17 +490,22 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
     const gapPearl = Math.max(0, target.pearl_lines_req - pearlLines);
     const gapMonths = Math.max(0, target.consecutive_months_req - months);
 
-    let totalWeight = 0;
-    let currentScore = 0;
-
-    totalWeight += 20;
+    let totalWeight = 20;
     const pRatio = Math.min(1, AppCalc.divide(pSv, (target.month_personal_sv_req || 160), 4));
-    currentScore = AppCalc.add(currentScore, pRatio * 20);
-    let progressPct = Math.round(AppCalc.divide(currentScore * 100, totalWeight, 2));
-    if (progressPct > 100) progressPct = 100;
-    if (target.cum_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, cSv / target.cum_group_sv_req) * 20; }
-    if (target.month_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, mSv / target.month_group_sv_req) * 20; }
-    if (target.qualified_lines_req > 0) { totalWeight += 20; currentScore += Math.min(1, lines / target.qualified_lines_req) * 20; }
+    let currentScore = pRatio * 20;
+
+    if (target.cum_group_sv_req > 0) {
+        totalWeight += 20;
+        currentScore += Math.min(1, cSv / target.cum_group_sv_req) * 20;
+    }
+    if (target.month_group_sv_req > 0) {
+        totalWeight += 20;
+        currentScore += Math.min(1, mSv / target.month_group_sv_req) * 20;
+    }
+    if (target.qualified_lines_req > 0) {
+        totalWeight += 20;
+        currentScore += Math.min(1, lines / target.qualified_lines_req) * 20;
+    }
     if (target.pearl_lines_req > 0 || target.month_total_org_sv_req > 0) {
         totalWeight += 20;
         let sub = 0;
@@ -510,6 +514,7 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
         currentScore += sub;
     }
 
+    let progressPct = Math.min(100, Math.round(AppCalc.divide(currentScore * 100, totalWeight, 2)));
     $('#dispOverallProgress').text(progressPct + '%');
 
     const isQualified = (gapP === 0 && gapC === 0 && gapM === 0 && gapOrg === 0 && gapLines === 0 && gapPearl === 0 && gapMonths === 0);
@@ -746,7 +751,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     `);
 
     const rescueStatusHtml = hasAutoRescue
-        ? `<div class="card-incard p-3 rounded-3 border-warning0">
+        ? `<div class="card-incard p-3 rounded-3 border-warning">
                 <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
                     <i class="fa-solid fa-shield-cat fs-5 me-1"></i>第 5 條線業績自動補救已啟動
                 </div>

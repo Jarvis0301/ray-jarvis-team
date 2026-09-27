@@ -1,35 +1,43 @@
+/**
+ * ============================================================================
+ * UVACO Ray's Team Digital Tactical Console - Cross-Border Currency & Hedging Engine
+ * File: tool-currency.js (English Version)
+ * Architecture: Decoupled Google Sheets Adapter, AppCalc Precision Engine, DataTables & Chart.js
+ * ============================================================================
+ */
+
 // ==========================================================================
-// 1. Google 雲端試算表設定與核心轉接器
+// 1. Google Sheets Configuration & Target Data Source
 // ==========================================================================
 const SPREADSHEET_ID = {
-    PRD: APP_CONFIG.SHEETS.PRD
+    PRD: APP_CONFIG?.SHEETS?.PRD || ''
 };
 
 const SHEET_NAMES = {
-    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS
+    PRODUCTS: APP_CONFIG?.SHEET_NAMES?.PRD?.PRODUCTS || '產品主檔'
 };
 
 // ==========================================================================
-// 2. 系統狀態管理
+// 2. Global State Management
 // ==========================================================================
 let appState = {
-    exchangeRate: APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00, // 基準匯率 (預設 1 MYR = 8.00 TWD)
+    exchangeRate: APP_CONFIG?.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00, // Baseline FX Rate (Default: 1 MYR = 8.00 TWD)
     products: {
         ALL: [],
         TW: [],
         MY: []
     },
-    baseCodes: [] // 跨國產品編號 (base_code) 清單
+    baseCodes: [] // International Base SKU Index List
 };
 
-// 跨境現貨對沖沙盒購物車 state: [{ product_code, qty }]
+// Cross-border spot hedging sandbox cart state: [{ product_code, qty }]
 let swapCart = [];
 let matrixTableInstance = null;
 let rawTableInstance = null;
 let isInitialized = false;
 
 // ==========================================================================
-// 3. 系統生命週期與事件初始化
+// 3. Application Lifecycle & Initialization
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     await initApp();
@@ -39,17 +47,19 @@ async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    // 同步匯率輸入框與目標 SV 至全域設定預設值
+    // Synchronize FX slider and target SV to default global configuration
     $('#fxRateRange').val(appState.exchangeRate);
     $('#fxRateInput').val(appState.exchangeRate.toFixed(2));
-    $('#solverTargetSV').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
+    $('#solverTargetSV').val(APP_CONFIG?.ORG?.SV_LINE_ACTIVE || 160);
 
     bindUIEvents();
 
-    if (SPREADSHEET_ID) {
+    if (SPREADSHEET_ID.PRD) {
         await fetchGoogleSheetsData();
     } else {
-        AppToast.error("未設定 Google 試算表 ID，無法讀取產品主檔資料！");
+        if (typeof AppToast !== 'undefined') {
+            AppToast.error("Google Spreadsheet ID is not configured. Unable to load product master data!");
+        }
     }
 
     triggerConverterFromTWD();
@@ -58,16 +68,18 @@ async function initApp() {
 }
 
 // ==========================================================================
-// 4. 解析 Google Sheets 數據 (依 Schema 索引順序讀取)
+// 4. Google Sheets CSV Parsing (Decoupled Column Mapping)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
-    
+    if (typeof AppLoading !== 'undefined') {
+        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> Loading cloud database...', 'Loading...');
+    }
+
     try {
         const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS);
 
         if (!rawRows || rawRows.length === 0) {
-            throw new Error("試算表『產品主檔』工作表中未讀取到任何有效產品數據。");
+            throw new Error("No valid product data found in the 'Products' worksheet.");
         }
 
         const parsedProducts = parseProductsTable(rawRows);
@@ -75,23 +87,32 @@ async function fetchGoogleSheetsData() {
         appState.products.TW = parsedProducts.filter(p => p.region_code === 'TW');
         appState.products.MY = parsedProducts.filter(p => p.region_code === 'MY');
 
-        // 以「跨國產品編號」(base_code) 建立兩國對比連結索引清單
+        // Extract unique Base SKUs for international dual-track mapping
         appState.baseCodes = Array.from(new Set(parsedProducts.map(p => p.base_code).filter(Boolean))).sort();
 
         refreshAllViews();
-        AppToast.success(`已成功同步 ${parsedProducts.length} 筆台馬跨國產品主檔`);
+
+        if (typeof AppToast !== 'undefined') {
+            AppToast.success(`Successfully synchronized ${parsedProducts.length} cross-border products.`);
+        }
     } catch (err) {
-        console.error("Google Sheets 產品主檔讀取失敗:", err);
-        AppDialog.alert("無法連線至 Google 試算表讀取資料，請檢查網路連線或共用權限！", {
-            title: "資料載入失敗",
-            icon: "fa-solid fa-triangle-exclamation text-danger"
-        });
+        console.error("Google Sheets product data loading failed:", err);
+        if (typeof AppDialog !== 'undefined') {
+            AppDialog.alert("Unable to connect to Google Sheets. Please check your network connection or sharing permissions!", {
+                title: "Data Loading Failed",
+                icon: "fa-solid fa-triangle-exclamation text-danger"
+            });
+        }
     } finally {
-        AppLoading.hide();
+        if (typeof AppLoading !== 'undefined') {
+            AppLoading.hide();
+        }
     }
 }
 
-// 解析「產品主檔」數據列
+/**
+ * Parses raw Google Sheet rows into normalized product objects
+ */
 function parseProductsTable(rows) {
     return rows.map((r) => {
         const productCode = getVal(r, 0);
@@ -114,7 +135,7 @@ function parseProductsTable(rows) {
             product_code: productCode,
             region_code: regionCode,
             base_code: baseCode,
-            name: getVal(r, 3, '未命名產品'),
+            name: getVal(r, 3, 'Unnamed Product'),
             short_name: getVal(r, 4),
             short_summary: getVal(r, 5),
             category_code: getVal(r, 6),
@@ -133,29 +154,31 @@ function parseProductsTable(rows) {
             status: getProductStatus(launchDate, discontinueDate),
             is_valid: isValid
         };
-    }).filter(item => item.is_valid !== 'N' && (item.product_code !== '' || item.name !== '未命名產品'));
+    }).filter(item => item.is_valid !== 'N' && (item.product_code !== '' || item.name !== 'Unnamed Product'));
 }
 
-// 依據上市日期與下市日期判定狀態：'COMING_SOON' (即將上市)、'ACTIVE' (販售中)、'DISCONTINUED' (已下市)
+/**
+ * Determines product status based on launch and discontinue timestamps
+ */
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayTs = today.getTime();
 
-    const lTs = AppDate.toTimestamp(launchDateVal);
-    const dTs = AppDate.toTimestamp(discontinueDateVal);
+    const lTs = typeof AppDate !== 'undefined' ? AppDate.toTimestamp(launchDateVal) : (launchDateVal ? new Date(launchDateVal).getTime() : 0);
+    const dTs = typeof AppDate !== 'undefined' ? AppDate.toTimestamp(discontinueDateVal) : (discontinueDateVal ? new Date(discontinueDateVal).getTime() : 0);
 
     if (lTs > 0 && lTs > todayTs) return 'COMING_SOON';
     if (dTs > 0 && dTs <= todayTs) return 'DISCONTINUED';
     return 'ACTIVE';
 }
 
-// ==========================================
-// 5. 介面事件綁定
-// ==========================================
+// ==========================================================================
+// 5. UI Event Handlers & Interactive Controls
+// ==========================================================================
 function handleRateChange(val) {
     let rate = parseFloat(val);
-    const defaultRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+    const defaultRate = APP_CONFIG?.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
     if (isNaN(rate) || rate <= 0) rate = defaultRate;
     rate = Math.min(Math.max(rate, 7.00), 9.00);
 
@@ -183,8 +206,8 @@ function bindUIEvents() {
 
     $('#inputSV').off('input').on('input', function () {
         const sv = parseFloat($(this).val()) || 0;
-        const twd = Math.round(sv * 36.46);
-        const myr = Math.round(twd / appState.exchangeRate);
+        const twd = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.multiply(sv, 36.46, 2) : (sv * 36.46));
+        const myr = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.divide(twd, appState.exchangeRate, 2) : (twd / appState.exchangeRate));
 
         $('#inputTWD').val(twd);
         $('#inputMYR').val(myr);
@@ -193,8 +216,8 @@ function bindUIEvents() {
 
     $('#inputMYR').off('input').on('input', function () {
         const myr = parseFloat($(this).val()) || 0;
-        const twd = Math.round(myr * appState.exchangeRate);
-        const sv = Math.round(twd / 36.46);
+        const twd = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.multiply(myr, appState.exchangeRate, 2) : (myr * appState.exchangeRate));
+        const sv = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.divide(twd, 36.46, 2) : (twd / 36.46));
 
         $('#inputTWD').val(twd);
         $('#inputSV').val(sv);
@@ -207,11 +230,11 @@ function bindUIEvents() {
 
     $('#btnCopyQuote').off('click').on('click', copyQuoteToClipboard);
 
-    // 清單數量手動輸入（即時輸入）
+    // Dynamic cart quantity adjustment (instant input)
     $(document).off('input', '.cart-qty-input').on('input', '.cart-qty-input', function () {
         const index = parseInt($(this).data('index'), 10);
         const rawVal = $(this).val();
-        if (rawVal === '') return; // 允許暫時清空重打
+        if (rawVal === '') return;
 
         let qty = parseInt(rawVal, 10);
         if (isNaN(qty) || qty <= 0) qty = 1;
@@ -219,7 +242,7 @@ function bindUIEvents() {
         recalculateCartTotals();
     });
 
-    // 清單數量手動輸入（離開焦點或確認後校正）
+    // Dynamic cart quantity adjustment (blur & validation)
     $(document).off('change blur', '.cart-qty-input').on('change blur', function () {
         const index = parseInt($(this).data('index'), 10);
         let qty = parseInt($(this).val(), 10);
@@ -234,22 +257,22 @@ function bindUIEvents() {
 
 function setQuickRate(rate) {
     $('#fxRateRange').val(rate).trigger('input');
-};
+}
 
 function adjustRate(delta) {
     let current = parseFloat($('#fxRateInput').val()) || appState.exchangeRate;
     let target = Math.round((current + delta) * 100) / 100;
     $('#fxRateRange').val(target).trigger('input');
-};
+}
 
 // ==========================================================================
-// 6. 雙向極速算力閥核心邏輯
+// 6. Tri-directional Rapid Converter Engine
 // ==========================================================================
 function triggerConverterFromTWD() {
     const twd = parseFloat($('#inputTWD').val()) || 0;
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
-    const myr = Math.round(twd / rate);
-    const sv = Math.round(twd / 36.46);
+    const myr = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.divide(twd, rate, 2) : (twd / rate));
+    const sv = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.divide(twd, 36.46, 2) : (twd / 36.46));
 
     $('#inputMYR').val(myr);
     $('#inputSV').val(sv);
@@ -257,22 +280,27 @@ function triggerConverterFromTWD() {
 }
 
 function updateConverterMetrics(twd, sv, myr) {
-    $('#ratioTWD').text(sv > 0 ? (twd / sv).toFixed(2) + " NT$/SV" : "36.46 NT$/SV");
-    $('#ratioMYR').text(sv > 0 ? (myr / sv).toFixed(2) + " RM/SV" : "5.10 RM/SV");
+    const twdRatio = sv > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(twd, sv, 2).toFixed(2) : (twd / sv).toFixed(2)) : "36.46";
+    const myrRatio = sv > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(myr, sv, 2).toFixed(2) : (myr / sv).toFixed(2)) : "4.56";
+
+    $('#ratioTWD').text(`${twdRatio} NT$/SV`);
+    $('#ratioMYR').text(`${myrRatio} RM/SV`);
 }
 
 window.setQuickSV = function (targetSV) {
     $('#inputSV').val(targetSV).trigger('input');
     $('#solverTargetSV').val(targetSV);
     recalculateSolver();
-    AppToast.info(`已設定快速目標：${targetSV} SV`);
+    if (typeof AppToast !== 'undefined') {
+        AppToast.info(`Quick target set: ${targetSV} SV`);
+    }
 };
 
 // ==========================================================================
-// 7. 跨境現貨對沖與平帳沙盒 (依 base_code 精準計算)
+// 7. Cross-Border Spot Hedging & Settlement Sandbox
 // ==========================================================================
 function renderCart() {
-    const $container = $('#cartItemsList');
+    const $container =$('#cartItemsList');
     $container.empty();
 
     if (swapCart.length === 0) {
@@ -281,9 +309,9 @@ function renderCart() {
                 <div class="p-3 rounded-circle bg-dark bg-opacity-75 border border-info border-opacity-25 mb-3 shadow-sm">
                     <i class="fa-solid fa-cart-flatbed text-info fs-3"></i>
                 </div>
-                <div class="fw-bold text-white mb-1 fs-6">對沖艙目前無品項</div>
+                <div class="fw-bold text-white mb-1 fs-6">Hedging Sandbox is currently empty</div>
                 <p class="small text-light-emphasis mb-0">
-                    請至下方「產品對照庫」點擊 <span class="badge badge-secondary-subtle"><i class="fa-solid fa-plus me-1"></i>加入</span> 進行跨境平帳試算
+                    Please navigate to the Product Database below and click <span class="badge badge-secondary-subtle"><i class="fa-solid fa-plus me-1"></i> Add</span> to simulate cross-border hedging
                 </p>
             </div>
         `);
@@ -306,7 +334,7 @@ function renderCart() {
                         <span class="text-secondary-emphasis small">(${prod.package_spec})</span>
                     </div>
                     <div class="text-light-emphasis" style="font-size: 0.75rem;">
-                        品號：${prod.product_code} ‧ 單價：<span class="text-yellow">NT$ ${prod.price.toLocaleString()}</span> ‧ 單品 SV：<span class="text-teal">${prod.sv_point} SV</span>
+                        SKU: ${prod.product_code} ‧ Unit Price: <span class="text-yellow">NT$ ${prod.price.toLocaleString()}</span> ‧ SV: <span class="text-teal">${prod.sv_point} SV</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -315,7 +343,7 @@ function renderCart() {
                         <input type="number" min="1" class="form-control form-control-sm no-spin text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
                         <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, 1)">+</button>
                     </div>
-                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="removeCartItem(${index})" title="移除品項">
+                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="removeCartItem(${index})" title="Remove item">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
@@ -365,7 +393,9 @@ window.updateCartQty = function (index, change) {
 window.removeCartItem = function (index) {
     swapCart.splice(index, 1);
     renderCart();
-    AppToast.info("已自對沖艙移除品項");
+    if (typeof AppToast !== 'undefined') {
+        AppToast.info("Item removed from hedging sandbox");
+    }
 };
 
 function updateCartTotals(totalSV, totalTWD, totalMYR) {
@@ -375,29 +405,29 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
     $('#totalCartTWD').text(`NT$ ${Math.round(totalTWD).toLocaleString()}`);
     $('#totalCartMYR').text(`RM ${Math.round(totalMYR).toLocaleString()}`);
 
-    const myrConvertedTwd = totalMYR * rate;
-    const cashDifferenceTwd = totalTWD - myrConvertedTwd;
+    const myrConvertedTwd = typeof AppCalc !== 'undefined' ? AppCalc.multiply(totalMYR, rate, 2) : (totalMYR * rate);
+    const cashDifferenceTwd = typeof AppCalc !== 'undefined' ? AppCalc.sub(totalTWD, myrConvertedTwd) : (totalTWD - myrConvertedTwd);
 
     $('#totalCartDiff').text(`NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}`);
 
     if (cashDifferenceTwd > 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-up text-warning me-1"></i>大馬需補貼台灣代墊差額：<span class="text-warning fw-bold">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-up text-warning me-1"></i> Malaysia recipient subsidy due to Taiwan: <span class="text-warning fw-bold">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
         `);
     } else if (cashDifferenceTwd < 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-down text-warning me-1"></i>台灣需退款大馬溢付差額：<span class="text-warning fw-bold">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-down text-warning me-1"></i> Taiwan sender refund due to Malaysia overpayment: <span class="text-warning fw-bold">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
         `);
     } else {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-scale-balanced text-success me-1"></i>兩地對沖帳目完全兩平 (${rate.toFixed(2)} 匯率基準)
+            <i class="fa-solid fa-scale-balanced text-success me-1"></i> Bilateral accounts fully balanced (${rate.toFixed(2)} FX Benchmark)
         `);
     }
 }
 
-// ==========================================================================
-// 8. 缺額智能湊單求解器 (Goal SV Solver)
-// ==========================================================================
+// ==========================================
+// 8. Goal SV Solver Algorithm Engine
+// ==========================================
 function recalculateSolver() {
     const defaultTargetSV = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
     const targetSV = parseFloat($('#solverTargetSV').val()) || defaultTargetSV;
@@ -435,25 +465,25 @@ function recalculateSolver() {
 
     const itemsHtml = packageItems.map(i => `
         <span class="badge badge-secondary-subtle me-1 mb-1 p-1 px-2">
-            ${i.name} × ${i.qty} 盒 (${i.sv} SV)
+            ${i.name} × ${i.qty} units (${i.sv} SV)
         </span>
     `).join('');
 
     $('#solverRecommendationBox').html(`
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold text-primary small"><i class="fa-solid fa-lightbulb me-1"></i>演算法最佳推薦配置</span>
-            <span class="badge badge-warning-subtle">${accumulatedSV.toLocaleString()} SV 達成</span>
+            <span class="fw-bold text-primary small"><i class="fa-solid fa-lightbulb me-1"></i> Optimal Algorithm Allocation</span>
+            <span class="badge badge-warning-subtle">${accumulatedSV.toLocaleString()} SV Achieved</span>
         </div>
         <div class="mb-2 d-flex flex-wrap">${itemsHtml}</div>
         <div class="d-flex justify-content-between small pt-2 border-top border-secondary border-opacity-25">
-            <span>進貨總金額：<b class="text-secondary">NT$ ${totalTWD.toLocaleString()} / RM ${Math.round(totalTWD / rate).toLocaleString()}</b></span>
+            <span>Total Restock Cost: <b class="text-secondary">NT$ ${totalTWD.toLocaleString()} / RM ${Math.round(totalTWD / rate).toLocaleString()}</b></span>
         </div>
     `);
 }
 
-// ==========================================================================
-// 9. DataTables 渲染與 base_code 雙軌矩陣
-// ==========================================================================
+// ==========================================
+// 9. DataTables & Cross-Border Matrix Rendering
+// ==========================================
 function refreshAllViews() {
     renderCrossBorderMatrix();
     renderRawProductTable();
@@ -461,7 +491,7 @@ function refreshAllViews() {
 }
 
 /**
- * 格式化跨國產品對照表單列資料物件
+ * Formats a cross-border comparison matrix row object
  */
 function formatCrossBorderMatrixRow(code) {
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
@@ -469,14 +499,20 @@ function formatCrossBorderMatrixRow(code) {
     const myProd = appState.products.MY.find(p => p.base_code === code);
 
     const getStatusBadge = (status) => {
-        return (status === 'COMING_SOON' || status === 'DISCONTINUED')
-            ? ` ${UIBadges.product.launchStatus(status)}`
-            : '';
+        if (status === 'COMING_SOON' || status === 'DISCONTINUED') {
+            if (typeof UIBadges !== 'undefined' && UIBadges.product && UIBadges.product.launchStatus) {
+                return ` ${UIBadges.product.launchStatus(status)}`;
+            }
+            const label = status === 'COMING_SOON' ? 'Coming Soon' : 'Discontinued';
+            const badgeClass = status === 'COMING_SOON' ? 'badge-warning' : 'badge-danger';
+            return ` <span class="badge ${badgeClass}">${label}</span>`;
+        }
+        return '';
     };
 
     const twInfo = twProd
         ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd.status)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec}</div>`
-        : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
+        : `<span class="badge badge-danger-subtle">Not Released in TW</span>`;
 
     const twPrice = twProd 
         ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(twProd.sv_point).toLocaleString()} SV</span>` 
@@ -484,14 +520,14 @@ function formatCrossBorderMatrixRow(code) {
 
     const myInfo = myProd
         ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd.status)} <span class="text-muted small">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec}</div>`
-        : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
+        : `<span class="badge badge-danger-subtle">Not Launched in MY</span>`;
 
     const myPrice = myProd 
         ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(myProd.sv_point).toLocaleString()} SV</span>` 
         : `-`;
 
-    const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;
-    const myCostPerSv = myProd && myProd.sv_point > 0 ? (myProd.price / myProd.sv_point).toFixed(2) : null;
+    const twCostPerSv = twProd && twProd.sv_point > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(twProd.price, twProd.sv_point, 2).toFixed(2) : (twProd.price / twProd.sv_point).toFixed(2)) : null;
+    const myCostPerSv = myProd && myProd.sv_point > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(myProd.price, myProd.sv_point, 2).toFixed(2) : (myProd.price / myProd.sv_point).toFixed(2)) : null;
     let costCompare = `-`;
     if (twCostPerSv && myCostPerSv) {
         costCompare = `<span class="text-secondary small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-secondary small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
@@ -503,18 +539,18 @@ function formatCrossBorderMatrixRow(code) {
 
     let diffText = `<span class="text-light-emphasis">-</span>`;
     if (twProd && myProd) {
-        const myConvertedTwd = myProd.price * rate;
-        const diff = myConvertedTwd - twProd.price;
+        const myConvertedTwd = typeof AppCalc !== 'undefined' ? AppCalc.multiply(myProd.price, rate, 2) : (myProd.price * rate);
+        const diff = typeof AppCalc !== 'undefined' ? AppCalc.sub(myConvertedTwd, twProd.price) : (myConvertedTwd - twProd.price);
         diffText = diff >= 0
             ? `<span class="badge badge-success-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
             : `<span class="badge badge-danger-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
     }
 
     const actionBtn = twProd
-        ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
+        ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="Add to Cross-Border Hedging Sandbox"><i class="fa-solid fa-plus me-1"></i> Add</button>`
         : (myProd
-            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
-            : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`);
+            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="Add to Cross-Border Hedging Sandbox"><i class="fa-solid fa-plus me-1"></i> Add</button>`
+            : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`);
 
     return {
         base_code: `<span class="badge badge-secondary-subtle">${code}</span>`,
@@ -538,6 +574,10 @@ function renderCrossBorderMatrix() {
     } else {
         matrixTableInstance = $('#crossBorderMatrixTable').DataTable({
             data: formatted,
+            language: {
+                emptyTable: "No cross-border comparison data available",
+                search: "Search: "
+            },
             columns: [
                 { data: 'base_code', className: 'text-center' },
                 { data: 'tw_info' },
@@ -553,16 +593,20 @@ function renderCrossBorderMatrix() {
 }
 
 /**
- * 格式化原始產品主檔表單列資料物件
+ * Formats a raw product table row object
  */
 function formatRawProductRow(prod) {
-    const costPerSv = prod.sv_point > 0 ? (prod.price / prod.sv_point).toFixed(2) : '0.00';
+    const costPerSv = prod.sv_point > 0 
+        ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(prod.price, prod.sv_point, 2).toFixed(2) : (prod.price / prod.sv_point).toFixed(2))
+        : '0.00';
     const isTW = prod.region_code === 'TW';
-    const regionBadge = UIBadges.common.country(prod.region_code);
+    const regionBadge = (typeof UIBadges !== 'undefined' && UIBadges.common && UIBadges.common.country) 
+        ? UIBadges.common.country(prod.region_code) 
+        : (typeof UIBadges !== 'undefined' && UIBadges.country ? UIBadges.country(prod.region_code) : `<span class="badge badge-secondary-subtle">${prod.region_code}</span>`);
     const currPrefix = isTW ? 'NT$ ' : 'RM ';
     const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
     const statusBadge = (prod.status === 'COMING_SOON' || prod.status === 'DISCONTINUED')
-        ? ` ${UIBadges.product.launchStatus(prod.status)}`
+        ? (typeof UIBadges !== 'undefined' && UIBadges.product && UIBadges.product.launchStatus ? ` ${UIBadges.product.launchStatus(prod.status)}` : ` <span class="badge badge-warning">${prod.status}</span>`)
         : '';
     const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
     const priceDisplay = `<span class="text-yellow fw-bold">${currPrefix}${Number(prod.price).toLocaleString()}</span>`;
@@ -576,8 +620,8 @@ function formatRawProductRow(prod) {
         price_sv: `${priceDisplay} / ${svDisplay}`,
         cost_per_sv: costDisplay,
         actions: `
-            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
-                <i class="fa-solid fa-plus me-1"></i>加入
+            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="Add to Cross-Border Hedging Sandbox">
+                <i class="fa-solid fa-plus me-1"></i> Add
             </button>
         `
     };
@@ -593,6 +637,10 @@ function renderRawProductTable() {
     } else {
         rawTableInstance = $('#rawProductTable').DataTable({
             data: formatted,
+            language: {
+                emptyTable: "No product data available",
+                search: "Search: "
+            },
             columns: [
                 { data: 'region', className: 'text-center' },
                 { data: 'product_code', className: 'text-center' },
@@ -605,9 +653,9 @@ function renderRawProductTable() {
     }
 }
 
-// ==========================================================================
-// 10. 購物車操作
-// ==========================================================================
+// ==========================================
+// 10. Cart Operations
+// ==========================================
 window.addSkuToCart = function (productCode) {
     const existing = swapCart.find(i => i.product_code === productCode);
     if (existing) {
@@ -616,12 +664,14 @@ window.addSkuToCart = function (productCode) {
         swapCart.push({ product_code: productCode, qty: 1 });
     }
     renderCart();
-    AppToast.success(`已將品項加入對沖沙盒`);
+    if (typeof AppToast !== 'undefined') {
+        AppToast.success("Item added to hedging sandbox");
+    }
 };
 
-// ==========================================================================
-// 11. Chart.js 單點 SV 效益視覺化圖表 (依 base_code 雙向對照)
-// ==========================================================================
+// ==========================================
+// 11. Chart.js Point-to-Point Spread Visualization
+// ==========================================
 function updateChartData() {
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
@@ -631,10 +681,10 @@ function updateChartData() {
         const my = appState.products.MY.find(p => p.base_code === code);
 
         if (tw && my && tw.price > 0 && my.price > 0) {
-            const myTwd = my.price * rate;
-            const diff = Math.round(myTwd - tw.price);
+            const myTwd = typeof AppCalc !== 'undefined' ? AppCalc.multiply(my.price, rate, 2) : (my.price * rate);
+            const diff = Math.round(typeof AppCalc !== 'undefined' ? AppCalc.sub(myTwd, tw.price) : (myTwd - tw.price));
             pairedDiffList.push({
-                name: tw.name.length > 7 ? tw.name.slice(0, 7) + '…' : tw.name,
+                name: tw.name.length > 12 ? tw.name.slice(0, 12) + '…' : tw.name,
                 diff: diff
             });
         }
@@ -645,34 +695,38 @@ function updateChartData() {
 
     const labels = top5.map(i => i.name);
     const data = top5.map(i => i.diff);
-    // 正價差（大馬高於台灣）顯示綠色，負價差（台灣高於大馬）顯示紅色
+    // Positive spread: MY converted price higher than TW (green); Negative: TW price higher (red)
     const barColors = top5.map(i => i.diff >= 0 ? '#10b981' : '#ef4444');
 
-    const config = AppChart.createBar({
-        labels: labels.length ? labels : ['無對照數據'],
-        data: data.length ? data : [0],
-        datasetLabel: '台馬換算價差',
-        colors: barColors,
-        isHorizontal: true,       // ★ 水平橫條圖展開長品名
-        unit: 'NT$',              // ★ 智慧前綴：Tooltip 輸出 "台馬換算價差：NT$ +450"
-        yStepInteger: true
-    });
+    if (typeof AppChart !== 'undefined') {
+        const config = AppChart.createBar({
+            labels: labels.length ? labels : ['No matching data'],
+            data: data.length ? data : [0],
+            datasetLabel: 'TW-MY Converted Price Spread',
+            colors: barColors,
+            isHorizontal: true,
+            unit: 'NT$',
+            yStepInteger: true
+        });
 
-    // 擴充自訂 Tooltip 補充兩地定價高低判讀
-    config.options.plugins.tooltip.callbacks.afterLabel = function (ctx) {
-        const val = Number(ctx.parsed.x || 0);
-        return val >= 0 ? ' (大馬換算售價高於台灣)' : ' (台灣售價高於大馬換算)';
-    };
+        // Extended custom tooltip explaining the price difference
+        config.options.plugins.tooltip.callbacks.afterLabel = function (ctx) {
+            const val = Number(ctx.parsed.x || 0);
+            return val >= 0 ? ' (MY converted price higher than TW)' : ' (TW price higher than MY converted)';
+        };
 
-    AppChart.render('arbitrageDiffChart', config);
+        AppChart.render('arbitrageDiffChart', config);
+    }
 }
 
-// ==========================================================================
-// 12. 報價單與對帳字串產生器 (依 base_code 對應)
-// ==========================================================================
+// ==========================================
+// 12. Cross-Border Quote & Settlement Generator
+// ==========================================
 function copyQuoteToClipboard() {
     if (swapCart.length === 0) {
-        AppToast.warning("請先添加品項至對沖艙！");
+        if (typeof AppToast !== 'undefined') {
+            AppToast.warning("Please add items to the hedging sandbox first!");
+        }
         return;
     }
 
@@ -685,38 +739,45 @@ function copyQuoteToClipboard() {
     swapCart.forEach(item => {
         const p = appState.products.ALL.find(x => x.product_code === item.product_code);
         if (p) {
-            const itemSV = p.sv_point * item.qty;
-            const itemTWD = (p.currency === 'TWD' ? p.price : p.price * rate) * item.qty;
-            
+            const itemSV = typeof AppCalc !== 'undefined' ? AppCalc.multiply(p.sv_point, item.qty, 0) : (p.sv_point * item.qty);
+            const itemTwdUnitPrice = p.currency === 'TWD' ? p.price : (typeof AppCalc !== 'undefined' ? AppCalc.multiply(p.price, rate, 2) : (p.price * rate));
+            const itemTWD = typeof AppCalc !== 'undefined' ? AppCalc.multiply(itemTwdUnitPrice, item.qty, 2) : (itemTwdUnitPrice * item.qty);
+
             const myProd = appState.products.MY.find(my => my.base_code === p.base_code);
-            const itemMYR = myProd ? (myProd.price * item.qty) : Math.round(itemTWD / rate);
+            const itemMYR = myProd 
+                ? (typeof AppCalc !== 'undefined' ? AppCalc.multiply(myProd.price, item.qty, 2) : (myProd.price * item.qty))
+                : Math.round(typeof AppCalc !== 'undefined' ? AppCalc.divide(itemTWD, rate, 2) : (itemTWD / rate));
 
-            totalSV += itemSV;
-            totalTWD += itemTWD;
-            totalMYR += itemMYR;
+            totalSV = typeof AppCalc !== 'undefined' ? AppCalc.add(totalSV, itemSV) : (totalSV + itemSV);
+            totalTWD = typeof AppCalc !== 'undefined' ? AppCalc.add(totalTWD, itemTWD) : (totalTWD + itemTWD);
+            totalMYR = typeof AppCalc !== 'undefined' ? AppCalc.add(totalMYR, itemMYR) : (totalMYR + itemMYR);
 
-            lines.push(`▫️ [${p.base_code}] ${p.name} (${p.package_spec}) × ${item.qty} 盒 -> ${itemSV} SV (NT$ ${Math.round(itemTWD).toLocaleString()} / RM ${Math.round(itemMYR).toLocaleString()})`);
+            lines.push(`▫️ [${p.base_code}] ${p.name} (${p.package_spec}) × ${item.qty} units -> ${itemSV} SV (NT$ ${Math.round(itemTWD).toLocaleString()} / RM ${Math.round(itemMYR).toLocaleString()})`);
         }
     });
 
-    const myrConvertedTwd = totalMYR * rate;
-    const diffTwd = totalTWD - myrConvertedTwd;
+    const myrConvertedTwd = typeof AppCalc !== 'undefined' ? AppCalc.multiply(totalMYR, rate, 2) : (totalMYR * rate);
+    const diffTwd = typeof AppCalc !== 'undefined' ? AppCalc.sub(totalTWD, myrConvertedTwd) : (totalTWD - myrConvertedTwd);
 
     const quoteText =
-`🌟【UVACO 葡眾 榮祥團隊 跨境現貨對沖與平帳單】🌟
+`🌟【UVACO Ray's Team Cross-Border Spot Hedging & Settlement Slip】🌟
 --------------------------------------
-📦 交付現貨品項（含跨國編號）：
+📦 Delivered Handover Items (with Base SKU):
 ${lines.join('\n')}
 --------------------------------------
-🎯 交付現貨總 SV 目標：${totalSV.toLocaleString()} SV
-💰 台灣交付出貨成本：NT$ ${Math.round(totalTWD).toLocaleString()}
-🇲🇾 大馬對等下單金額：RM ${Math.round(totalMYR).toLocaleString()}
-📊 結算匯率基準：1 MYR ≈ ${rate.toFixed(2)} TWD
-⚖️ 兩地現貨平帳差額：NT$ ${Math.abs(Math.round(diffTwd)).toLocaleString()} (${diffTwd >= 0 ? '大馬受領人補貼' : '台灣出貨人退款'})`;
+🎯 Total Handover SV Target: ${totalSV.toLocaleString()} SV
+💰 Taiwan Handover Cost: NT$ ${Math.round(totalTWD).toLocaleString()}
+🇲🇾 Malaysia Counterpart Order: RM ${Math.round(totalMYR).toLocaleString()}
+📊 FX Benchmark: 1 MYR ≈ ${rate.toFixed(2)} TWD
+⚖️ Bilateral Hedging Balance: NT$ ${Math.abs(Math.round(diffTwd)).toLocaleString()} (${diffTwd >= 0 ? 'Due from MY Recipient' : 'Refund to TW Sender'})`;
 
     navigator.clipboard.writeText(quoteText).then(() => {
-        AppToast.success("已複製 LINE / WhatsApp 報價單至剪貼簿！");
+        if (typeof AppToast !== 'undefined') {
+            AppToast.success("Copied LINE / WhatsApp quote to clipboard!");
+        }
     }).catch(() => {
-        AppToast.error("複製失敗，請手動複製");
+        if (typeof AppToast !== 'undefined') {
+            AppToast.error("Failed to copy. Please copy manually.");
+        }
     });
 }

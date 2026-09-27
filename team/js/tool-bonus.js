@@ -30,7 +30,7 @@ let appState = {
 
 // 預設下線非經理組織模擬清單：一位（職級會員、0 SV）
 let downlinePartners = [
-    { id: 1, name: "夥伴 A", rank: "RANK_01_MEMBER", sv: 0 }
+    { id: 1, name: "夥伴 1", rank: "RANK_01_MEMBER", sv: 0 }
 ];
 
 let bonusDataTableInstance = null;
@@ -227,7 +227,6 @@ function updateTaxRuleInfo(isMyr) {
 // 3. 生命週期與事件綁定 (Lifecycle & Events)
 // ============================================================================
 window.addEventListener('AppReady', async function () {
-    initBonusTable();
     initDefaultConfigValues();
 
     // 個人業績變更時，同步重新計算小組 SV 並觸發精算
@@ -273,7 +272,7 @@ window.addEventListener('AppReady', async function () {
         const memberRank = appState.ranks.find(r => r.rank_level === 10)?.rank_id || appState.ranks.find(r => r.rank_level < 40)?.rank_id || 'RANK_01_MEMBER';
         downlinePartners.push({
             id: nextId,
-            name: `新進夥伴 ${downlinePartners.length + 1}`,
+            name: `夥伴 ${downlinePartners.length + 1}`,
             rank: memberRank,
             sv: 0
         });
@@ -711,46 +710,44 @@ function recalculateAll() {
 // ============================================================================
 
 /**
- * 初始化 DataTable.js (金額欄位前移至第 2 欄)
- */
-function initBonusTable() {
-    bonusDataTableInstance = $('#tblBonusAudit').DataTable({
-        paging: false,
-        searching: false,
-        info: false,
-        ordering: false,
-        data: [],
-        columns: [
-            { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
-            { 
-                data: 'amount', 
-                className: 'text-end',
-                render: data => {
-                    const val = Number(data) || 0;
-                    const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
-                    return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
-                }
-            },
-            { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
-            { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
-        ],
-        language: {
-            emptyTable: "尚無核算資料"
-        }
-    });
-}
-
-/**
- * 渲染 DataTable 資料行與表尾合計 (同步更新第 2 欄表頭幣別)
+ * 渲染 DataTable 資料行與表尾合計
  */
 function renderBonusTableData(dataset, grossTotal) {
-    if (!bonusDataTableInstance) return;
-    const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
-    
-    // 同步更新表頭幣別標註 (第 2 欄：index 1)
-    $('#tblBonusAudit thead th').eq(1).text(appState.currency === 'MYR' ? '預估金額 (RM)' : '預估金額 (NT$)');
+    const amountColTitle = appState.currency === 'MYR' ? '預估金額 (RM)' : '預估金額 (NT$)';
 
-    bonusDataTableInstance.clear().rows.add(dataset).draw();
+    // 1. 首次有試算資料時，才正式初始化 DataTable 實例
+    if (!bonusDataTableInstance) {
+        bonusDataTableInstance = $('#tblBonusAudit').DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false,
+            data: dataset,
+            columns: [
+                { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
+                { 
+                    data: 'amount', 
+                    className: 'text-end',
+                    render: data => {
+                        const val = Number(data) || 0;
+                        return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
+                    }
+                },
+                { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
+                { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
+            ],
+            language: {
+                emptyTable: "尚無核算資料"
+            }
+        });
+    } else {
+        // 2. 已有實例時，塞入新試算資料重繪並即刻強制校準欄寬
+        bonusDataTableInstance.clear().rows.add(dataset).draw();
+        bonusDataTableInstance.columns.adjust();
+    }
+
+    // 同步更新表頭幣別標註與表尾合計
+    $('.dataTables_scrollHead thead th, #tblBonusAudit thead th').eq(1).text(amountColTitle);
     $("#valTableGrossTotal").text(`${formatCurrency(grossTotal, appState.currency)}`);
 }
 

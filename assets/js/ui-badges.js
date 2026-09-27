@@ -125,9 +125,10 @@ const UIBadges = (function () {
             /**
              * 明星熱銷標籤
              */
-            featured(isFeatured = false) {
+            featured(isFeatured = false, lang = 'zh-TW') {
+                const star = lang==='en' ? 'Best-seller' : '明星商品';
                 return isFeatured
-                    ? '<span class="badge badge-danger"><i class="fa-solid fa-fire"></i>明星商品</span>'
+                    ? `<span class="badge badge-danger"><i class="fa-solid fa-fire"></i>${star}</span>`
                     : '';
             }
         },
@@ -401,13 +402,13 @@ const UIBadges = (function () {
             /**
              * 官方職級徽章
              */
-            badge(rankObj) {
+            badge(rankObj, lang = 'zh-TW') {
                 if (!rankObj || !rankObj.rank_id) {
                     return `<span class="badge badge-gray-subtle">未設定職級</span>`;
                 }
                 const hex = rankObj.badge_color_hex || '#8b5cf6';
                 const icon = rankObj.badge_icon_class || 'fa-solid fa-award';
-                const name = clean(rankObj.rank_name_zh, '未命名職級');
+                const name = lang==='en' ? clean(rankObj.rank_name_en, '未命名職級') : clean(rankObj.rank_name_zh, '未命名職級');
 
                 return `<span class="badge" style="background-color: #130e24; border: 1px solid ${hex}; color: ${hex}; font-weight: 600;"><i class="${icon} me-1"></i>${name}</span>`;
             },

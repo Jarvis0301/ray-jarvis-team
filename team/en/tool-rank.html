@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rank Calculator | Ray's Team - Team Edition</title>
+
+        <!-- Authentication Guard -->
+        <script src="../../assets/js/auth-guard.js"></script>
+        
+        <!-- Third-party Vendors Loader -->
+        <script src="../../assets/js/vendor-loader.js"></script>
+
+        <!-- Core Common Modules & Design System -->
+        <script src="../../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../../assets/css/common.css">
+
+        <!-- Page Specific Assets -->
+        <script src="./js/tool-rank.js" defer></script>
+        <link rel="stylesheet" href="./css/tool-rank.css">
+    </head>
+
+    <body>
+        <main class="container-fluid p-3 p-md-4">
+            <!-- Top Command & Control Header -->
+            <header class="card mb-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <h4 class="fw-bold text-light mb-0">
+                            <i class="fa-solid fa-chart-line text-primary me-1"></i> Rank Calculator
+                        </h4>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-6 text-md-end">
+                        <button type="button" class="filter-pill-btn btn-preset" id="btnPresetPartTime">
+                            <i class="fa-solid fa-user-check me-1"></i> Master
+                        </button>
+                        <button type="button" class="filter-pill-btn btn-preset" id="btnPresetFullTime">
+                            <i class="fa-solid fa-gem me-1"></i> Pearl Master
+                        </button>
+                        <button type="button" class="filter-pill-btn btn-preset" id="btnPresetDiamond">
+                            <i class="fa-solid fa-crown me-1"></i> Blue Diamond
+                        </button>
+                        <button type="button" class="filter-pill-btn btn-preset text-danger border-danger border-opacity-50" id="btnClearParams" title="Clear all simulation parameters">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row align-items-center g-3 mt-2 border-top border-primary">
+                    <!-- Dual-Currency Switcher (TWD / MYR) -->
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <div class="btn-group" role="group" id="currencyToggleGroup">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">TWD (NT$)</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">MYR (RM)</button>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Rate Input (Default 8.00 TWD) -->
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i> FX Rate (1 MYR =):</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="inputExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.01">
+                                <span class="input-group-text">TWD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Core KPI Diagnosis Matrix -->
+            <section class="kpi-matrix">
+                <!-- Current Evaluated Active Rank -->
+                <div class="card kpi-card">
+                    <div class="kpi-header">
+                        <span>Evaluated Active Rank</span>
+                        <i class="fa-solid fa-user-check text-primary"></i>
+                    </div>
+                    <div class="kpi-value text-secondary" id="dispCurrentRank">Master</div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">Rebate Ratio: <strong class="text-white" id="dispRebateRate">20%</strong></span>
+                        <span class="badge badge-blue" id="dispStatusTag">Qualified Master</span>
+                    </div>
+                </div>
+
+                <!-- Estimated Total Monthly Income -->
+                <div class="card kpi-card">
+                    <div class="kpi-header">
+                        <span>Estimated Total Monthly Income</span>
+                        <i class="fa-solid fa-sack-dollar text-warning"></i>
+                    </div>
+                    <div class="kpi-value text-warning" id="dispTotalIncome">NT$ 24,000</div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">Productivity Base: <strong class="text-light" id="dispPvRate">PV = 25</strong></span>
+                        <span class="text-success fw-bold"><i class="fa-solid fa-calculator me-1"></i> Exact Audit</span>
+                    </div>
+                </div>
+
+                <!-- Target Sprint Progress -->
+                <div class="card kpi-card">
+                    <div class="kpi-header">
+                        <span>Target Rank Sprint Progress</span>
+                        <i class="fa-solid fa-bullseye text-danger"></i>
+                    </div>
+                    <div class="kpi-value text-white" id="dispOverallProgress">100%</div>
+                    <div class="kpi-subtext mt-2">
+                        <span class="text-secondary">Target: <strong class="text-warning" id="dispTargetRankName">Master</strong></span>
+                        <span class="text-secondary" id="dispProgressLabel">Fully Qualified</span>
+                    </div>
+                </div>
+
+                <!-- Qualified Lines & Auto-Remedy Status -->
+                <div class="card kpi-card">
+                    <div class="kpi-header">
+                        <span>Qualified Master / Pearl Lines</span>
+                        <i class="fa-solid fa-sitemap text-success"></i>
+                    </div>
+                    <div class="kpi-value text-success" id="dispOrgLegs">0 <span class="fs-6 fw-normal text-secondary">/ 0 Pearl</span></div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">Leadership Depth: <strong class="text-white" id="dispGenDepth">0 Gen (6% each)</strong></span>
+                        <span class="badge badge-success-subtle" id="dispRescueTag">Standard Qualified</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Section: Simulation Form vs Criteria & Entitlements Diagnosis -->
+            <section class="row g-4 mb-4">
+                <div class="col-lg-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-sliders text-primary me-1"></i> Personal & Organizational Parameters</span>
+                        </div>
+                        
+                        <form id="simulatorForm">
+                            <div class="row g-2 mb-2">
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputPersonalSv" class="form-label">
+                                        <i class="fa-solid fa-cart-shopping me-1"></i> Monthly Personal SV
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputPersonalSv" value="0" min="0" step="10">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted small">Active threshold: 160 SV required for all bonuses.</div>
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputMonthGroupSv" class="form-label">
+                                        <i class="fa-solid fa-users-viewfinder me-1"></i> Monthly Personal Group SV
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputMonthGroupSv" value="0" min="0" step="100">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted small">Qualified Master group maintenance: 3,200 SV.</div>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputTotalOrgSv" class="form-label">
+                                        <i class="fa-solid fa-globe me-1"></i> Monthly Total Organizational SV
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputTotalOrgSv" value="0" min="0" step="3200">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted small">Blue Diamond sprint threshold: 100,000 SV.</div>
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputCumGroupSv" class="form-label">
+                                        <i class="fa-solid fa-timeline me-1"></i> Cumulative Group SV
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputCumGroupSv" value="0" min="0" step="1000">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted small">Associate 1.2K / Senior Associate 6K / Master 12K SV.</div>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputManagerLines" class="form-label">
+                                        <i class="fa-solid fa-diagram-project me-1"></i> Qualified Master Lines
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputManagerLines" value="0" min="0">
+                                        <span class="input-group-text">Lines</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputPearlLines" class="form-label">
+                                        <i class="fa-solid fa-gem text-secondary me-1"></i> Active Pearl Lines
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputPearlLines" value="0" min="0">
+                                        <span class="input-group-text">Lines</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputConsecutiveMonths" class="form-label">
+                                        <i class="fa-solid fa-calendar-check me-1"></i> Qualifying Months
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm text-end" id="inputConsecutiveMonths" value="1" min="1">
+                                        <span class="input-group-text">Mos</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 pt-2 border-top border-secondary border-opacity-25">
+                                <label for="selectTargetRank" class="form-label text-warning fw-bold">
+                                    <i class="fa-solid fa-crosshairs me-1"></i> Target Sprint Rank
+                                </label>
+                                <select class="form-select form-select-sm border-warning" id="selectTargetRank"></select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="card h-100 d-flex flex-column justify-content-between">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-list-check text-primary me-1"></i> Advancement Criteria & Gap Diagnosis</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="gap-alert-card mb-3" id="boxGapAnalysis">
+                                <h6 class="fw-bold mb-2 text-warning" id="txtGapTitle">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Evaluating criteria...
+                                </h6>
+                                <ul class="mb-0 ps-3 text-secondary small" id="listGapItems">
+                                    <li>Loading...</li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="small text-secondary fw-bold mb-2">
+                                    <i class="fa-solid fa-award text-warning me-1"></i> Target Rank Entitlements & Privileges:
+                                </div>
+                                <div id="containerRightsPills"></div>
+                            </div>
+                        </div>
+
+                        <div class="card-incard p-3 rounded-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small text-secondary fw-bold">
+                                    <i class="fa-solid fa-calculator text-primary me-1"></i> Estimated Total Monthly Income:
+                                </span>
+                                <span class="fs-5 text-warning fw-bold" id="dispIncomeQuickTotal">NT$ 24,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strategic Charts Section -->
+            <section class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-pie text-warning me-1"></i> Bonus Structure Breakdown
+                        </h6>
+                        <div class="card-chart-container-transparent">
+                            <canvas id="chartBonusPie"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-line text-primary me-1"></i> Advancement Radar Analysis
+                        </h6>
+                        <div class="card-chart-container-transparent">
+                            <canvas id="chartGapsRadar"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-simple text-success me-1"></i> Benchmark Income by Rank Tier
+                        </h6>
+                        <div class="card-chart-container-transparent">
+                            <canvas id="chartRankIncomeBar"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Three Practical Analytical Modules -->
+            <section class="row g-4 mb-4">
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> Advancement Checklist & Gate Audit
+                        </h6>
+                        <div class="d-flex flex-column gap-2" id="gateChecklistContainer"></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-money-bill-transfer text-warning me-1"></i> Detailed Bonus & Dividend Audit
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-dark-custom mb-0">
+                                <tbody id="incomeBreakdownTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Organization Line Health & Safety Net
+                        </h6>
+                        <div class="d-flex flex-column gap-3" id="topologyRescueContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Official Rank Advancement Standards Dictionary (DataTable.js) -->
+            <section class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-book-bookmark text-primary me-1"></i> UVACO Official Rank Advancement Matrix & Standards</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="tableRankDictionary" class="table table-dark-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Rank Title</th>
+                                        <th>Advancement Criteria</th>
+                                        <th>Rebate %</th>
+                                        <th>Leadership Generations</th>
+                                        <th>Privileges & Benefits</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>

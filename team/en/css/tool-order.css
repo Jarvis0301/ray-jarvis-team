@@ -1,0 +1,346 @@
+/* 產品網格卡片 */
+.product-item-card {
+    background-color: var(--uvaco-bg-card, #150a2a);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    border-radius: var(--uvaco-border-radius-md, 10px);
+    padding: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: var(--uvaco-transition-fast, transform 0.2s ease, border-color 0.2s ease);
+
+    &:hover {
+        transform: translateY(-3px);
+        border-color: var(--uvaco-secondary, #c084fc);
+        background-color: var(--uvaco-bg-card-hover, #1e0f3d);
+        box-shadow: var(--uvaco-shadow-base, 0 6px 18px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25)));
+    }
+}
+
+.product-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--uvaco-border-radius-sm, 4px);
+    background-color: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    color: var(--uvaco-secondary, #c084fc);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+}
+
+/* 數量控制器 */
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+}
+
+.btn-qty {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-sm, 6px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--uvaco-transition-fast, all 0.15s ease);
+
+    &:hover {
+        background-color: var(--uvaco-primary, #8b5cf6);
+        color: var(--uvaco-text-light, #ffffff);
+        border-color: var(--uvaco-primary, #8b5cf6);
+    }
+}
+
+.qty-input {
+    width: 46px;
+    height: 30px;
+    text-align: center;
+    background-color: var(--uvaco-bg-input, #170b2e);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-primary, #faf5ff);
+    border-radius: var(--uvaco-border-radius-sm, 6px);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* 右側結帳試算 Sticky Card */
+.cart-summary-card {
+    position: sticky;
+    top: 20px;
+    background: linear-gradient(180deg, var(--uvaco-bg-dark, #1e0f37) 0%, var(--uvaco-bg-card, #150a2a) 100%);
+    border: 1px solid var(--uvaco-primary, #8b5cf6);
+    border-radius: var(--uvaco-border-radius-lg, 12px);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--uvaco-shadow-base, 0 8px 25px rgba(0, 0, 0, 0.5)), 0 0 15px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+}
+
+.cart-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed var(--uvaco-border-color, rgba(255, 255, 255, 0.15));
+    font-size: 0.85rem;
+
+    .qty-control {
+        flex: 0 0 auto;
+        margin-top: 0;
+        gap: 0.2rem;
+    }
+
+    .btn-qty {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+        border-radius: var(--uvaco-border-radius-sm, 4px);
+    }
+
+    .qty-input {
+        width: 38px;
+        height: 24px;
+        font-size: 0.82rem;
+        border-radius: var(--uvaco-border-radius-sm, 4px);
+        padding: 0;
+    }
+}
+
+.cart-item-title {
+    color: var(--uvaco-text-primary, #faf5ff);
+    font-weight: 500;
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.cart-item-price-block {
+    flex: 0 0 auto;
+    text-align: right;
+    min-width: 80px;
+    white-space: nowrap;
+    line-height: 1.15;
+}
+
+.btn-remove-cart-item {
+    background: transparent;
+    border: none;
+    color: var(--uvaco-danger, #f43f5e);
+    opacity: 0.75;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    font-size: 0.85rem;
+    transition: var(--uvaco-transition-fast, opacity 0.2s ease, transform 0.2s ease);
+    flex: 0 0 auto;
+
+    &:hover {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+.progress-shipping {
+    height: 8px;
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border-radius: var(--uvaco-border-radius-sm, 4px);
+    overflow: hidden;
+    margin-top: 0.4rem;
+}
+
+.progress-bar-custom {
+    background: linear-gradient(90deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-accent, #ec4899) 100%);
+    height: 100%;
+    transition: width var(--uvaco-transition-slow, 0.4s ease);
+}
+
+.stat-highlight-box {
+    background-color: var(--uvaco-bg-card-inner, rgba(13, 6, 31, 0.75));
+    border-radius: var(--uvaco-border-radius-md, 8px);
+    padding: 0.75rem;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    margin-bottom: 0.75rem;
+}
+
+/* 操作按鈕群 */
+.btn-action-excel {
+    background: linear-gradient(135deg, var(--uvaco-success, #10b981) 0%, var(--uvaco-success-hover, #059669) 100%);
+    color: var(--uvaco-text-light, #ffffff);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--uvaco-border-radius-md, 8px);
+    padding: 0.6rem;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    box-shadow: 0 4px 12px var(--uvaco-success-glow, rgba(16, 124, 65, 0.3));
+
+    &:hover {
+        background: linear-gradient(135deg, var(--uvaco-success-hover, #059669) 0%, #084323 100%);
+        color: var(--uvaco-text-light, #ffffff);
+        transform: translateY(-1px);
+    }
+}
+
+.btn-action-pdf {
+    background: linear-gradient(135deg, var(--uvaco-danger, #ef4444) 0%, #991b1b 100%);
+    color: var(--uvaco-text-light, #ffffff);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--uvaco-border-radius-md, 8px);
+    padding: 0.6rem;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    box-shadow: var(--uvaco-shadow-sm, 0 4px 12px rgba(220, 38, 38, 0.3));
+
+    &:hover {
+        background: linear-gradient(135deg, var(--uvaco-danger, #ef4444) 0%, #7f1d1d 100%);
+        color: var(--uvaco-text-light, #ffffff);
+        transform: translateY(-1px);
+    }
+}
+
+.btn-action-clear {
+    background-color: transparent;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-muted, #9e8eb3);
+    border-radius: var(--uvaco-border-radius-md, 8px);
+    padding: 0.5rem;
+    width: 100%;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    font-size: 0.85rem;
+
+    &:hover {
+        background-color: var(--uvaco-bg-danger, rgba(248, 113, 113, 0.15));
+        color: var(--uvaco-danger, #ef4444);
+        border-color: var(--uvaco-danger, #ef4444);
+    }
+}
+
+/* 戰情圖表獨立卡片區塊 */
+.analytics-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--uvaco-text-primary, #ffffff);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 懸浮島 (Floating Island) */
+.floating-island-bar {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--uvaco-zindex-fixed, 1030);
+    width: min(86%, 920px);
+    background: var(--uvaco-bg-card-dark, rgba(21, 10, 42, 0.94));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.5));
+    border-radius: var(--uvaco-border-radius-xl, 16px);
+    padding: 0.75rem 1.25rem;
+    box-shadow: var(--uvaco-shadow-lg, 0 10px 30px rgba(0, 0, 0, 0.7)), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: var(--uvaco-transition-base, opacity 0.3s ease, transform 0.3s ease);
+}
+
+.floating-island-bar.is-hidden {
+    display: none !important;
+}
+
+.floating-kpi-label {
+    font-size: 0.85rem;
+    color: var(--uvaco-text-muted, #9e8eb3);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.floating-kpi-val {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.btn-toggle-floating {
+    background: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-pill, 20px);
+    padding: 0.35rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: var(--uvaco-primary, #8b5cf6);
+        color: var(--uvaco-text-light, #ffffff);
+        box-shadow: 0 0 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    }
+}
+
+.floating-wake-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    z-index: var(--uvaco-zindex-fixed, 1030);
+    background: linear-gradient(135deg, var(--uvaco-primary-hover, #7c3aed) 0%, #6d28d9 100%);
+    color: var(--uvaco-text-light, #ffffff);
+    border: 1px solid var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-pill, 30px);
+    padding: 0.6rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    box-shadow: var(--uvaco-shadow-base, 0 6px 20px rgba(0, 0, 0, 0.6)), 0 0 14px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    cursor: pointer;
+    display: none;
+    transition: var(--uvaco-transition-base, all 0.25s ease);
+
+    &:hover {
+        transform: translateY(-2px) scale(1.03);
+        background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-primary-hover, #7c3aed) 100%);
+        box-shadow: var(--uvaco-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.7)), 0 0 18px var(--uvaco-secondary-glow, rgba(192, 132, 252, 0.5));
+    }
+}
+
+@media (min-width: 1200px) {
+    .cart-summary-card {
+        position: sticky;
+        top: 20px;
+        z-index: 99;
+        transition: top 0.15s ease-out;
+    }
+    #cart-items-container {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+}
+
+@media (max-width: 576px) {
+    .floating-island-bar {
+        left: 45%;
+        width: 70%;
+        padding: 0.6rem 0.85rem;
+    }
+    .floating-kpi-val {
+        font-size: 0.95rem;
+    }
+    .floating-kpi-label {
+        font-size: 0.75rem;
+    }
+}

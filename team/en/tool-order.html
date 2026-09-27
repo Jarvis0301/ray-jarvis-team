@@ -1,117 +1,117 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark-blue">
+<html lang="en" data-bs-theme="dark-blue">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>訂購試算 | 榮祥團隊 - 團隊版</title>
+        <title>Order Calculator | Ray's Team - Team Edition</title>
 
-        <!-- 認證守衛與第三方載入器 -->
-        <script src="../assets/js/auth-guard.js"></script>
-        <script src="../assets/js/vendor-loader.js"></script>
+        <!-- Authentication Guard & Vendor Loader -->
+        <script src="../../assets/js/auth-guard.js"></script>
+        <script src="../../assets/js/vendor-loader.js"></script>
 
-        <!-- 共用核心模組與樣式 -->
-        <script src="../assets/js/common.js"></script>
-        <link rel="stylesheet" href="../assets/css/common.css">
+        <!-- Core Common Modules & Styles -->
+        <script src="../../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../../assets/css/common.css">
 
-        <!-- 頁面專屬 -->
+        <!-- Page Specific Assets -->
         <script src="./js/tool-order.js" defer></script>
         <script src="./js/tool-order-printer.js" defer></script>
         <link rel="stylesheet" href="./css/tool-order.css">
-    </head>	
-	
+    </head>
+
     <body>
         <main class="container-fluid p-3 p-md-4 pb-5 pb-md-5">
             <div class="row g-3">
-                
-                <!-- 左側：多維度搜尋篩選 + 產品選擇 -->
+
+                <!-- Left Column: Multi-Dimensional Search, Filter & Product Grid/Table -->
                 <div class="col-xl-8">
-                    
-                    <!-- 搜尋與過濾區塊 -->
+
+                    <!-- Filter & Search Panel -->
                     <section class="glass-panel mb-3">
                         <div class="row g-2 mb-2">
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="countrySelect" class="form-label"><i class="fa-solid fa-globe me-1"></i>地區</label>
+                                <label for="countrySelect" class="form-label"><i class="fa-solid fa-globe me-1"></i> Region</label>
                                 <select id="countrySelect" class="form-select form-select-sm">
-                                    <option value="ALL">全部地區</option>
-                                    <option value="TW" selected>台灣 (TW)</option>
-                                    <option value="MY">馬來西亞 (MY)</option>
+                                    <option value="ALL">All Regions</option>
+                                    <option value="TW" selected>Taiwan (TW)</option>
+                                    <option value="MY">Malaysia (MY)</option>
                                 </select>
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="mainSeriesSelect" class="form-label"><i class="fa-solid fa-folder-tree me-1"></i>主系列</label>
+                                <label for="mainSeriesSelect" class="form-label"><i class="fa-solid fa-folder-tree me-1"></i> Main Series</label>
                                 <select id="mainSeriesSelect" class="form-select form-select-sm">
-                                    <option value="ALL">全部主系列</option>
+                                    <option value="ALL">All Main Series</option>
                                 </select>
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="subSeriesSelect" class="form-label"><i class="fa-solid fa-layer-group me-1"></i>次系列</label>
+                                <label for="subSeriesSelect" class="form-label"><i class="fa-solid fa-layer-group me-1"></i> Subseries</label>
                                 <select id="subSeriesSelect" class="form-select form-select-sm" disabled>
-                                    <option value="ALL">請先選擇主系列</option>
+                                    <option value="ALL">Please Select Main Series</option>
                                 </select>
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="searchInput" class="form-label"><i class="fa-solid fa-search me-1"></i>關鍵字搜尋</label>
-                                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="搜尋名稱、成分或編號...">
+                                <label for="searchInput" class="form-label"><i class="fa-solid fa-search me-1"></i> Keyword Search</label>
+                                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search by name, spec, or SKU...">
                             </div>
                         </div>
 
-                        <!-- 產品型態按鈕過濾 -->
-                        <div class="form-label"><i class="fa-solid fa-filter me-1"></i>產品型態快速篩選</div>
+                        <!-- Product Type Filter Pills -->
+                        <div class="form-label"><i class="fa-solid fa-filter me-1"></i> Product Type Quick Filter</div>
                         <div class="row row-cols-3 row-cols-md-auto g-2 mb-2" id="typeFilterContainer">
                             <div class="col col-12">
                                 <button class="filter-pill-btn w-100 active" data-type="ALL">
-                                    <i class="fa-solid fa-border-all me-1"></i>全部
+                                    <i class="fa-solid fa-border-all me-1"></i> All
                                 </button>
                             </div>
                         </div>
 
-                        <!-- 預估職級與檢視模式切換控制 -->
+                        <!-- Rebate Rank Tier & View Switcher -->
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pt-2 border-top border-secondary border-opacity-25 gap-2">
                             <div class="d-flex align-items-center gap-2">
                                 <label for="rank-select" class="text-nowrap small text-muted mb-0">
-                                    <i class="fa-solid fa-user-graduate text-secondary me-1"></i>回饋職級：
+                                    <i class="fa-solid fa-user-graduate text-secondary me-1"></i> Rebate Tier:
                                 </label>
                                 <select id="rank-select" class="form-select form-select-sm">
-                                    <option value="0.05">會員 (5% 回饋)</option>
-                                    <option value="0.10">主任 (10% 回饋)</option>
-                                    <option value="0.15">副理 (15% 回饋)</option>
-                                    <option value="0.20" selected>經理以上 (20% 回饋)</option>
+                                    <option value="0.05">Member (5% Tiered Rebate)</option>
+                                    <option value="0.10">Associate (10% Tiered Rebate)</option>
+                                    <option value="0.15">Senior Associate (15% Tiered Rebate)</option>
+                                    <option value="0.20" selected>Master & Above (20% Tiered Rebate)</option>
                                 </select>
                             </div>
 
                             <div class="d-flex align-items-center gap-2">
-                                <span class="small text-muted"><i class="fa-solid fa-eye me-1"></i>顯示模式：</span>
+                                <span class="small text-muted"><i class="fa-solid fa-eye me-1"></i> View Mode:</span>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <button type="button" class="btn btn-outline-secondary btn-sm active" id="btn-view-card">
-                                        <i class="fa-solid fa-grip me-1"></i>卡片
+                                        <i class="fa-solid fa-grip me-1"></i> Card
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-view-table">
-                                        <i class="fa-solid fa-table-list me-1"></i>表格
+                                        <i class="fa-solid fa-table-list me-1"></i> Table
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- 產品展示區：卡片模式 -->
+                    <!-- Product Showcase: Card View -->
                     <div class="row g-3" id="productGrid"></div>
 
-                    <!-- 產品展示區：表格模式 -->
+                    <!-- Product Showcase: Table View -->
                     <div class="card d-none" id="productTableCard">
                         <div class="table-responsive">
                             <table id="productTable" class="table table-dark-custom">
                                 <thead>
                                     <tr>
-                                        <th>編號</th>
-                                        <th>產品名稱</th>
-                                        <th>次系列</th>
-                                        <th>產品型態</th>
-                                        <th>售價</th>
-                                        <th>積分</th>
-                                        <th  style="width: 120px;">訂購數量</th>
+                                        <th>SKU</th>
+                                        <th>Product Name</th>
+                                        <th>Subseries</th>
+                                        <th>Type</th>
+                                        <th>Price</th>
+                                        <th>SV</th>
+                                        <th style="width: 120px;">Order Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -120,79 +120,79 @@
                     </div>
                 </div>
 
-                <!-- 右側：訂購明細試算卡片 -->
+                <!-- Right Column: Order Calculation & Cart Summary Card -->
                 <div class="col-xl-4">
                     <div class="cart-summary-card">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 text-white fw-bold">
-                                <i class="fa-solid fa-receipt text-secondary me-1"></i>訂購明細摘要
+                                <i class="fa-solid fa-receipt text-secondary me-1"></i> Order Summary
                             </h5>
-                            <span class="badge badge-secondary fw-bold" id="total-qty-badge">0 件商品</span>
+                            <span class="badge badge-secondary fw-bold" id="total-qty-badge">0 Items</span>
                         </div>
 
-                        <!-- 幣別與匯率設定 -->
+                        <!-- Currency & FX Rate Settings -->
                         <div class="mb-3">
                             <div class="p-2 rounded bg-dark-subtle border border-secondary border-opacity-50">
                                 <div class="row g-2 align-items-center">
                                     <div class="col-6">
                                         <label for="displayCurrencySelect" class="form-label">
-                                            <i class="fa-solid fa-coins text-warning me-1"></i>結算幣別
+                                            <i class="fa-solid fa-coins text-warning me-1"></i> Currency
                                         </label>
                                         <select id="displayCurrencySelect" class="form-select form-select-sm">
-                                            <option value="TWD" selected>新台幣 (TWD)</option>
-                                            <option value="MYR">馬幣 (MYR)</option>
+                                            <option value="TWD" selected>Taiwan Dollar (TWD)</option>
+                                            <option value="MYR">Malaysian Ringgit (MYR)</option>
                                         </select>
                                     </div>
                                     <div class="col-6">
                                         <label for="exchangeRateInput" class="form-label">
-                                            <i class="fa-solid fa-arrow-right-arrow-left text-info me-1"></i>匯率 (1 MYR = ? TWD)
+                                            <i class="fa-solid fa-arrow-right-arrow-left text-info me-1"></i> FX Rate (1 MYR = ? TWD)
                                         </label>
                                         <input type="number" id="exchangeRateInput" class="form-control form-control-sm text-end" value="8.00" min="0.01" step="0.05">
                                     </div>
 
-                                    <!-- 台灣配送區域 -->
+                                    <!-- Taiwan Shipping Area -->
                                     <div class="col-12 mt-2" id="twRegionBlock">
                                         <label class="form-label d-block">
-                                            <i class="fa-solid fa-map-location-dot text-success me-1"></i>台灣運費
+                                            <i class="fa-solid fa-map-location-dot text-success me-1"></i> Taiwan Delivery Method
                                         </label>
                                         <div class="btn-group w-100" role="group">
                                             <input type="radio" class="btn-check" name="twRegion" id="twRegionPickup" value="PICKUP" checked>
-                                            <label class="btn btn-outline-secondary btn-sm" for="twRegionPickup">自取（NT$ 0）</label>
+                                            <label class="btn btn-outline-secondary btn-sm" for="twRegionPickup">Pickup (NT$ 0)</label>
                                             <input type="radio" class="btn-check" name="twRegion" id="twRegionDelivery" value="DELIVERY">
-                                            <label class="btn btn-outline-secondary btn-sm" for="twRegionDelivery">配送（NT$ 150）</label>
+                                            <label class="btn btn-outline-secondary btn-sm" for="twRegionDelivery">Delivery (NT$ 150)</label>
                                         </div>
                                     </div>
 
-                                    <!-- 馬來西亞配送區域 -->
+                                    <!-- Malaysia Shipping Area -->
                                     <div class="col-12 mt-2 d-none" id="myRegionBlock">
                                         <label class="form-label d-block">
-                                            <i class="fa-solid fa-map-location-dot text-success me-1"></i>馬來西亞運費
+                                            <i class="fa-solid fa-map-location-dot text-success me-1"></i> Malaysia Delivery Region
                                         </label>
                                         <div class="btn-group w-100" role="group">
                                             <input type="radio" class="btn-check" name="myRegion" id="myRegionPickup" value="PICKUP" checked>
-                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionPickup">自取（RM 0）</label>
+                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionPickup">Pickup (RM 0)</label>
                                             <input type="radio" class="btn-check" name="myRegion" id="myRegionWest" value="WEST">
-                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionWest">西馬（RM 15）</label>
+                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionWest">West MY (RM 15)</label>
                                             <input type="radio" class="btn-check" name="myRegion" id="myRegionEast" value="EAST">
-                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionEast">東馬（RM 35）</label>
+                                            <label class="btn btn-outline-secondary btn-sm" for="myRegionEast">East MY (RM 35)</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 已選商品項目清單 -->
+                        <!-- Cart Items Container -->
                         <div id="cart-items-container" class="mb-3">
                             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
                                 <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i>
-                                尚未選擇任何商品，請點擊數量增減選擇。
+                                No items selected yet. Please adjust quantities to add products.
                             </div>
                         </div>
 
-                        <!-- 免運費進度條 -->
+                        <!-- Free Shipping Threshold Progress -->
                         <div class="mb-3" id="shipping-progress-container">
                             <div class="d-flex justify-content-between small">
-                                <span class="text-muted"><i class="fa-solid fa-truck-fast me-1"></i>免運費門檻</span>
+                                <span class="text-muted"><i class="fa-solid fa-truck-fast me-1"></i> Free Shipping Target</span>
                                 <span id="shipping-progress-text" class="text-secondary fw-bold">0 / 400 SV</span>
                             </div>
                             <div class="progress-shipping">
@@ -200,49 +200,49 @@
                             </div>
                         </div>
 
-                        <!-- 金額與 SV 計算 Highlight 區塊 -->
+                        <!-- Statistics Highlight Box -->
                         <div class="stat-highlight-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small"><i class="fa-solid fa-coins text-yellow me-1"></i>產品金額總計：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-coins text-yellow me-1"></i> Product Subtotal:</span>
                                 <span class="text-yellow fw-bold" id="summary-subtotal">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small"><i class="fa-solid fa-truck text-primary me-1"></i>物流運費：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-truck text-primary me-1"></i> Shipping Fee:</span>
                                 <span class="text-white fw-bold" id="summary-shipping">NT$ 0</span>
                             </div>
                             <hr class="my-2 border-secondary border-opacity-50">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary fw-bold"><i class="fa-solid fa-wallet text-orange me-1"></i>應付總金額：</span>
+                                <span class="text-secondary fw-bold"><i class="fa-solid fa-wallet text-orange me-1"></i> Total Payable:</span>
                                 <span class="h4 text-orange fw-bold" id="summary-grand-total">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small"><i class="fa-solid fa-chart-line text-teal me-1"></i>累積總積分：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-chart-line text-teal me-1"></i> Total Accumulated SV:</span>
                                 <span class="text-teal fw-bold" id="summary-total-sv">0 SV</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary small"><i class="fa-solid fa-hand-holding-dollar text-info me-1"></i>預估階差金：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-hand-holding-dollar text-info me-1"></i> Estimated Rebate:</span>
                                 <span class="text-info fw-bold" id="summary-rebate-cash">NT$ 0</span>
                             </div>
                             <div class="text-warning mt-2 d-none" id="rebate-sv-warning">
-                                <i class="fa-solid fa-triangle-exclamation me-1"></i>當月累積須達160 SV方可領取階差獎金
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> Monthly accumulated SV must reach 160 SV to receive Tiered Rebate.
                             </div>
                         </div>
 
-                        <!-- 下載與清空按鈕群 -->
+                        <!-- Action Buttons -->
                         <div class="row g-2">
                             <div class="col-4">
                                 <button class="btn-action-excel w-100 px-1 text-nowrap" id="btn-export-excel">
-                                    <i class="fa-solid fa-file-excel me-1"></i>Excel
+                                    <i class="fa-solid fa-file-excel me-1"></i> Excel
                                 </button>
                             </div>
                             <div class="col-4">
                                 <button class="btn-action-pdf w-100 px-1 text-nowrap" id="btn-export-pdf">
-                                    <i class="fa-solid fa-file-pdf me-1"></i>PDF
+                                    <i class="fa-solid fa-file-pdf me-1"></i> PDF
                                 </button>
                             </div>
                             <div class="col-4">
                                 <button class="btn-action-clear w-100 px-1 text-nowrap h-100" id="btn-clear-all">
-                                    <i class="fa-solid fa-trash-can me-1"></i>清空
+                                    <i class="fa-solid fa-trash-can me-1"></i> Clear
                                 </button>
                             </div>
                         </div>
@@ -250,45 +250,45 @@
                 </div>
             </div>
 
-            <!-- 數據統計圖表戰情中心 -->
+            <!-- Analytics & Strategic Intelligence Section -->
             <div class="analytics-section-title d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2 mb-3" id="analyticsSection">
                 <div class="d-flex align-items-center gap-2 text-nowrap">
-                    <span class="fw-bold"><i class="fa-solid fa-chart-line text-secondary me-1"></i>訂購數據統計</span>
+                    <span class="fw-bold"><i class="fa-solid fa-chart-line text-secondary me-1"></i> Order Analytics & Strategic Data Center</span>
                 </div>
-                
+
                 <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-lg-end">
                     <div class="d-flex align-items-center bg-dark-subtle p-1 rounded border border-secondary border-opacity-50">
-                        <span class="small text-secondary px-2"><i class="fa-solid fa-hashtag text-secondary me-1"></i>列印數據：</span>
+                        <span class="small text-secondary px-2"><i class="fa-solid fa-hashtag text-secondary me-1"></i> Print Labels:</span>
                         <div class="btn-group btn-group-sm" role="group" id="btnGroupShowData">
                             <button type="button" class="btn btn-outline-secondary active" data-value="true">
-                                <i class="fa-solid fa-eye me-1"></i>顯示數值
+                                <i class="fa-solid fa-eye me-1"></i> Show Values
                             </button>
                             <button type="button" class="btn btn-outline-secondary" data-value="false">
-                                <i class="fa-solid fa-eye-slash me-1"></i>隱藏數值
+                                <i class="fa-solid fa-eye-slash me-1"></i> Hide Values
                             </button>
                         </div>
                     </div>
 
                     <button class="btn btn-sm btn-secondary text-dark fw-bold rounded-pill px-3" id="btnPrintAnalytics">
-                        <i class="fa-solid fa-file-pdf me-1"></i>列印統計圖表 (PDF)
+                        <i class="fa-solid fa-file-pdf me-1"></i> Print Report (PDF)
                     </button>
                 </div>
             </div>
 
             <div class="row g-3 mb-4">
-                <!-- 圖表 1：主系列整體占比 -->
+                <!-- Chart 1: Main Series Breakdown -->
                 <div class="col-12 col-lg-6">
                     <div class="card h-100">
                         <div class="card-header">
-                            <span><i class="fa-solid fa-chart-pie text-cyan me-1"></i>1. 主系列整體占比分析</span>
+                            <span><i class="fa-solid fa-chart-pie text-cyan me-1"></i> 1. Main Series Breakdown Analysis</span>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <button type="button" class="btn btn-outline-cyan active chart1-metric-btn" data-metric="TWD">TWD</button>
                                     <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="MYR">MYR</button>
                                     <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="SV">SV</button>
                                 </div>
-                                <button class="btn btn-sm btn-cyan fw-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
-                                    <i class="fa-solid fa-sitemap me-1"></i>子系列明細
+                                <button class="btn btn-sm btn-cyan fw-bold" id="btnOpenSubSeriesModal" title="View Subseries Breakdown">
+                                    <i class="fa-solid fa-sitemap me-1"></i> Subseries Details
                                 </button>
                             </div>
                         </div>
@@ -298,11 +298,11 @@
                     </div>
                 </div>
 
-                <!-- 圖表 2：主系列採購數據對比 -->
+                <!-- Chart 2: Category Purchasing Distribution -->
                 <div class="col-12 col-lg-6">
                     <div class="card h-100">
                         <div class="card-header">
-                            <span><i class="fa-solid fa-chart-column text-purple me-1"></i>2. 各系列採購數據分佈</span>
+                            <span><i class="fa-solid fa-chart-column text-purple me-1"></i> 2. Category Purchasing Distribution</span>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-purple active chartBar-metric-btn" data-metric="TWD">TWD</button>
                                 <button type="button" class="btn btn-outline-purple chartBar-metric-btn" data-metric="MYR">MYR</button>
@@ -315,12 +315,12 @@
                     </div>
                 </div>
 
-                <!-- 圖表 3：產品型態訂購數量統計 -->
+                <!-- Chart 3: Product Type Order Volume -->
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="card h-100">
                         <div class="chart-header">
-                            <span><i class="fa-solid fa-chart-simple text-green me-1"></i>3. 型態訂購數量統計</span>
-                            <span class="badge badge-green fs-8">全型態</span>
+                            <span><i class="fa-solid fa-chart-simple text-green me-1"></i> 3. Order Volume by Product Type</span>
+                            <span class="badge badge-green fs-8">All Types</span>
                         </div>
                         <div class="card-chart-container-transparent">
                             <canvas id="chartTypeQty"></canvas>
@@ -328,11 +328,11 @@
                     </div>
                 </div>
 
-                <!-- 圖表 4：單品採購 Top 5 -->
+                <!-- Chart 4: Top 5 Purchased Products -->
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="card h-100">
                         <div class="card-header">
-                            <span><i class="fa-solid fa-trophy text-yellow me-1"></i>4. 單品採購 Top 5</span>
+                            <span><i class="fa-solid fa-trophy text-yellow me-1"></i> 4. Top 5 Purchased Items</span>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-yellow active chart4-metric-btn" data-metric="TWD">TWD</button>
                                 <button type="button" class="btn btn-outline-yellow chart4-metric-btn" data-metric="MYR">MYR</button>
@@ -345,11 +345,11 @@
                     </div>
                 </div>
 
-                <!-- 圖表 5：型態數據貢獻雷達圖 -->
+                <!-- Chart 5: Product Type Contribution Radar -->
                 <div class="col-12 col-md-12 col-xl-4">
                     <div class="card h-100">
                         <div class="card-header">
-                            <span><i class="fa-solid fa-chart-area text-red me-1"></i>5. 型態貢獻雷達圖</span>
+                            <span><i class="fa-solid fa-chart-area text-red me-1"></i> 5. Product Type Contribution Radar</span>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-red active chart5-metric-btn" data-metric="TWD">TWD</button>
                                 <button type="button" class="btn btn-outline-red chart5-metric-btn" data-metric="MYR">MYR</button>
@@ -363,13 +363,13 @@
                 </div>
             </div>
 
-            <!-- 懸浮子系列環形圖 Modal -->
+            <!-- Subseries Breakdown Modal -->
             <div class="modal fade" id="subSeriesChartsModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                         <div class="modal-header border-secondary">
                             <h5 class="modal-title">
-                                <i class="fa-solid fa-sitemap text-info me-1"></i>主系列 - 子系列選購明細占比 (僅顯示選購項目)
+                                <i class="fa-solid fa-sitemap text-info me-1"></i> Main Series - Subseries Order Breakdown (Selected Items Only)
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -378,7 +378,7 @@
                         </div>
                         <div class="modal-footer border-secondary">
                             <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                                <i class="fa-solid fa-xmark me-1"></i>關閉
+                                <i class="fa-solid fa-xmark me-1"></i> Close
                             </button>
                         </div>
                     </div>
@@ -386,39 +386,39 @@
             </div>
         </main>
 
-        <!-- 懸浮島 (Floating Suspended Island) -->
+        <!-- Floating Suspended Island -->
         <div class="floating-island-bar" id="floatingIslandBar">
             <div class="row align-items-center">
                 <div class="col-2 col-md-1">
-                    <button class="btn-toggle-floating" id="btnHideFloatingBar" title="收合懸浮島">
+                    <button class="btn-toggle-floating" id="btnHideFloatingBar" title="Collapse Floating Bar">
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
                 <div class="col-10 col-md-11">
                     <div class="row">
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-orange me-1"></i>應付總金額：</span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-orange me-1"></i> Total Payable:</span>
                             <span class="floating-kpi-val text-orange" id="sticky-grand-total">NT$ 0</span>
                         </div>
                         <div class="w-100 d-block d-md-none"></div>
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-teal me-1"></i>累積總積分：</span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-teal me-1"></i> Accumulated SV:</span>
                             <span class="floating-kpi-val text-teal" id="sticky-total-sv">0 SV</span>
                         </div>
                         <div class="w-100 d-block d-md-none"></div>
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-info me-1"></i>預估階差金：</span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-info me-1"></i> Estimated Rebate:</span>
                             <span class="floating-kpi-val text-info" id="sticky-rebate-cash">NT$ 0</span>
-                            <span class="small text-warning d-none ms-1" id="sticky-rebate-warning">(未達160 SV)</span>
+                            <span class="small text-warning d-none ms-1" id="sticky-rebate-warning">(< 160 SV)</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 浮動喚醒按鈕 -->
+        <!-- Floating Wake Button -->
         <button class="floating-wake-btn" id="btnShowFloatingBar">
-            <i class="fa-solid fa-chart-pie me-1"></i>總計
+            <i class="fa-solid fa-chart-pie me-1"></i> Summary
         </button>
     </body>
 </html>

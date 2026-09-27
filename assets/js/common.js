@@ -440,7 +440,6 @@ async function loadPerformanceCalendar() {
 
         // 注入全域 AppDate 記憶體快取
         AppDate.initPerfCalendars(calendarList);
-        console.log(`<i class="fa-solid fa-calendar-check"></i> 業績日曆載入成功（共 ${calendarList.length} 個月）`);
 
     } catch (err) {
         console.warn('業績日曆載入失敗，已切換至自然月份運作：', err);

@@ -9103,6 +9103,26 @@ body {
   border-bottom: 2px solid var(--uvaco-border-glow) !important;
 }
 .table-dark-custom {
+  /* 表尾統計與欄位摘要 (tfoot) */
+}
+.table-dark-custom tfoot {
+  border-top: 2px solid var(--uvaco-border-glow) !important;
+}
+.table-dark-custom tfoot th,
+.table-dark-custom tfoot td {
+  background-color: var(--uvaco-bg-card-hover) !important;
+  font-weight: 600;
+  padding: 0.75rem 1rem !important; /* 左右 padding 與 thead / tbody 嚴格一致，防止欄寬偏差 */
+  vertical-align: middle;
+  white-space: nowrap !important;
+  border-top: 2px solid var(--uvaco-border-color) !important;
+  border-bottom: 2px solid var(--uvaco-border-glow) !important;
+}
+.table-dark-custom tfoot tr:hover th,
+.table-dark-custom tfoot tr:hover td {
+  background-color: var(--uvaco-bg-card-hover) !important;
+}
+.table-dark-custom {
   /* 限制表格內頭像與產品縮圖尺寸，防止非同步載入撐開欄位 */
 }
 .table-dark-custom img.avatar-img,
@@ -9124,12 +9144,27 @@ body {
 }
 .dataTables_wrapper .dataTables_scrollHeadInner {
   box-sizing: content-box !important;
+  width: 100% !important;
 }
 .dataTables_wrapper .dataTables_scrollHeadInner table {
+  width: 100% !important;
   margin-bottom: 0 !important;
 }
 .dataTables_wrapper .dataTables_scrollBody table {
+  width: 100% !important;
   border-bottom: 1px solid var(--uvaco-border-color) !important;
+  margin-bottom: 0 !important;
+}
+.dataTables_wrapper .dataTables_scrollFoot {
+  overflow: hidden !important;
+}
+.dataTables_wrapper .dataTables_scrollFootInner {
+  box-sizing: content-box !important;
+  width: 100% !important;
+}
+.dataTables_wrapper .dataTables_scrollFootInner table {
+  width: 100% !important;
+  border-top: none !important;
   margin-bottom: 0 !important;
 }
 

@@ -1,12 +1,54 @@
-// ==========================================
-// 全域列印與手機版 PDF/明細下載模組 (order-printer.js)
-// ==========================================
+// ==========================================================================
+// UVACO Ray's Team Portal - Order & Analytics Printer Module (order-printer.js)
+// ==========================================================================
 
+/**
+ * Helper to safely copy text to clipboard with legacy fallback
+ */
+function safeCopyTextToClipboard(text, successMsg, failMsg) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (typeof AppToast !== 'undefined') AppToast.success(successMsg);
+        }).catch(() => {
+            fallbackCopyText(text, successMsg, failMsg);
+        });
+    } else {
+        fallbackCopyText(text, successMsg, failMsg);
+    }
+}
+
+function fallbackCopyText(text, successMsg, failMsg) {
+    try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        if (successful) {
+            if (typeof AppToast !== 'undefined') AppToast.success(successMsg);
+        } else {
+            throw new Error("Copy command failed");
+        }
+    } catch (err) {
+        if (typeof AppToast !== 'undefined') AppToast.error(failMsg);
+    }
+}
+
+/**
+ * 1. Desktop & Mobile Order Receipt Printer
+ */
 function printOrderReceipt(orderData) {
     const { items, subtotal, shipping, grandTotal, totalSV, rebate, currencySymbol, dateStr } = orderData;
 
     if (!items || items.length === 0) {
-        AppToast.warning("請先選擇至少一項商品後再進行列印 / 匯出！");
+        if (typeof AppToast !== 'undefined') {
+            AppToast.warning("Please select at least one product before printing or exporting!");
+        }
         return;
     }
 
@@ -43,7 +85,7 @@ function printOrderReceipt(orderData) {
                     color: #1f2937 !important;
                     padding: 20px !important;
                     box-sizing: border-box !important;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
                 }
                 @page {
                     size: A4 portrait;
@@ -57,6 +99,8 @@ function printOrderReceipt(orderData) {
         document.head.appendChild(style);
     }
 
+    const displayDate = dateStr || (typeof AppDate !== 'undefined' && typeof AppDate.toDisplay === 'function' ? AppDate.toDisplay(new Date()) : new Date().toLocaleString());
+
     let rowsHtml = items.map(item => `
         <tr>
             <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-weight: bold; font-size: 13px;">${item.code}</td>
@@ -69,18 +113,18 @@ function printOrderReceipt(orderData) {
 
     printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px;">
-            <h2 style="margin: 0 0 6px 0; color: #0284c7; font-size: 22px;">葡眾團隊 - 線上訂購試算單</h2>
-            <p style="margin: 0; color: #6b7280; font-size: 12px;">列印 / 匯出時間：${AppDate.now('full')}</p>
+            <h2 style="margin: 0 0 6px 0; color: #0284c7; font-size: 22px;">UVACO Ray's Team - Online Order Calculation Sheet</h2>
+            <p style="margin: 0; color: #6b7280; font-size: 12px;">Generated Date: ${displayDate}</p>
         </div>
 
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
                 <tr style="background-color: #f3f4f6;">
-                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: left; font-size: 13px;">產品編號</th>
-                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: left; font-size: 13px;">產品名稱</th>
-                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: center; font-size: 13px;">數量</th>
-                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: right; font-size: 13px;">小計金額</th>
-                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: right; font-size: 13px;">小計 SV</th>
+                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: left; font-size: 13px;">SKU Code</th>
+                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: left; font-size: 13px;">Product Name</th>
+                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: center; font-size: 13px;">Qty</th>
+                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: right; font-size: 13px;">Subtotal Amount</th>
+                    <th style="padding: 8px 10px; border-bottom: 2px solid #d1d5db; text-align: right; font-size: 13px;">Subtotal SV</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,37 +132,40 @@ function printOrderReceipt(orderData) {
             </tbody>
         </table>
 
-        <div style="width: 280px; margin-left: auto; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
+        <div style="width: 290px; margin-left: auto; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px;">
-                <span>產品金額合計：</span>
+                <span>Product Subtotal:</span>
                 <strong>${currencySymbol}${Math.round(subtotal).toLocaleString()}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px;">
-                <span>物流運費：</span>
-                <strong>${shipping > 0 ? `${currencySymbol}${Math.round(shipping).toLocaleString()}` : "免運費"}</strong>
+                <span>Shipping Fee:</span>
+                <strong>${shipping > 0 ? `${currencySymbol}${Math.round(shipping).toLocaleString()}` : "Free Shipping"}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 15px; font-weight: bold; color: #d97706; border-top: 1px solid #e5e7eb; padding-top: 6px;">
-                <span>應付總金額：</span>
+                <span>Total Payable:</span>
                 <span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: #16a34a; font-weight: bold;">
-                <span>累積總積分：</span>
+                <span>Accumulated SV:</span>
                 <span>${totalSV.toLocaleString()} SV</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 13px; color: #0284c7; font-weight: bold;">
-                <span>預估現金回饋：</span>
+                <span>Estimated Rebate:</span>
                 <span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span>
             </div>
         </div>
 
         <div style="margin-top: 30px; text-align: center; font-size: 11px; color: #9ca3af; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
-            * 本試算單僅供預估參考，實際訂購金額與回饋金請以公司正式發票與帳單為準。
+            * This calculation sheet is for planning and estimation purposes only. Actual order charges and cash rebates are subject to official company invoices and bonus statements.
         </div>
     `;
 
     window.print();
 }
 
+/**
+ * 2. In-App Browser & Mobile Receipt Modal
+ */
 function showMobileReceiptModal(orderData) {
     const { items, subtotal, shipping, grandTotal, totalSV, rebate, currencySymbol, dateStr } = orderData;
 
@@ -130,7 +177,7 @@ function showMobileReceiptModal(orderData) {
                 <div class="modal-content bg-dark text-light border-secondary">
                     <div class="modal-header border-secondary">
                         <h5 class="modal-title">
-                            <i class="fa-solid fa-receipt text-info me-1"></i>訂購試算單明細
+                            <i class="fa-solid fa-receipt text-info me-1"></i> Order Calculation Details
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -138,13 +185,13 @@ function showMobileReceiptModal(orderData) {
                     </div>
                     <div class="modal-footer border-secondary flex-column flex-sm-row gap-2">
                         <button type="button" class="btn btn-outline-info btn-sm w-100 w-sm-auto rounded-pill" id="btnDownloadReceiptHtml">
-                            <i class="fa-solid fa-file-arrow-down me-1"></i>下載單據檔 (.html)
+                            <i class="fa-solid fa-file-arrow-down me-1"></i> Download Receipt (.html)
                         </button>
                         <button type="button" class="btn btn-outline-success btn-sm w-100 w-sm-auto rounded-pill" id="btnCopyReceiptText">
-                            <i class="fa-solid fa-copy me-1"></i>複製文字明細
+                            <i class="fa-solid fa-copy me-1"></i> Copy Text Summary
                         </button>
                         <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnTryMobilePrint">
-                            <i class="fa-solid fa-print me-1"></i>嘗試系統列印
+                            <i class="fa-solid fa-print me-1"></i> Print / Save PDF
                         </button>
                     </div>
                 </div>
@@ -154,11 +201,13 @@ function showMobileReceiptModal(orderData) {
         modalElem = document.getElementById('mobileReceiptModal');
     }
 
+    const displayDate = dateStr || (typeof AppDate !== 'undefined' && typeof AppDate.toDisplay === 'function' ? AppDate.toDisplay(new Date()) : new Date().toLocaleString());
+
     let itemsHtml = items.map(item => `
         <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary border-opacity-25">
             <div>
                 <div class="fw-bold text-light">${item.name}</div>
-                <div class="small text-muted">${item.code} x ${item.qty}</div>
+                <div class="small text-muted">${item.code} × ${item.qty}</div>
             </div>
             <div class="text-end">
                 <div class="text-warning fw-bold">${currencySymbol}${Math.round(item.price).toLocaleString()}</div>
@@ -167,23 +216,23 @@ function showMobileReceiptModal(orderData) {
         </div>
     `).join('');
 
-    let textSummary = `【葡眾團隊 - 訂購試算單】\n日期：${AppDate.toDisplay(new Date())}\n--------------------\n`;
+    let textSummary = `【UVACO Ray's Team - Order Calculation Sheet】\nDate: ${displayDate}\n--------------------\n`;
     items.forEach(item => {
-        textSummary += `${item.name} x${item.qty} = ${currencySymbol}${Math.round(item.price)}\n`;
+        textSummary += `${item.name} × ${item.qty} = ${currencySymbol}${Math.round(item.price).toLocaleString()} (${item.sv.toLocaleString()} SV)\n`;
     });
-    textSummary += `--------------------\n金額合計：${currencySymbol}${Math.round(subtotal)}\n運費：${shipping > 0 ? currencySymbol + Math.round(shipping) : '免運費'}\n應付總額：${currencySymbol}${Math.round(grandTotal)}\n累積積分：${totalSV} SV\n預估回饋金：${currencySymbol}${Math.round(rebate)}`;
+    textSummary += `--------------------\nProduct Subtotal: ${currencySymbol}${Math.round(subtotal).toLocaleString()}\nShipping Fee: ${shipping > 0 ? currencySymbol + Math.round(shipping).toLocaleString() : 'Free Shipping'}\nTotal Payable: ${currencySymbol}${Math.round(grandTotal).toLocaleString()}\nAccumulated SV: ${totalSV.toLocaleString()} SV\nEstimated Rebate: ${currencySymbol}${Math.round(rebate).toLocaleString()}`;
 
     document.getElementById('mobileReceiptModalBody').innerHTML = `
         <div class="p-2 mb-3 bg-light bg-opacity-10 rounded small text-secondary">
-            <i class="fa-solid fa-circle-info text-warning me-1"></i>若您使用的是 LINE 或 FB 內建瀏覽器，建議直接點擊下方<b>「下載單據檔」</b>或<b>「複製文字明細」</b>進行儲存。
+            <i class="fa-solid fa-circle-info text-warning me-1"></i> If you are using an in-app browser (such as LINE, Facebook, or Instagram), we recommend tapping <b>"Download Receipt"</b> or <b>"Copy Text Summary"</b> below.
         </div>
         <div class="mb-3">${itemsHtml}</div>
         <div class="p-3 bg-dark-subtle rounded border border-secondary border-opacity-50">
-            <div class="d-flex justify-content-between mb-1 text-warning"><span>產品金額合計：</span><strong>${currencySymbol}${Math.round(subtotal).toLocaleString()}</strong></div>
-            <div class="d-flex justify-content-between mb-1 text-secondary"><span>物流運費：</span><strong>${shipping > 0 ? currencySymbol + Math.round(shipping).toLocaleString() : '免運費'}</strong></div>
-            <div class="d-flex justify-content-between mb-1 text-orange h6 fw-bold"><span>應付總金額：</span><span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span></div>
-            <div class="d-flex justify-content-between mb-1 text-teal"><span>累積總積分：</span><span>${totalSV.toLocaleString()} SV</span></div>
-            <div class="d-flex justify-content-between text-info"><span>預估現金回饋：</span><span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span></div>
+            <div class="d-flex justify-content-between mb-1 text-warning"><span>Product Subtotal:</span><strong>${currencySymbol}${Math.round(subtotal).toLocaleString()}</strong></div>
+            <div class="d-flex justify-content-between mb-1 text-secondary"><span>Shipping Fee:</span><strong>${shipping > 0 ? currencySymbol + Math.round(shipping).toLocaleString() : 'Free Shipping'}</strong></div>
+            <div class="d-flex justify-content-between mb-1 text-orange h6 fw-bold"><span>Total Payable:</span><span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span></div>
+            <div class="d-flex justify-content-between mb-1 text-teal"><span>Accumulated SV:</span><span>${totalSV.toLocaleString()} SV</span></div>
+            <div class="d-flex justify-content-between text-info"><span>Estimated Rebate:</span><span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span></div>
         </div>
     `;
 
@@ -191,22 +240,18 @@ function showMobileReceiptModal(orderData) {
     bsModal.show();
 
     document.getElementById('btnDownloadReceiptHtml').onclick = function () {
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>訂購試算單_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style></head><body><h2>葡眾團隊 - 訂購試算單</h2><p>日期：${AppDate.now('full')}</p><hr><pre style="font-size:14px;background:#f4f4f4;padding:15px;border-radius:8px;">${textSummary}</pre></body></html>`;
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Order_Receipt_${displayDate}</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style></head><body><h2>UVACO Ray's Team - Order Calculation Sheet</h2><p>Date: ${displayDate}</p><hr><pre style="font-size:14px;background:#f4f4f4;padding:15px;border-radius:8px;">${textSummary}</pre></body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `葡眾訂購試算單_${dateStr}.html`;
+        a.download = `UVACO_Order_Receipt_${displayDate}.html`;
         a.click();
         URL.revokeObjectURL(url);
     };
 
     document.getElementById('btnCopyReceiptText').onclick = function () {
-        navigator.clipboard.writeText(textSummary).then(() => {
-            AppToast.success("訂購明細已複製到剪貼簿！");
-        }).catch(() => {
-            AppToast.error("複製失敗，請手動複製");
-        });
+        safeCopyTextToClipboard(textSummary, "Order summary copied to clipboard!", "Failed to copy. Please copy manually.");
     };
 
     document.getElementById('btnTryMobilePrint').onclick = function () {
@@ -217,6 +262,9 @@ function showMobileReceiptModal(orderData) {
     };
 }
 
+/**
+ * 3. Desktop Analytics Tactical Report Printer (PDF)
+ */
 function printAnalyticsReport(reportData) {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isInAppBrowser = /Line|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent);
@@ -249,7 +297,7 @@ function printAnalyticsReport(reportData) {
                     color: #0f172a !important;
                     padding: 15px !important;
                     box-sizing: border-box !important;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
                 }
                 @page { size: A4 portrait; margin: 10mm; }
             }
@@ -259,44 +307,45 @@ function printAnalyticsReport(reportData) {
     }
 
     const { dateStr, chart1, chart2, chart3, chart4, chart5 } = reportData;
+    const displayDate = dateStr || (typeof AppDate !== 'undefined' && typeof AppDate.toDisplay === 'function' ? AppDate.toDisplay(new Date()) : new Date().toLocaleString());
 
-    let chart1TableHtml = chart1.rows.map(r => `
+    let chart1TableHtml = (chart1?.rows || []).map(r => `
         <tr>
             <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; color: #334155;">${r.name}</td>
             <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #0f172a;">
-                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${r.val.toLocaleString()}${chart1.metric}`}
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${Number(r.val).toLocaleString()}${chart1.metric}`}
             </td>
             <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #0284c7; font-weight: bold;">${r.pct}%</td>
         </tr>
     `).join('');
 
-    let chart4TableHtml = chart4.rows.map((r, i) => `
+    let chart4TableHtml = (chart4?.rows || []).map((r, i) => `
         <tr>
-            <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; color: #334155;">第 ${i + 1} 名：${r.name}</td>
+            <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; color: #334155;">#${i + 1} ${r.name}</td>
             <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #d97706;">
-                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart4.metric }) : `${r.val.toLocaleString()}${chart4.metric}`}
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart4.metric }) : `${Number(r.val).toLocaleString()}${chart4.metric}`}
             </td>
         </tr>
     `).join('');
 
     printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 15px;">
-            <h2 style="margin: 0 0 4px 0; color: #0284c7; font-size: 20px;">葡眾團隊 - 訂購戰情分析報告 (PDF)</h2>
-            <p style="margin: 0; color: #64748b; font-size: 11px;">產生時間：${AppDate.now('full')}</p>
+            <h2 style="margin: 0 0 4px 0; color: #0284c7; font-size: 20px;">UVACO Ray's Team - Order Tactical Analytics Report (PDF)</h2>
+            <p style="margin: 0; color: #64748b; font-size: 11px;">Generated Date: ${displayDate}</p>
         </div>
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fafafa;">
             <div style="width: 52%; text-align: center;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-pie me-1"></i>1. 主系列整體占比分析 (${chart1.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-pie me-1"></i> 1. Main Series Breakdown (${chart1.metric})</h4>
                 <img src="${chart1.img}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
             </div>
             <div style="width: 48%;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #475569;">
-                            <th style="padding: 6px; text-align: left;">主系列</th>
-                            <th style="padding: 6px; text-align: right;">數值</th>
-                            <th style="padding: 6px; text-align: right;">占比</th>
+                            <th style="padding: 6px; text-align: left;">Series Category</th>
+                            <th style="padding: 6px; text-align: right;">Value</th>
+                            <th style="padding: 6px; text-align: right;">Share</th>
                         </tr>
                     </thead>
                     <tbody>${chart1TableHtml}</tbody>
@@ -306,37 +355,40 @@ function printAnalyticsReport(reportData) {
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center;">
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-column me-1"></i>2. 各系列採購數據 (${chart2.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-column me-1"></i> 2. Series Procurement Distribution (${chart2.metric})</h4>
                 <img src="${chart2.img}" style="max-width: 100%; max-height: 170px; object-fit: contain;">
             </div>
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-simple me-1"></i>3. 型態訂購數量統計</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-simple me-1"></i> 3. Formulation Order Quantity</h4>
                 <img src="${chart3.img}" style="max-width: 100%; max-height: 170px; object-fit: contain;">
             </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start;">
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-trophy me-1"></i>4. 單品採購 Top 5 (${chart4.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-trophy me-1"></i> 4. Top 5 Purchased Products (${chart4.metric})</h4>
                 <img src="${chart4.img}" style="max-width: 100%; max-height: 150px; object-fit: contain;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 6px;">
                     <tbody>${chart4TableHtml}</tbody>
                 </table>
             </div>
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-radar me-1"></i>5. 型態貢獻雷達圖 (${chart5.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-area me-1"></i> 5. Formulation Contribution Radar (${chart5.metric})</h4>
                 <img src="${chart5.img}" style="max-width: 100%; max-height: 200px; object-fit: contain;">
             </div>
         </div>
 
         <div style="margin-top: 15px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 6px;">
-            * 本報告數據依據當前選取之幣別/SV指標與動態統計結果自動繪製輸出。
+            * Report charts and metrics generated dynamically based on active currency / SV filter values.
         </div>
     `;
 
     window.print();
 }
 
+/**
+ * 4. In-App Browser & Mobile Analytics Report Modal
+ */
 function showMobileAnalyticsModal(reportData) {
     const { dateStr, chart1, chart2, chart3, chart4, chart5 } = reportData;
 
@@ -348,7 +400,7 @@ function showMobileAnalyticsModal(reportData) {
                 <div class="modal-content bg-light text-dark border-secondary">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title text-primary">
-                            <i class="fa-solid fa-chart-pie me-1"></i>戰情圖表報告預覽
+                            <i class="fa-solid fa-chart-pie me-1"></i> Analytics Report Preview
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -356,10 +408,10 @@ function showMobileAnalyticsModal(reportData) {
                     </div>
                     <div class="modal-footer border-top flex-column flex-sm-row gap-2">
                         <button type="button" class="btn btn-outline-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnDownloadAnalyticsHtml">
-                            <i class="fa-solid fa-file-arrow-down me-1"></i>下載電子報告檔 (.html)
+                            <i class="fa-solid fa-file-arrow-down me-1"></i> Download Report File (.html)
                         </button>
                         <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnTryAnalyticsPrint">
-                            <i class="fa-solid fa-print me-1"></i>嘗試系統列印 / PDF
+                            <i class="fa-solid fa-print me-1"></i> Print / Save PDF
                         </button>
                     </div>
                 </div>
@@ -369,40 +421,42 @@ function showMobileAnalyticsModal(reportData) {
         modalElem = document.getElementById('mobileAnalyticsModal');
     }
 
-    let chart1RowsHtml = chart1.rows.map(r => `
+    const displayDate = dateStr || (typeof AppDate !== 'undefined' && typeof AppDate.toDisplay === 'function' ? AppDate.toDisplay(new Date()) : new Date().toLocaleString());
+
+    let chart1RowsHtml = (chart1?.rows || []).map(r => `
         <div class="d-flex justify-content-between py-1 border-bottom small">
             <span class="text-secondary">${r.name}</span>
             <span class="fw-bold text-primary">
-                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${r.val.toLocaleString()}${chart1.metric}`} (${r.pct}%)
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${Number(r.val).toLocaleString()}${chart1.metric}`} (${r.pct}%)
             </span>
         </div>
     `).join('');
 
     document.getElementById('mobileAnalyticsModalBody').innerHTML = `
         <div class="p-2 mb-3 bg-light border rounded small text-secondary">
-            <i class="fa-solid fa-circle-info text-warning me-1"></i>若使用 LINE 或 FB 內建瀏覽器，點擊下方<b>「下載電子報告檔」</b>即可儲存包含完整戰情圖表的白底明亮檔案。
+            <i class="fa-solid fa-circle-info text-warning me-1"></i> In LINE or Facebook in-app browser, click <b>"Download Report File"</b> below to export a full standalone HTML report.
         </div>
 
         <div class="row g-3">
             <div class="col-12 col-md-6 text-center">
-                <h6 class="text-primary fw-bold mb-2">1. 主系列占比 (${chart1.metric})</h6>
+                <h6 class="text-primary fw-bold mb-2">1. Main Series Breakdown (${chart1.metric})</h6>
                 <img src="${chart1.img}" class="img-fluid rounded border p-1 bg-white" style="max-height: 180px;">
                 <div class="mt-2 text-start">${chart1RowsHtml}</div>
             </div>
             <div class="col-12 col-md-6 text-center">
-                <h6 class="text-primary fw-bold mb-2">2. 各系列採購數據 (${chart2.metric})</h6>
+                <h6 class="text-primary fw-bold mb-2">2. Series Distribution (${chart2.metric})</h6>
                 <img src="${chart2.img}" class="img-fluid rounded border p-1 bg-white" style="max-height: 180px;">
             </div>
             <div class="col-12 col-md-6 text-center">
-                <h6 class="text-success fw-bold mb-2">3. 型態數量統計</h6>
+                <h6 class="text-success fw-bold mb-2">3. Formulation Quantity</h6>
                 <img src="${chart3.img}" class="img-fluid rounded border p-1 bg-white" style="max-height: 180px;">
             </div>
             <div class="col-12 col-md-6 text-center">
-                <h6 class="text-warning fw-bold mb-2">4. 單品採購 Top 5 (${chart4.metric})</h6>
+                <h6 class="text-warning fw-bold mb-2">4. Top 5 Products (${chart4.metric})</h6>
                 <img src="${chart4.img}" class="img-fluid rounded border p-1 bg-white" style="max-height: 180px;">
             </div>
             <div class="col-12 text-center">
-                <h6 class="text-danger fw-bold mb-2">5. 型態貢獻雷達圖 (${chart5.metric})</h6>
+                <h6 class="text-danger fw-bold mb-2">5. Formulation Radar (${chart5.metric})</h6>
                 <img src="${chart5.img}" class="img-fluid rounded border p-1 bg-white" style="max-height: 200px;">
             </div>
         </div>
@@ -412,12 +466,12 @@ function showMobileAnalyticsModal(reportData) {
     bsModal.show();
 
     document.getElementById('btnDownloadAnalyticsHtml').onclick = function () {
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>戰情報告_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;background:#ffffff;color:#0f172a;} .card{background:#f8fafc;padding:15px;margin-bottom:15px;border-radius:8px;border:1px solid #e2e8f0;} img{max-width:100%;height:auto;}</style></head><body><h2>葡眾團隊 - 訂購戰情分析報告</h2><p>產生時間：${AppDate.now('full')}</p><hr><div class="card"><h3>1. 主系列占比 (${chart1.metric})</h3><img src="${chart1.img}"></div><div class="card"><h3>2. 各系列數據分佈 (${chart2.metric})</h3><img src="${chart2.img}"></div><div class="card"><h3>3. 型態數量統計</h3><img src="${chart3.img}"></div><div class="card"><h3>4. Top 5 單品</h3><img src="${chart4.img}"></div><div class="card"><h3>5. 雷達圖 (${chart5.metric})</h3><img src="${chart5.img}"></div></body></html>`;
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Analytics_Report_${displayDate}</title><style>body{font-family:sans-serif;padding:20px;background:#ffffff;color:#0f172a;} .card{background:#f8fafc;padding:15px;margin-bottom:15px;border-radius:8px;border:1px solid #e2e8f0;} img{max-width:100%;height:auto;}</style></head><body><h2>UVACO Ray's Team - Order Tactical Analytics Report</h2><p>Generated Date: ${displayDate}</p><hr><div class="card"><h3>1. Main Series Breakdown (${chart1.metric})</h3><img src="${chart1.img}"></div><div class="card"><h3>2. Series Distribution (${chart2.metric})</h3><img src="${chart2.img}"></div><div class="card"><h3>3. Formulation Quantity</h3><img src="${chart3.img}"></div><div class="card"><h3>4. Top 5 Products (${chart4.metric})</h3><img src="${chart4.img}"></div><div class="card"><h3>5. Formulation Radar (${chart5.metric})</h3><img src="${chart5.img}"></div></body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `葡眾訂購戰情報告_${dateStr}.html`;
+        a.download = `UVACO_Analytics_Report_${displayDate}.html`;
         a.click();
         URL.revokeObjectURL(url);
     };

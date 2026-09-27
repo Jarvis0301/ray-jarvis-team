@@ -12,7 +12,7 @@ let currentLang = localStorage.getItem('ray_team_lang_pref') || 'zh-TW';
 document.documentElement.lang = currentLang;
 
 let menuTreeMap = new Map();
-let cachedMenuItems = []; // 快取試算表選單資料，避免語系切換時重複發送請求[cite: 8]
+let cachedMenuItems = []; // 快取試算表選單資料，避免語系切換時重複發送請求
 let currentPageUrl = 'home.html';
 let isInitialized = false;
 
@@ -58,7 +58,7 @@ function getResolvedPageUrl(pageUrl) {
 }
 
 /**
- * 依當前語系取得選單標題 (支援 titleEn 自動 Fallback 至 titleZh)[cite: 8]
+ * 依當前語系取得選單標題 (支援 titleEn 自動 Fallback 至 titleZh)
  */
 function getMenuTitle(item) {
     if (currentLang === 'en' && item.titleEn && item.titleEn.trim() !== '') {
@@ -671,7 +671,7 @@ function versionSwitch() {
         badge:  isEn ? 'Current' : '當前'
     };
 
-    // Google OAuth 白名單安全鑑權 (公開版訪客不具備 Hub 權限時自動隱藏)[cite: 8, 11]
+    // Google OAuth 白名單安全鑑權 (公開版訪客不具備 Hub 權限時自動隱藏)
     const rawSession = localStorage.getItem('ray_team_auth_session');
     let hasHubAccess = false;
 
@@ -710,7 +710,7 @@ function versionSwitch() {
     updateBtnText($('#teamButton'), i18nTrack.team);
     updateBtnText($('#hubButton'), i18nTrack.hub);
 
-    // 比對當前路徑 (公開版預設匹配 publicButton)[cite: 8]
+    // 比對當前路徑 (公開版預設匹配 publicButton)
     let matchedBtn = null;
     $versionBtns.each(function () {
         const rawUrl = $(this).attr('data-url') || '';
@@ -729,7 +729,7 @@ function versionSwitch() {
     if (matchedBtn) {
         const $matched = $(matchedBtn);$matched.addClass('active');
 
-        // 提取主題色 Token (公開版預設為 btn-green-subtle -> green)[cite: 8, 10]
+        // 提取主題色 Token (公開版預設為 btn-green-subtle -> green)
         const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle')) || 'btn-green-subtle';
         const colorName = colorBtnClass.split('-')[1] || 'green';
         const colorTextClass = `text-${colorName}`;
@@ -748,7 +748,7 @@ function versionSwitch() {
         }
     }
 
-    // 防止事件重複綁定[cite: 8]
+    // 防止事件重複綁定
     $versionBtns.off('click.versionSwitch').on('click.versionSwitch', function () {
         const url = $(this).attr('data-url');
         if (url) {

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bonus Calculator | Ray's Team - Team Edition</title>
+
+        <!-- Authentication Guard -->
+        <script src="../../assets/js/auth-guard.js"></script>
+        
+        <!-- Third-Party Vendor Loader -->
+        <script src="../../assets/js/vendor-loader.js"></script>
+
+        <!-- Shared Core Module -->
+        <script src="../../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../../assets/css/common.css">
+
+        <!-- Page Specific Assets -->
+        <script src="./js/tool-bonus.js" defer></script>
+        <link rel="stylesheet" href="./css/tool-bonus.css">
+    </head>
+
+    <body>
+        <main class="container-fluid p-3 p-md-4">
+
+            <!-- Tactical Command Header -->
+            <header class="card mb-3">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <h4 class="fw-bold text-light mb-0">
+                            <i class="fa-solid fa-calculator text-primary me-1"></i> Bonus Calculator
+                        </h4>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-6 text-md-end">
+                        <button type="button" class="filter-pill-btn scenario-btn" data-scenario="MGR">
+                            <i class="fa-solid fa-user-tie me-1"></i> Master
+                        </button>
+                        <button type="button" class="filter-pill-btn scenario-btn" data-scenario="PEARL">
+                            <i class="fa-solid fa-gem me-1"></i> Pearl Master
+                        </button>
+                        <button type="button" class="filter-pill-btn scenario-btn" data-scenario="DIAMOND">
+                            <i class="fa-solid fa-crown me-1"></i> Blue Diamond
+                        </button>
+                        <button type="button" class="filter-pill-btn scenario-btn text-danger border-danger border-opacity-50" id="btnClearParams" title="Clear simulation parameters">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row align-items-center g-3 mt-2 border-top border-primary">
+                    <!-- Currency Toggle Group (TWD / MYR) -->
+                    <div class="col-auto">
+                        <div class="btn-group" role="group" id="grpCurrency">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">TWD (NT$)</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">MYR (RM)</button>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Rate Input (Default: 8.00 TWD) -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i> FX Rate (1 MYR =):</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="cfgExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.01">
+                                <span class="input-group-text">TWD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Productivity PV -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-coins me-1"></i> Productivity PV:</span>
+                            <input type="number" id="cfgPvRatio" class="form-control form-control-sm text-end" style="width: 100px;" value="25" step="0.5" min="0.1">
+                        </div>
+                    </div>
+
+                    <!-- Leadership Point Value -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-chart-line me-1"></i> Point Value:</span>
+                            <input type="number" id="cfgPointValue" class="form-control form-control-sm text-end" style="width: 100px;" value="0.70" step="0.05" min="0.1">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Withholding Tax Rate -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap" id="lblTaxRate"><i class="fa-solid fa-file-invoice me-1"></i> Income Tax Rate:</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="cfgTaxRate" class="form-control form-control-sm text-end" style="width: 80px;" value="10" step="0.5" min="0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2nd-Gen NHI Deduction Rate (Hidden when MYR is selected) -->
+                    <div class="col-auto" id="boxNhiRate">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-heart-pulse me-1"></i> 2nd-Gen NHI:</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="cfgNhiRate" class="form-control form-control-sm text-end" style="width: 80px;" value="2.11" step="0.01" min="0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="row g-4 mb-3">
+                <!-- Left Column: Volume and Organizational Inputs -->
+                <div class="col-xl-6">
+                    <div class="d-flex flex-column gap-4">
+
+                        <!-- Module 1: Personal & Group Volume Inputs -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="fw-bold text-white"><i class="fa-solid fa-user-gear text-secondary me-1"></i> Core Personal & Group Performance</span>
+                                <span id="rankBadgeContainer"></span>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="selRank"><i class="fa-solid fa-award me-1"></i> Nominal Rank</label>
+                                    <select id="selRank" class="form-select form-select-sm">
+                                        <option value="">Loading rank database...</option>
+                                    </select>
+                                    <div class="form-text text-muted">Nominal rank is retained; monthly bonus is based on active qualification.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpHistoryCumSv"><i class="fa-solid fa-timeline me-1"></i> Cumulative Group SV</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpHistoryCumSv" class="form-control form-control-sm text-end" value="0" min="0" step="1000">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted">Historical cumulative sales volume of the personal group.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpPersonalSv"><i class="fa-solid fa-cart-shopping me-1"></i> Monthly Personal SV</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpPersonalSv" class="form-control form-control-sm text-end" value="0" min="0" step="100">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted">Minimum active threshold to earn bonuses is 160 SV.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpGroupSv"><i class="fa-solid fa-users-viewfinder me-1"></i> Monthly Personal Group SV <span class="badge badge-secondary-subtle small">Auto-calculated</span></label>
+                                    <div class="input-group">
+                                        <input type="text" id="inpGroupSv" class="form-control form-control-sm text-end bg-dark-subtle" value="0" readonly tabindex="-1">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted">Sum of personal volume and downlines prior to Master promotion.</div>
+                                </div>
+                            </div>
+
+                            <!-- Qualification Status Bar -->
+                            <div class="card-incard mt-3 p-2 d-flex flex-wrap justify-content-between align-items-center gap-2 small">
+                                <span id="txtPersonalQualified"><i class="fa-solid fa-circle-check text-success me-1"></i> Personal requirement met (400 / 160 SV)</span>
+                                <span id="txtGroupQualified"><i class="fa-solid fa-circle-check text-success me-1"></i> Group requirement met (3,200 SV consolidated)</span>
+                            </div>
+                        </div>
+
+                        <!-- Module 2: Direct Non-Master Downline Differential Audit -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="fw-bold text-white"><i class="fa-solid fa-sitemap text-secondary me-1"></i> Direct Non-Master Downline Organization</span>
+                                <button type="button" class="btn btn-sm btn-outline-info" id="btnAddDownline">
+                                    <i class="fa-solid fa-user-plus me-1"></i> Add Downline Partner
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-dark-custom" id="tblDownlines">
+                                    <thead>
+                                        <tr>
+                                            <th>Partner Name</th>
+                                            <th>Downline Rank</th>
+                                            <th>Monthly SV</th>
+                                            <th>Differential %</th>
+                                            <th>Est. Differential Amount</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="downlineListBody">
+                                        <!-- Rendered Dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="form-text text-muted mt-2">
+                                <i class="fa-solid fa-circle-info me-1"></i> When your rank is higher than downline partners, you receive a tiered differential bonus on their sales (Your % - Downline %).
+                            </div>
+                        </div>
+
+                        <!-- Module 3: Senior Qualified Lines & Depth Generations -->
+                        <div class="card" id="highRankConfigCard">
+                            <div class="card-header">
+                                <span class="fw-bold text-white"><i class="fa-solid fa-network-wired text-secondary me-1"></i> Senior Qualified Lines & Leadership Depth</span>
+                                <span class="text-muted" id="txtLeadershipDepth">Unlocked Depth: 4 Generations</span>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpActiveLines"><i class="fa-solid fa-diagram-project me-1"></i> Direct Qualified Master Lines (Active Lines)</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpActiveLines" class="form-control text-end" value="0" min="0">
+                                        <span class="input-group-text">Lines</span>
+                                    </div>
+                                    
+                                    <div class="form-text text-muted">Silver Master ≥ 1, Gold Master ≥ 2, Pearl Master ≥ 4, Emerald Master ≥ 6, Blue Diamond ≥ 10.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpPearlLines"><i class="fa-solid fa-gem me-1"></i> Active Pearl Master Lines</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpPearlLines" class="form-control text-end" value="0" min="0">
+                                        <span class="input-group-text">Lines</span>
+                                    </div>
+                                    <div class="form-text text-muted">Blue Diamond qualification requires 3 distinct active Pearl Master lines.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpTotalManagersInDepth"><i class="fa-solid fa-users me-1"></i> Qualified Masters within Depth</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpTotalManagersInDepth" class="form-control text-end" value="0" min="0">
+                                        <span class="input-group-text">Persons</span>
+                                    </div>
+                                    <div class="form-text text-muted">Each Qualified Master contributes base 3,200 SV to the 6% Leadership Bonus.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="inpTotalOrgSv"><i class="fa-solid fa-globe me-1"></i> Monthly Total Organizational SV</label>
+                                    <div class="input-group">
+                                        <input type="number" id="inpTotalOrgSv" class="form-control text-end" value="0" min="0" step="3200">
+                                        <span class="input-group-text">SV</span>
+                                    </div>
+                                    <div class="form-text text-muted">Blue Diamond advancement requires 100,000 SV for 4 consecutive months.</div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Auto-Remedy Status Alert -->
+                            <div class="card-incard mt-3 p-3" id="autoRescueBox">
+                                <div class="fw-bold text-warning" id="autoRescueTitle"><i class="fa-solid fa-circle-check me-1"></i> Performance Auto-Remedy: Activated</div>
+                                <div class="small text-muted" id="autoRescueDesc">Developing 5+ qualified Master lines waives the personal group 3,200 SV requirement, allowing you to focus on mentoring partners!</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Column: Real-Time Audit Dashboard & Itemized Breakdown -->
+                <div class="col-xl-6">
+                    <div class="d-flex flex-column gap-4">
+
+                        <!-- Tactical Financial Overview Card -->
+                        <div class="card">
+                            <div class="card-incard p-3 mb-3">
+                                <div class="d-flex flex-column gap-3">
+                                    <!-- 1. Gross Total Bonus (Pre-Tax) -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-white fw-bold"><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i> Gross Total Bonus (Pre-Tax)</div>
+                                            <div class="small text-muted mt-1 d-none" id="valGrossBonusWan">Approx. NT$ 0</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fs-5 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Statutory Withholdings (Tax & Fees) -->
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+                                        <div>
+                                            <div class="text-white fw-bold"><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i> Statutory Withholdings (Tax & Fees)</div>
+                                            <div class="small text-muted mt-1" id="valDeductionDetail">Income Tax 10% + 2nd-Gen NHI 2.11%</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fs-5 fw-bold text-danger" id="valTotalDeduction">- NT$ 0</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. Estimated Net Payout -->
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+                                        <div>
+                                            <div class="text-white fw-bold fs-6"><i class="fa-solid fa-wallet text-orange me-1"></i> Estimated Net Payout</div>
+                                            <div class="small text-muted mt-1 d-none">Disbursed on the 15th of next month</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fs-4 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-muted small mb-0">
+                                <div id="taxRuleText"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bonus Revenue Structure Breakdown (Chart.js) -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="fw-bold text-white"><i class="fa-solid fa-chart-pie text-secondary me-1"></i> Bonus Revenue Structure Breakdown</span>
+                                <span class="small text-muted"><i class="fa-solid fa-arrow-trend-up me-1"></i> Passive Cash Flow Ratio: <span class="text-secondary fw-bold" id="valPassiveRatio">0%</span></span>
+                            </div>
+                            <div class="card-chart-container-transparent">
+                                <canvas id="bonusDoughnutChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- UVACO Official Bonus Itemized Audit (DataTable.js) -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="fw-bold text-white"><i class="fa-solid fa-table-list text-secondary me-1"></i> Bonus Itemized Audit</span>
+                                <span class="text-muted">Real-Time Audit</span>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-dark-custom" id="tblBonusAudit">
+                                    <thead>
+                                        <tr>
+                                            <th>Bonus Category</th>
+                                            <th>Estimated Amount</th>
+                                            <th>Official Allocation</th>
+                                            <th>Audit Basis & Formula</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bonusAuditBody">
+                                        <!-- Rendered Dynamically -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="fw-bold border-top border-secondary">
+                                            <td class="text-secondary">Gross Total Bonus:</td>
+                                            <td class="fs-6 text-orange text-end" id="valTableGrossTotal">NT$ 0</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Statutory Compliance Notes -->
+                            <div class="alert alert-muted small mb-0">
+                                <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Notes:
+                                <ul class="mb-0">
+                                    <li>Annual Excellence Rewards: Accumulated monthly through December and disbursed annually in December.</li>
+                                    <li>Travel Rewards: Accumulated from July through June of the following year, disbursed annually in June. If qualified Master status is not maintained in any single month during the year, accumulated Annual Excellence Rewards for that period are forfeited and reallocated to other qualifiers.</li>
+                                    <li>Dream Car Purchase Fund: Qualification includes a NT$ 700,000 down payment grant and 36 monthly installment subsidies.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+    </body>
+</html>

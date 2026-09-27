@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Currency & SV Calculator | Ray's Team - Team Edition</title>
+
+        <!-- Authentication Guard -->
+        <script src="../../assets/js/auth-guard.js"></script>
+        
+        <!-- Vendor Libraries Loader -->
+        <script src="../../assets/js/vendor-loader.js"></script>
+
+        <!-- Core Modules & Styles -->
+        <script src="../../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../../assets/css/common.css">
+
+        <!-- Page Specific -->
+        <script src="./js/tool-currency.js" defer></script>
+        <link rel="stylesheet" href="./css/tool-currency.css">
+    </head>
+
+    <body>
+        <main class="container-fluid p-3 p-md-4">
+            <!-- Core Calculation Pod Section -->
+            <section class="glass-panel mb-4">
+                <!-- Dynamic Exchange Rate Configuration Bar -->
+                <div class="p-3 mb-4 rounded-3 border border-secondary border-opacity-50 bg-dark">
+                    <div class="row align-items-center g-3">
+                        <div class="col-12 col-md-4 col-xl-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="p-2 rounded-2 bg-secondary bg-opacity-15 text-primary border border-primary border-opacity-25">
+                                    <i class="fa-solid fa-sliders fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-secondary fw-bold">Dynamic Settlement FX Rate</div>
+                                    <div class="text-secondary-emphasis small">Benchmark: 1 MYR to TWD</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Glow Slider & Scale Marks -->
+                        <div class="col-12 col-md-5 col-xl-6">
+                            <input type="range" class="form-range fx-glow-slider my-1" id="fxRateRange" min="7.00" max="9.00" step="0.01" value="8.00" aria-label="Settlement FX Rate Slider">
+                            <div class="d-flex justify-content-between text-light-emphasis px-1" style="font-size: 0.75rem;">
+                                <span role="button" class="fx-scale-mark" onclick="setQuickRate(7.00)">7.00</span>
+                                <span role="button" class="fx-scale-mark" onclick="setQuickRate(7.50)">7.50</span>
+                                <span role="button" class="fx-scale-mark text-warning fw-bold" onclick="setQuickRate(8.00)">8.00</span>
+                                <span role="button" class="fx-scale-mark" onclick="setQuickRate(8.50)">8.50</span>
+                                <span role="button" class="fx-scale-mark" onclick="setQuickRate(9.00)">9.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Fine Adjustment & Manual Input Box -->
+                        <div class="col-12 col-md-3 col-xl-3 d-flex justify-content-md-end">
+                            <div class="d-flex align-items-center gap-1 bg-dark p-1 px-2 rounded-3 border border-secondary border-opacity-50">
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 border-0" onclick="adjustRate(-0.05)" title="Decrease 0.05">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-light-emphasis small me-1">NT$</span>
+                                    <input type="number" class="form-control form-control-sm no-spin text-end fw-bold text-warning bg-transparent border-0 p-0" id="fxRateInput" step="0.05" min="0.01" value="8.00" style="width: 58px;" aria-label="Manual FX Rate Input">
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 border-0" onclick="adjustRate(0.05)" title="Increase 0.05">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tri-Directional Fast Converter Pods -->
+                <div class="row g-3 align-items-stretch">
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100" id="podTWD">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-medium text-light"><i class="fa-solid fa-money-bill-wave text-secondary me-1"></i> New Taiwan Dollar (TWD)</span>
+                                <div class="badge badge-secondary-subtle">
+                                    Cash Cost / SV: <span class="text-white fw-bold" id="ratioTWD">36.46 NT$/SV</span>
+                                </div>
+                            </div>
+                            <input type="number" class="huge-input no-spin text-yellow" id="inputTWD" placeholder="0" min="0" value="5980" aria-label="Amount in TWD">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card bg-teal-subtle border-teal border-opacity-50 h-100" id="podSV">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-medium text-teal"><i class="fa-solid fa-award me-1"></i> Standard Sales Volume (SV)</span>
+                                <span class="badge badge-teal-subtle">Global Standard</span>
+                            </div>
+                            <input type="number" class="huge-input no-spin text-teal fw-bold" id="inputSV" placeholder="0" min="0" value="164" aria-label="Standard Sales Volume">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100" id="podMYR">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-medium text-light"><i class="fa-solid fa-coins text-secondary me-1"></i> Malaysian Ringgit (MYR)</span>
+                                <div class="badge badge-secondary-subtle">
+                                    Cash Cost / SV: <span class="text-white fw-bold" id="ratioMYR">4.56 RM/SV</span>
+                                </div>
+                            </div>
+                            <input type="number" class="huge-input no-spin text-yellow" id="inputMYR" placeholder="0" min="0" value="748" aria-label="Amount in MYR">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Presets Row -->
+                <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top border-secondary border-opacity-25 align-items-center">
+                    <span class="text-light fw-medium small"><i class="fa-solid fa-crosshairs text-secondary me-1"></i> Quick Presets:</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-3" onclick="setQuickSV(160)">160 SV</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-3" onclick="setQuickSV(3200)">3,200 SV</button>
+                </div>
+            </section>
+
+            <!-- Dual-Wing Tactical Modules -->
+            <section class="row g-4 mb-4 align-items-stretch">
+                <!-- Left Wing: Cross-Border Spot Hedging & Settlement Sandbox -->
+                <div class="col-12 col-xl-7">
+                    <div class="glass-panel p-3 p-md-4 h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold text-secondary mb-0"><i class="fa-solid fa-right-left text-primary me-1"></i> Cross-Border Spot Hedging & Settlement Sandbox</h5>
+                                <span class="text-secondary-emphasis small">Bilateral Physical Handover & Point Balance Ledger</span>
+                            </div>
+                        </div>
+
+                        <div id="cartItemsList" class="d-flex flex-column gap-2 mb-3 flex-grow-1 pe-1" style="max-height: 275px; min-height: 275px; overflow-y: auto;"></div>
+
+                        <div class="p-3 rounded-3 mt-auto bg-dark-subtle border border-secondary">
+                            <div class="row g-2 text-center text-md-start">
+                                <div class="col-6 col-md-3">
+                                    <div class="text-light-emphasis small">Target SV</div>
+                                    <div class="fs-5 fw-bold text-teal" id="totalCartSV">0 SV</div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-light-emphasis small">TW Delivery Cost</div>
+                                    <div class="fs-5 fw-bold text-yellow" id="totalCartTWD">NT$ 0</div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-light-emphasis small">MY Order Amount</div>
+                                    <div class="fs-5 fw-bold text-orange" id="totalCartMYR">RM 0</div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-light-emphasis small">Hedging Difference</div>
+                                    <div class="fs-5 fw-bold text-info" id="totalCartDiff">NT$ 0</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary border-opacity-25 flex-wrap gap-2">
+                                <span class="small text-light-emphasis" id="cartArbitrageText">
+                                    <i class="fa-solid fa-scale-balanced text-success me-1"></i> Bilateral Settlement: <span class="text-success fw-bold">Balanced</span>
+                                </span>
+                                <button type="button" class="btn btn-sm btn-cyber-accent" id="btnCopyQuote">
+                                    <i class="fa-solid fa-paper-plane me-1"></i> Copy LINE / WhatsApp Quote
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Wing: Goal SV Solver -->
+                <div class="col-12 col-xl-5">
+                    <div class="glass-panel p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-secondary mb-0"><i class="fa-solid fa-wand-magic-sparkles text-primary me-1"></i> Smart Goal SV Solver</h5>
+                                    <span class="text-secondary-emphasis small">Reverse-optimized SKU combinations for cost efficiency & logistics</span>
+                                </div>
+                                <span class="badge badge-primary-subtle"><i class="fa-solid fa-microchip me-1"></i> AI Recommendation</span>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label for="solverTargetSV" class="text-light-emphasis small mb-1">Target Qualifying SV</label>
+                                    <input type="number" class="form-control form-control-sm no-spin" id="solverTargetSV" min="0" value="160">
+                                </div>
+                                <div class="col-6">
+                                    <label for="solverStrategy" class="text-light-emphasis small mb-1">Optimization Strategy</label>
+                                    <select class="form-select form-select-sm" id="solverStrategy">
+                                        <option value="MIN_CASH">Lowest Cash Outlay (Best Value)</option>
+                                        <option value="MIN_WEIGHT">Lowest Shipping Weight (Travel Friendly)</option>
+                                        <option value="STAR_PRODUCTS">Star Best-Sellers (Fast Turnover)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="solverRecommendationBox" class="p-3 mb-3 rounded-3 border border-secondary border-opacity-50 bg-dark"></div>
+                        </div>
+
+                        <div class="mt-2" style="height: 160px; position: relative;">
+                            <canvas id="arbitrageDiffChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom: Product Comparison Master Matrix -->
+            <section class="glass-panel p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold text-secondary mb-0"><i class="fa-solid fa-table-list text-primary me-1"></i> UVACO Cross-Border Product Master & Comparison</h5>
+                        <span class="text-secondary-emphasis small">Bilateral specifications, pricing, standard SV, and unit cost breakdown</span>
+                    </div>
+                    <ul class="nav nav-pills" id="matrixViewTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active py-1 px-3" id="tabCrossBorder-tab" data-bs-toggle="pill" data-bs-target="#tabCrossBorder" type="button">
+                                <i class="fa-solid fa-code-compare me-1"></i> Cross-Border Matrix
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3" id="tabRawPrd-tab" data-bs-toggle="pill" data-bs-target="#tabRawPrd" type="button">
+                                <i class="fa-solid fa-database me-1"></i> All Products Master
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="matrixViewTabsContent">
+                    <!-- Cross-Border Matrix Tab -->
+                    <div class="tab-pane fade show active" id="tabCrossBorder" role="tabpanel">
+                        <div class="table-responsive">
+                            <table id="crossBorderMatrixTable" class="table table-dark-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Base Code</th>
+                                        <th>TW Product / Spec</th>
+                                        <th>TW Price / SV</th>
+                                        <th>MY Product / Spec</th>
+                                        <th>MY Price / SV</th>
+                                        <th>Cash Cost / SV</th>
+                                        <th>Price Difference</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="crossBorderTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- All Products Master Tab -->
+                    <div class="tab-pane fade" id="tabRawPrd" role="tabpanel">
+                        <div class="table-responsive">
+                            <table id="rawProductTable" class="table table-dark-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Region</th>
+                                        <th>Product Code</th>
+                                        <th>Product Name / Spec</th>
+                                        <th>Price / SV</th>
+                                        <th>Cash Cost / SV</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rawProductTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>

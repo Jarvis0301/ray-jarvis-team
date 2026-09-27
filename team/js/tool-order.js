@@ -1,26 +1,33 @@
+/**
+ * ============================================================================
+ * 訂購試算與戰情數據控制台 (tool-order.js)
+ * 專為榮祥團隊 (Ray's Team) 量身打造之商品採購、雙國配送運費與點數速算引擎
+ * ============================================================================
+ */
+
 // ==========================================
 // 1. Google 雲端硬碟試算表設定與解耦合輔助工具
 // ==========================================
 const SPREADSHEET_ID = {
-    PRD: APP_CONFIG.SHEETS.PRD
+    PRD: APP_CONFIG?.SHEETS?.PRD || ''
 };
 
 const SHEET_NAMES = {
-    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS,
-    CATEGORIES: APP_CONFIG.SHEET_NAMES.PRD.CATEGORIES,
-    SUBCATEGORIES: APP_CONFIG.SHEET_NAMES.PRD.SUBCATEGORIES,
-    TYPES: APP_CONFIG.SHEET_NAMES.PRD.TYPES
+    PRODUCTS: APP_CONFIG?.SHEET_NAMES?.PRD?.PRODUCTS || '產品主檔',
+    CATEGORIES: APP_CONFIG?.SHEET_NAMES?.PRD?.CATEGORIES || '產品主系列',
+    SUBCATEGORIES: APP_CONFIG?.SHEET_NAMES?.PRD?.SUBCATEGORIES || '產品次系列',
+    TYPES: APP_CONFIG?.SHEET_NAMES?.PRD?.TYPES || '產品型態'
 };
 
 // ==========================================
-// 2. 系統狀態管理
+// 2. 系統狀態管理 (State Management)
 // ==========================================
 let appState = {
     country: 'TW',
     twRegion: 'PICKUP', // 'PICKUP' | 'DELIVERY'
     myRegion: 'PICKUP', // 'PICKUP' | 'WEST' | 'EAST'
-    displayCurrency: APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD', // 讀取預設幣別
-    exchangeRate: APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00, // 讀取基準匯率
+    displayCurrency: APP_CONFIG?.FIN?.DEFAULT_CURRENCY || 'TWD',
+    exchangeRate: APP_CONFIG?.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00,
     mainSeries: 'ALL',
     subSeries: 'ALL',
     productType: 'ALL',
@@ -39,11 +46,18 @@ let currentView = "card";
 let dataTableInstance = null;
 let isInitialized = false;
 
-// 圖表指標全域變數
+// 圖表指標切換度量全域變數
 let chart1Metric = 'TWD';
 let chartBarMetric = 'TWD';
 let chart4Metric = 'TWD';
 let chart5Metric = 'TWD';
+
+// 圖表實例全域變數 (修復報表導出參照未宣告問題)
+let chartMainCategoryPieInstance = null;
+let chartSeriesCombinedBarInstance = null;
+let chartTypeQtyInstance = null;
+let chartTopItemsInstance = null;
+let chartTypeSvRadarInstance = null;
 
 // ==========================================
 // 3. 頁面生命週期初始化
@@ -64,7 +78,7 @@ async function initApp() {
 
     bindEvents();
 
-    if (SPREADSHEET_ID) {
+    if (SPREADSHEET_ID.PRD) {
         await fetchGoogleSheetsData();
     } else {
         AppToast.error("未設定 Google 試算表 ID，無法讀取產品資料！");
@@ -78,7 +92,7 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (解耦合載入)
 // ==========================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
     
     try {
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
@@ -88,7 +102,7 @@ async function fetchGoogleSheetsData() {
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.TYPES)
         ]);
 
-        // 1. 解析產品主系列 (Schema: 0:category_code, 1:name_zh, 2:name_en, 3:icon_class, 4:text_color, 5:bg_color, 6:sort_order, 7:is_valid)
+        // 1. 解析產品主系列
         appState.categories = {};
         appState.categoryList = [];
         (mainCategoriesData || []).forEach(row => {
@@ -110,7 +124,7 @@ async function fetchGoogleSheetsData() {
         });
         appState.categoryList.sort((a, b) => a.sort_order - b.sort_order);
 
-        // 2. 解析產品次系列 (Schema: 0:subcategory_code, 1:category_code, 2:name_zh, 3:name_en, 4:icon_class, 5:text_color, 6:bg_color, 7:sort_order, 8:is_valid)
+        // 2. 解析產品次系列
         appState.subcategories = {};
         appState.subcategoryList = [];
         (subcategoriesData || []).forEach(row => {
@@ -133,7 +147,7 @@ async function fetchGoogleSheetsData() {
         });
         appState.subcategoryList.sort((a, b) => a.sort_order - b.sort_order);
 
-        // 3. 解析產品型態 (Schema: 0:type_code, 1:name_zh, 2:name_en, 3:icon_class, 4:text_color, 5:bg_color, 6:sort_order, 7:is_valid)
+        // 3. 解析產品型態
         appState.types = {};
         appState.typeList = [];
         (productTypesData || []).forEach(row => {
@@ -164,7 +178,6 @@ async function fetchGoogleSheetsData() {
             const discontinueDate = getVal(row, 25);
             const status = getProductStatus(launchDate, discontinueDate);
 
-            // 僅保留「即將上市」與「販售中」，排除「已下市」與無效項目
             if (productCode && isValid !== 'N' && status !== 'DISCONTINUED') {
                 let regionCode = getVal(row, 1, 'TW').toUpperCase();
                 if (!regionCode || (regionCode !== 'TW' && regionCode !== 'MY')) {
@@ -215,7 +228,6 @@ async function fetchGoogleSheetsData() {
     }
 }
 
-// 依據上市日期與下市日期判定狀態：'COMING_SOON' (即將上市)、'ACTIVE' (販售中)、'DISCONTINUED' (已下市)
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -230,7 +242,7 @@ function getProductStatus(launchDateVal, discontinueDateVal) {
 }
 
 // ==========================================
-// 5. 外鍵名稱與樣式關聯取值函式 (TW: 中文 / MY: 英文)
+// 5. 外鍵名稱與樣式關聯取值函式 (支援 UIBadges 相容結構)
 // ==========================================
 function getCategoryInfo(categoryCode, country = appState.country) {
     const isMY = country === 'MY';
@@ -240,17 +252,27 @@ function getCategoryInfo(categoryCode, country = appState.country) {
         return {
             code: cat.category_code,
             name: name,
+            name_zh: cat.name_zh,
+            name_en: cat.name_en,
             icon: cat.icon_class || 'fa-solid fa-layer-group',
+            icon_class: cat.icon_class || 'fa-solid fa-layer-group',
             color: cat.text_color || '#38bdf8',
-            bg: cat.bg_color || 'rgba(10, 25, 19, 0.88)'
+            text_color: cat.text_color || '#38bdf8',
+            bg: cat.bg_color || 'rgba(10, 25, 19, 0.88)',
+            bg_color: cat.bg_color || 'rgba(10, 25, 19, 0.88)'
         };
     }
     return {
         code: categoryCode || 'OTHER',
         name: categoryCode || '其他主系列',
+        name_zh: categoryCode || '其他主系列',
+        name_en: categoryCode || 'Other Category',
         icon: 'fa-solid fa-layer-group',
+        icon_class: 'fa-solid fa-layer-group',
         color: '#38bdf8',
-        bg: 'rgba(10, 25, 19, 0.88)'
+        text_color: '#38bdf8',
+        bg: 'rgba(10, 25, 19, 0.88)',
+        bg_color: 'rgba(10, 25, 19, 0.88)'
     };
 }
 
@@ -263,18 +285,28 @@ function getSubcategoryInfo(subcategoryCode, country = appState.country) {
             code: sub.subcategory_code,
             category_code: sub.category_code,
             name: name,
+            name_zh: sub.name_zh,
+            name_en: sub.name_en,
             icon: sub.icon_class || 'fa-solid fa-tag',
+            icon_class: sub.icon_class || 'fa-solid fa-tag',
             color: sub.text_color || '#52b788',
-            bg: sub.bg_color || 'rgba(10, 25, 19, 0.88)'
+            text_color: sub.text_color || '#52b788',
+            bg: sub.bg_color || 'rgba(10, 25, 19, 0.88)',
+            bg_color: sub.bg_color || 'rgba(10, 25, 19, 0.88)'
         };
     }
     return {
         code: subcategoryCode || 'OTHER',
         category_code: '',
         name: subcategoryCode || '一般系列',
+        name_zh: subcategoryCode || '一般系列',
+        name_en: subcategoryCode || 'General Subcategory',
         icon: 'fa-solid fa-tag',
+        icon_class: 'fa-solid fa-tag',
         color: '#52b788',
-        bg: 'rgba(10, 25, 19, 0.88)'
+        text_color: '#52b788',
+        bg: 'rgba(10, 25, 19, 0.88)',
+        bg_color: 'rgba(10, 25, 19, 0.88)'
     };
 }
 
@@ -286,17 +318,27 @@ function getTypeInfo(typeCode, country = appState.country) {
         return {
             code: typeObj.type_code,
             name: name,
+            name_zh: typeObj.name_zh,
+            name_en: typeObj.name_en,
             icon: typeObj.icon_class || 'fa-solid fa-box',
+            icon_class: typeObj.icon_class || 'fa-solid fa-box',
             color: typeObj.text_color || '#34d399',
-            bg: typeObj.bg_color || 'rgba(10, 25, 19, 0.88)'
+            text_color: typeObj.text_color || '#34d399',
+            bg: typeObj.bg_color || 'rgba(10, 25, 19, 0.88)',
+            bg_color: typeObj.bg_color || 'rgba(10, 25, 19, 0.88)'
         };
     }
     return {
         code: typeCode || 'OTHER',
         name: typeCode || '一般型態',
+        name_zh: typeCode || '一般型態',
+        name_en: typeCode || 'General Type',
         icon: 'fa-solid fa-box',
+        icon_class: 'fa-solid fa-box',
         color: '#34d399',
-        bg: 'rgba(10, 25, 19, 0.88)'
+        text_color: '#34d399',
+        bg: 'rgba(10, 25, 19, 0.88)',
+        bg_color: 'rgba(10, 25, 19, 0.88)'
     };
 }
 
@@ -332,7 +374,7 @@ function updateSeriesDropdowns() {
 }
 
 function updateSubSeriesDropdown(mainCode) {
-    const $subSelect =$('#subSeriesSelect');
+    const $subSelect = $('#subSeriesSelect');
     if (!$subSelect.length) return;
 
     if (!mainCode || mainCode === 'ALL') {
@@ -383,7 +425,7 @@ function renderTypeFilterButtons() {
     let html = `
         <div class="col col-12">
             <button class="filter-pill-btn w-100 ${appState.productType === 'ALL' ? 'active' : ''}" data-type="ALL">
-                <i class="fa-solid fa-border-all me-1"></i>全部
+                <i class="fa-solid fa-border-all me-1"></i> 全部
             </button>
         </div>
     `;
@@ -394,7 +436,7 @@ function renderTypeFilterButtons() {
         html += `
             <div class="col">
                 <button class="filter-pill-btn w-100 ${isActive}" data-type="${t.type_code}">
-                    <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
+                    <i class="${typeInfo.icon} me-1"></i> ${typeInfo.name}
                 </button>
             </div>
         `;
@@ -453,12 +495,11 @@ function bindEvents() {
 
     $("#exchangeRateInput").on("input change", function () {
         let rate = parseFloat($(this).val());
-        if (isNaN(rate) || rate <= 0) rate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+        if (isNaN(rate) || rate <= 0) rate = APP_CONFIG?.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
         appState.exchangeRate = rate;
         updateCartSummary();
     });
 
-    // 主系列變更與清除監聽
     $("#mainSeriesSelect")
         .off("change select2:clear")
         .on("change", function () {
@@ -475,7 +516,6 @@ function bindEvents() {
             }, 0);
         });
 
-    // 次系列變更與清除監聽
     $("#subSeriesSelect")
         .off("change select2:clear")
         .on("change", function () {
@@ -573,23 +613,19 @@ function getFilteredProducts() {
     }
 
     return currentDataset.filter(item => {
-        // 主系列篩選 (依 category_code)
         if (appState.mainSeries !== 'ALL') {
             const itemCatCode = item.category_code || (item.subcategory_code ? item.subcategory_code.slice(0, 2) : '');
             if (itemCatCode !== appState.mainSeries) return false;
         }
 
-        // 次系列篩選 (依 subcategory_code)
         if (appState.subSeries !== 'ALL') {
             if (item.subcategory_code !== appState.subSeries) return false;
         }
 
-        // 產品型態篩選 (依 type_code)
         if (appState.productType !== 'ALL') {
             if (item.type_code !== appState.productType) return false;
         }
 
-        // 關鍵字搜尋
         if (appState.searchKeyword !== '') {
             const k = appState.searchKeyword;
             const mName = (item.name || '').toLowerCase().includes(k);
@@ -620,7 +656,6 @@ function renderProducts() {
             return;
         }
 
-        // 卡片模式：右下角標籤（即將上市 或 明星商品）
         filtered.forEach(item => {
             const qty = cartState[item.product_code] || 0;
             const price = item.price || 0;
@@ -678,23 +713,20 @@ function renderProducts() {
             $grid.append(cardHtml);
         });
     } else {
-        if (dataTableInstance) {
-            dataTableInstance.destroy();
-            dataTableInstance = null;
-        }
-
         const $tbody = $("#productTable tbody");
-        $tbody.empty();
-
+        
         if (filtered.length === 0) {
-            $tbody.append(`
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                        <i class="fa-solid fa-magnifying-glass-minus fa-2x mb-2 opacity-50 d-block"></i>
-                        未找到符合條件的產品，請調整篩選條件或搜尋關鍵字。
-                    </td>
-                </tr>
-            `);
+            if (dataTableInstance) {
+                dataTableInstance.clear().draw();
+            } else {
+                $tbody.html(`
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fa-solid fa-magnifying-glass-minus fa-2x mb-2 opacity-50 d-block"></i> 未找到符合條件的產品，請調整篩選條件或搜尋關鍵字。
+                        </td>
+                    </tr>
+                `);
+            }
         } else {
             const formatted = filtered.map(item => {
                 const qty = cartState[item.product_code] || 0;
@@ -728,6 +760,7 @@ function renderProducts() {
                 };
             });
 
+            // 複用既有實例，不再反覆銷毀重建 (修復 Bug 6)
             if (dataTableInstance) {
                 dataTableInstance.clear().rows.add(formatted).draw();
             } else {
@@ -743,23 +776,20 @@ function renderProducts() {
                         { data: 'actions', className: 'text-center', orderable: false }
                     ]
                 });
+
+                dataTableInstance.on('draw', function () {
+                    Object.keys(cartState).forEach(id => {
+                        updateQtyInputsUI(id);
+                    });
+                });
             }
         }
-    }
-
-    if (dataTableInstance) {
-        dataTableInstance.on('draw', function () {
-            Object.keys(cartState).forEach(id => {
-                updateQtyInputsUI(id);
-            });
-        });
     }
 
     bindQtyEvents();
 }
 
 function bindQtyEvents() {
-    // 1. 卡片與表格「+」按鈕
     $(document).off("click", ".btn-plus").on("click", ".btn-plus", function () {
         const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         cartState[id] = (cartState[id] || 0) + 1;
@@ -767,7 +797,6 @@ function bindQtyEvents() {
         updateCartSummary();
     });
 
-    // 2. 卡片與表格「-」按鈕
     $(document).off("click", ".btn-minus").on("click", ".btn-minus", function () {
         const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         if (cartState[id] && cartState[id] > 0) {
@@ -778,15 +807,11 @@ function bindQtyEvents() {
         }
     });
 
-    // 3. 所有數量輸入框「即時手動輸入（input）」
     $(document).off("input", ".qty-input").on("input", ".qty-input", function () {
         const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         const rawVal = $(this).val();
 
-        // 允許使用者先清空輸入框以便重新鍵入數字，不立即強制覆蓋為 0
-        if (rawVal === '') {
-            return;
-        }
+        if (rawVal === '') return;
 
         let val = parseInt(rawVal, 10);
         if (isNaN(val) || val < 0) val = 0;
@@ -799,7 +824,6 @@ function bindQtyEvents() {
 
         updateQtyInputsUI(id, this);
 
-        // 若當前是在明細卡片內輸入，直接更新統計，避免完全清空 DOM 導致失去輸入焦點
         if ($(this).hasClass('cart-qty-input')) {
             if (val === 0) {
                 updateCartSummary();
@@ -811,7 +835,6 @@ function bindQtyEvents() {
         }
     });
 
-    // 4. 輸入框「完成輸入或離開焦點（change / blur）」：校正空值與無效值
     $(document).off("change blur", ".qty-input").on("change blur", function () {
         const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         const rawVal = $(this).val().trim();
@@ -829,7 +852,6 @@ function bindQtyEvents() {
         updateCartSummary();
     });
 
-    // 5. 訂購明細「+」按鈕
     $(document).off("click", ".btn-cart-plus").on("click", ".btn-cart-plus", function () {
         const id = String($(this).attr("data-id")).trim();
         cartState[id] = (cartState[id] || 0) + 1;
@@ -837,7 +859,6 @@ function bindQtyEvents() {
         updateCartSummary();
     });
 
-    // 6. 訂購明細「-」按鈕
     $(document).off("click", ".btn-cart-minus").on("click", ".btn-cart-minus", function () {
         const id = String($(this).attr("data-id")).trim();
         if (cartState[id] && cartState[id] > 0) {
@@ -848,7 +869,6 @@ function bindQtyEvents() {
         }
     });
 
-    // 7. 訂購明細「刪除品項」垃圾桶按鈕
     $(document).off("click", ".btn-remove-cart-item").on("click", ".btn-remove-cart-item", function () {
         const id = String($(this).attr("data-id")).trim();
         delete cartState[id];
@@ -858,7 +878,6 @@ function bindQtyEvents() {
     });
 }
 
-// 強化商品比對，避免型別不一致或空白問題
 function findProductByCode(code) {
     if (!code) return null;
     const targetCode = String(code).trim();
@@ -866,12 +885,11 @@ function findProductByCode(code) {
     return all.find(p => String(p.product_code).trim() === targetCode);
 }
 
-// 同步所有相同商品編號的輸入框值（卡片、表格、明細）
 function updateQtyInputsUI(id, activeInput = null) {
     const safeId = String(id).trim();
     const qty = cartState[safeId] !== undefined ? cartState[safeId] : 0;
     $('.qty-input').each(function () {
-        if (this === activeInput) return; // 避免打字中途被強制覆寫
+        if (this === activeInput) return;
         if (String($(this).attr('data-id')).trim() === safeId) {
             $(this).val(qty);
         }
@@ -879,7 +897,7 @@ function updateQtyInputsUI(id, activeInput = null) {
 }
 
 // ==========================================
-// 9. 訂購試算摘要與運費/回饋金計算
+// 9. 訂購試算摘要與運費/回饋金計算 (修復重複累加 Bug 3)
 // ==========================================
 function updateCartSummary() {
     const $container = $("#cart-items-container");
@@ -894,12 +912,10 @@ function updateCartSummary() {
     const isTargetMYR = targetCurr === 'MYR';
     const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
 
-    // 判斷是否為「配送」模式（非自取）
     const isDelivery = (appState.country === 'MY')
         ? (appState.myRegion === 'WEST' || appState.myRegion === 'EAST')
         : (appState.twRegion === 'DELIVERY');
 
-    // 依模式控制免運門檻進度條的顯示與隱藏
     if (isDelivery) {
         $("#shipping-progress-container").removeClass("d-none");
     } else {
@@ -911,7 +927,7 @@ function updateCartSummary() {
     if (selectedKeys.length === 0) {
         $container.html(`
             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
-                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50 me-1"></i>尚未選擇任何商品，請點擊數量增減選擇。
+                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50 me-1"></i> 尚未選擇任何商品，請點擊數量增減選擇。
             </div>
         `);
 
@@ -933,7 +949,7 @@ function updateCartSummary() {
         $("#sticky-total-sv").text(`0 SV`);
         $("#sticky-rebate-cash").text(`${currSymbol}0`);
 
-        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none"); // ★ 隱藏警語
+        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none");
 
         updateAllChartsData();
         return;
@@ -957,22 +973,17 @@ function updateCartSummary() {
             const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
             const itemTotalSV = AppCalc.multiply(sv, qty, 2);
 
+            // 單次精準累加 (修復 Bug 3)
             subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
             totalSV = AppCalc.add(totalSV, itemTotalSV);
             totalItemsCount += qty;
 
-            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
-            totalSV = AppCalc.add(totalSV, itemTotalSV);
-            totalItemsCount += qty;
-
-            // 優先採用產品簡稱 short_name
             const displayName = product.short_name || product.name;
 
-            // 訂購明細調整為單行排版
             $container.append(`
                 <div class="cart-item-row" data-row-id="${product.product_code}">
                     <div class="cart-item-title" title="${product.name} (${product.product_code})">
-                        <i class="fa-solid fa-box text-info me-1"></i>${displayName}
+                        <i class="fa-solid fa-box text-info me-1"></i> ${displayName}
                     </div>
                     <div class="qty-control">
                         <button type="button" class="btn-qty btn-cart-minus" data-id="${product.product_code}">
@@ -1008,7 +1019,7 @@ function updateCartSummary() {
         } else if (appState.myRegion === 'WEST') {
             baseShippingMYR = 15;
         } else {
-            baseShippingMYR = 0; // 自取免運
+            baseShippingMYR = 0;
         }
 
         if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
@@ -1039,11 +1050,10 @@ function updateCartSummary() {
 
     const grandTotal = AppCalc.add(subtotalDisplay, shippingFeeInDisplay);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const pvTw = APP_CONFIG.ORG?.PV_RATE?.TW || 25;
-    const pvMy = APP_CONFIG.ORG?.PV_RATE?.MY || 3.5;
+    const pvTw = APP_CONFIG?.ORG?.PV_RATE?.TW || 25;
+    const pvMy = APP_CONFIG?.ORG?.PV_RATE?.MY || 3.5;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
 
-    // totalSV × rankRatio × pvMultiplier
     const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
     let estimatedRebateDisplay = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
@@ -1068,7 +1078,129 @@ function updateCartSummary() {
     $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
 
-    const svActiveThreshold = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
+    const svActiveThreshold = APP_CONFIG?.ORG?.SV_LINE_ACTIVE || 160;
+    if (totalSV < svActiveThreshold) {
+        $("#rebate-sv-warning, #sticky-rebate-warning").removeClass("d-none");
+    } else {
+        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none");
+    }
+
+    updateAllChartsData();
+}
+
+function updateCartSummaryTotalsOnly() {
+    let totalItemsCount = 0;
+    let totalSV = 0;
+    let subtotalDisplay = 0;
+
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
+    const targetCurr = appState.displayCurrency;
+    const isTargetMYR = targetCurr === 'MYR';
+    const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
+
+    Object.keys(cartState).forEach(code => {
+        const qty = cartState[code];
+        const product = findProductByCode(code);
+        if (product && qty > 0) {
+            const itemPriceOrig = product.price || 0;
+            const itemCurr = product.currency || (product.region_code === 'MY' ? 'MYR' : 'TWD');
+            const sv = product.sv_point || 0;
+
+            let itemPriceInDisplay = itemPriceOrig;
+            if (itemCurr === 'TWD' && targetCurr === 'MYR') {
+                itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
+            } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
+                itemPriceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
+            }
+
+            const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
+            const itemTotalSV = AppCalc.multiply(sv, qty, 2);
+
+            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
+            totalSV = AppCalc.add(totalSV, itemTotalSV);
+            totalItemsCount += qty;
+
+            const $row = $(`.cart-item-row[data-row-id="${code}"]`);
+            if ($row.length) {
+                $row.find('[data-field="price"]').text(`${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}`);
+                $row.find('[data-field="sv"]').text(`${itemTotalSV.toLocaleString()} SV`);
+            }
+        }
+    });
+
+    let shippingFeeInDisplay = 0;
+    let shippingPercent = 0;
+
+    if (appState.country === 'MY') {
+        const subtotalMYR = isTargetMYR ? subtotalDisplay : AppCalc.divide(subtotalDisplay, rate, 2);
+        const thresholdMYR = 800;
+        let baseShippingMYR = 0;
+
+        if (appState.myRegion === 'EAST') {
+            baseShippingMYR = 35;
+        } else if (appState.myRegion === 'WEST') {
+            baseShippingMYR = 15;
+        } else {
+            baseShippingMYR = 0;
+        }
+
+        if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
+            shippingFeeInDisplay = 0;
+        } else {
+            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : AppCalc.multiply(baseShippingMYR, rate, 2);
+        }
+
+        const progressRatio = AppCalc.divide(subtotalMYR, thresholdMYR, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
+        $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
+    } else {
+        const thresholdSV = 400;
+        const baseShippingTWD = appState.twRegion === 'PICKUP' ? 0 : 150;
+
+        if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
+            shippingFeeInDisplay = 0;
+        } else {
+            shippingFeeInDisplay = isTargetMYR ? AppCalc.divide(baseShippingTWD, rate, 2) : baseShippingTWD;
+        }
+
+        const progressRatio = AppCalc.divide(totalSV, thresholdSV, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
+        $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
+    }
+
+    $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
+
+    const grandTotal = AppCalc.add(subtotalDisplay, shippingFeeInDisplay);
+    const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
+    const pvTw = APP_CONFIG?.ORG?.PV_RATE?.TW || 25;
+    const pvMy = APP_CONFIG?.ORG?.PV_RATE?.MY || 3.5;
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
+
+    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
+    let estimatedRebateDisplay = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
+
+    if (appState.country === 'TW' && isTargetMYR) {
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
+        estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
+    } else if (appState.country === 'MY' && !isTargetMYR) {
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
+        estimatedRebateDisplay = AppCalc.multiply(rawMyrRebate, rate, 2);
+    }
+
+    const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
+
+    $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
+    $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
+    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : isPickup ? "-" : "免運費");
+    $("#summary-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
+    $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
+    $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
+    $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
+    $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    const svActiveThreshold = APP_CONFIG?.ORG?.SV_LINE_ACTIVE || 160;
     if (totalSV < svActiveThreshold) {
         $("#rebate-sv-warning, #sticky-rebate-warning").removeClass("d-none");
     } else {
@@ -1079,16 +1211,13 @@ function updateCartSummary() {
 }
 
 // ==========================================
-// 10. Chart.js 初始化與外鍵關聯動態統計
+// 10. Chart.js 初始化與外鍵關聯動態統計 (接收實例避免死鎖)
 // ==========================================
 function initAllCharts() {
     bindChartControls();
     renderSubSeriesChartCards();
 }
 
-/**
- * 依據當前購物車明細動態重繪 5 大主戰情圖表與次系列圖表
- */
 function updateAllChartsData() {
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
     const mainCats = appState.categoryList.map(c => getCategoryInfo(c.category_code, appState.country));
@@ -1107,7 +1236,6 @@ function updateAllChartsData() {
         typeMetricMap5[t.code] = 0; 
     });
 
-    // 累計各維度數值
     Object.keys(cartState).forEach(code => {
         const qty = cartState[code];
         const p = findProductByCode(code);
@@ -1156,15 +1284,14 @@ function updateAllChartsData() {
         }
     });
 
-    // 單位換算輔助
     const getUnitString = (metric) => metric === 'SV' ? 'SV' : (metric === 'MYR' ? 'RM' : 'NT$');
 
-    // --- 圖表 1：主系列佔比 (升級為甜甜圈環形圖，中央嵌入當前指標總量) ---
+    // 圖表 1：主系列佔比
     const chart1Data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chart1Metric] : 0);
     const chart1Total = chart1Data.reduce((a, b) => a + b, 0);
     const chart1Unit = getUnitString(chart1Metric);
 
-    AppChart.render('chartMainCategoryPie', AppChart.createDoughnut({
+    chartMainCategoryPieInstance = AppChart.render('chartMainCategoryPie', AppChart.createDoughnut({
         labels: mainCats.map(c => `${c.code} ${c.name}`),
         data: chart1Data,
         colors: ['#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'],
@@ -1175,9 +1302,9 @@ function updateAllChartsData() {
         }
     }));
 
-    // --- 圖表 2：各系列採購數據 (垂直柱狀圖) ---
+    // 圖表 2：各系列採購數據
     const chartBarUnit = getUnitString(chartBarMetric);
-    AppChart.render('chartSeriesCombinedBar', AppChart.createBar({
+    chartSeriesCombinedBarInstance = AppChart.render('chartSeriesCombinedBar', AppChart.createBar({
         labels: mainCats.map(c => `${c.code} ${c.name}`),
         data: mainCats.map(c => mainCatData[c.code] ? Math.round(mainCatData[c.code][chartBarMetric]) : 0),
         datasetLabel: `採購數值 (${chartBarMetric})`,
@@ -1186,8 +1313,8 @@ function updateAllChartsData() {
         unit: chartBarUnit
     }));
 
-    // --- 圖表 3：型態訂購數量統計 (垂直柱狀圖，強制整數步長) ---
-    AppChart.render('chartTypeQty', AppChart.createBar({
+    // 圖表 3：型態訂購數量統計
+    chartTypeQtyInstance = AppChart.render('chartTypeQty', AppChart.createBar({
         labels: allTypes.map(t => t.name),
         data: allTypes.map(t => typeQtyMap[t.code] || 0),
         datasetLabel: '訂購數量',
@@ -1197,7 +1324,7 @@ function updateAllChartsData() {
         yStepInteger: true
     }));
 
-    // --- 圖表 4：單品採購 Top 5 (水平長條圖) ---
+    // 圖表 4：單品採購 Top 5 (品名 Fallback 機制修復)
     let topList = [];
     Object.keys(cartState).forEach(code => {
         const qty = cartState[code];
@@ -1212,14 +1339,14 @@ function updateAllChartsData() {
             else if (chart4Metric === 'MYR') val = (itemCurr === 'TWD' ? priceOrig / rate : priceOrig) * qty;
             else val = (itemCurr === 'MYR' ? priceOrig * rate : priceOrig) * qty;
 
-            topList.push({ name: p.short_name, val: Math.round(val) });
+            topList.push({ name: p.short_name || p.name, val: Math.round(val) });
         }
     });
     topList.sort((a, b) => b.val - a.val);
     const top5 = topList.slice(0, 5);
     const chart4Unit = getUnitString(chart4Metric);
 
-    AppChart.render('chartTopItems', AppChart.createBar({
+    chartTopItemsInstance = AppChart.render('chartTopItems', AppChart.createBar({
         labels: top5.map(i => i.name),
         data: top5.map(i => i.val),
         datasetLabel: `採購數值 (${chart4Metric})`,
@@ -1228,9 +1355,9 @@ function updateAllChartsData() {
         unit: chart4Unit
     }));
 
-    // --- 圖表 5：型態貢獻雷達圖 ---
+    // 圖表 5：型態貢獻雷達圖
     const chart5Unit = getUnitString(chart5Metric);
-    AppChart.render('chartTypeSvRadar', AppChart.createRadar({
+    chartTypeSvRadarInstance = AppChart.render('chartTypeSvRadar', AppChart.createRadar({
         labels: allTypes.map(t => t.name),
         datasets: [{
             label: `貢獻度 (${chart5Metric})`,
@@ -1241,7 +1368,7 @@ function updateAllChartsData() {
         unit: chart5Unit
     }));
 
-    // --- 彈窗子圖表：各主系列之次系列分佈 ---
+    // 彈窗子圖表：各主系列之次系列分佈
     mainCats.forEach(cat => {
         const canvasId = `chartSub_${cat.code}`;
         const subList = Object.values(subCatDataMap)
@@ -1309,7 +1436,7 @@ function bindChartControls() {
 }
 
 function renderSubSeriesChartCards() {
-    const $container =$('#subSeriesChartsContainer');
+    const $container = $('#subSeriesChartsContainer');
     if (!$container.length) return;
     $container.empty();
 
@@ -1322,7 +1449,7 @@ function renderSubSeriesChartCards() {
             <div class="col-12 col-md-6 mb-3">
                 <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
                     <div class="fw-bold mb-2" style="color: ${cat.color};">
-                        <i class="${cat.icon} me-1"></i>${cat.code} ${cat.name}
+                        <i class="${cat.icon} me-1"></i> ${cat.code} ${cat.name}
                     </div>
                     <div style="height: 180px; position: relative;">
                         <canvas id="${canvasId}"></canvas>
@@ -1335,7 +1462,7 @@ function renderSubSeriesChartCards() {
 }
 
 // ==========================================
-// 11. Excel 匯出與 PDF 列印模組
+// 11. Excel 匯出與 PDF 列印模組 (變數與動態 PV 修復)
 // ==========================================
 function exportOrderToExcel() {
     const selectedKeys = Object.keys(cartState);
@@ -1378,6 +1505,7 @@ function exportOrderToExcel() {
             const subInfo = getSubcategoryInfo(p.subcategory_code, appState.country);
             const typeInfo = getTypeInfo(p.type_code, appState.country);
 
+            // 正確引用局部變數 itemPrice 與 itemSv (修復 Bug 1)
             excelData.push([
                 p.product_code,
                 p.name,
@@ -1388,8 +1516,8 @@ function exportOrderToExcel() {
                 Math.round(priceInDisplay),
                 sv,
                 qty,
-                Math.round(itemTotalNT),
-                itemTotalSV
+                Math.round(itemPrice),
+                itemSv
             ]);
         }
     });
@@ -1409,15 +1537,20 @@ function exportOrderToExcel() {
 
     const grandTotal = AppCalc.add(subtotal, shipping);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+    
+    // 動態讀取全域 PV 係數 (修復 Bug 5)
+    const pvTw = APP_CONFIG?.ORG?.PV_RATE?.TW || 25;
+    const pvMy = APP_CONFIG?.ORG?.PV_RATE?.MY || 3.5;
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
+
     const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
     let rebate = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = AppCalc.multiply(baseRebateScore, 25, 2);
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
         rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = AppCalc.multiply(baseRebateScore, 3.5, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
         rebate = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
@@ -1427,8 +1560,9 @@ function exportOrderToExcel() {
     excelData.push(["", "", "", "", "", "", "", "", "應付總金額：", Math.round(grandTotal), ""]);
     excelData.push(["", "", "", "", "", "", "", "", "預估現金回饋：", Math.round(rebate), ""]);
 
-    if (totalSV < (APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160)) {
-        excelData.push(["", "", "", "", "", "", "", "", "※ 備註：", "當月累積須達160SV方可領取階差獎金", ""]);
+    const svActiveLine = APP_CONFIG?.ORG?.SV_LINE_ACTIVE || 160;
+    if (totalSV < svActiveLine) {
+        excelData.push(["", "", "", "", "", "", "", "", "※ 備註：", `當月累積須達 ${svActiveLine} SV 方可領取階差獎金`, ""]);
     }
 
     const ws = XLSX.utils.aoa_to_sheet(excelData);
@@ -1500,15 +1634,18 @@ function exportOrderToPDF() {
 
     const grandTotal = AppCalc.add(subtotal, shipping);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+    const pvTw = APP_CONFIG?.ORG?.PV_RATE?.TW || 25;
+    const pvMy = APP_CONFIG?.ORG?.PV_RATE?.MY || 3.5;
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
+
     const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
     let rebate = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = AppCalc.multiply(baseRebateScore, 25, 2);
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
         rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = AppCalc.multiply(baseRebateScore, 3.5, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
         rebate = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
@@ -1529,13 +1666,13 @@ function exportOrderToPDF() {
 }
 
 // ==========================================
-// 12. 戰情數據報表列印
+// 12. 戰情數據報表列印 (防禦型 Canvas 萃取)
 // ==========================================
 function exportAnalyticsReport() {
-    const $btn = $('#btnPrintAnalytics');
+    const $btn =$('#btnPrintAnalytics');
     const originalHtml = $btn.html();
 
-    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>報表產生中...');
+    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 報表產生中...');
 
     setTimeout(() => {
         try {
@@ -1731,7 +1868,7 @@ function exportAnalyticsReport() {
 }
 
 // ==========================================
-// 13. iframe 視窗捲動動態追蹤定位引擎
+// 13. iframe 視窗動態追蹤與定位引擎
 // ==========================================
 function setupIframeFloatingPositionEngine() {
     function updatePosition() {
@@ -1751,7 +1888,7 @@ function setupIframeFloatingPositionEngine() {
                 const iframeTopInParent = frameRect.top + parentScrollY;
                 const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
 
-                const $cart = $('.cart-summary-card');
+                const $cart =$('.cart-summary-card');
                 if ($cart.length && isDesktop) {
                     const cartHeight = $cart.outerHeight() || 400;
                     const viewportTopInIframe = parentScrollY - iframeTopInParent;
@@ -1767,11 +1904,10 @@ function setupIframeFloatingPositionEngine() {
                         'position': 'relative',
                         'top': targetTop + 'px'
                     });
-                } else if ($cart.length && !isDesktop) {
-                    $cart.css({ 'position': '', 'top': '' });
+                } else if ($cart.length && !isDesktop) {$cart.css({ 'position': '', 'top': '' });
                 }
 
-                const $bar = $('#floatingIslandBar');
+                const $bar =$('#floatingIslandBar');
                 if ($bar.length && !$bar.hasClass('is-hidden')) {
                     const barHeight = $bar.outerHeight() || 65;
                     const viewportBottomInIframe = (parentScrollY + parentInnerHeight) - iframeTopInParent;
@@ -1788,7 +1924,7 @@ function setupIframeFloatingPositionEngine() {
                     });
                 }
 
-                const $wakeBtn = $('#btnShowFloatingBar');
+                const $wakeBtn =$('#btnShowFloatingBar');
                 if ($wakeBtn.length) {
                     const btnHeight = $wakeBtn.outerHeight() || 40;
                     const viewportBottomInIframe = (parentScrollY + parentInnerHeight) - iframeTopInParent;
@@ -1824,127 +1960,4 @@ function setupIframeFloatingPositionEngine() {
     updatePosition();
     setTimeout(updatePosition, 300);
     setTimeout(updatePosition, 800);
-}
-
-function updateCartSummaryTotalsOnly() {
-    let totalItemsCount = 0;
-    let totalSV = 0;
-    let subtotalDisplay = 0;
-
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
-    const targetCurr = appState.displayCurrency;
-    const isTargetMYR = targetCurr === 'MYR';
-    const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
-
-    Object.keys(cartState).forEach(code => {
-        const qty = cartState[code];
-        const product = findProductByCode(code);
-        if (product && qty > 0) {
-            const itemPriceOrig = product.price || 0;
-            const itemCurr = product.currency || (product.region_code === 'MY' ? 'MYR' : 'TWD');
-            const sv = product.sv_point || 0;
-
-            let itemPriceInDisplay = itemPriceOrig;
-            if (itemCurr === 'TWD' && targetCurr === 'MYR') {
-                itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
-            } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
-                itemPriceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
-            }
-
-            const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
-            const itemTotalSV = AppCalc.multiply(sv, qty, 2);
-
-            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
-            totalSV = AppCalc.add(totalSV, itemTotalSV);
-            totalItemsCount += qty;
-
-            const $row = $(`.cart-item-row[data-row-id="${code}"]`);
-            if ($row.length) {
-                $row.find('[data-field="price"]').text(`${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}`);
-                $row.find('[data-field="sv"]').text(`${itemTotalSV.toLocaleString()} SV`);
-            }
-        }
-    });
-
-    let shippingFeeInDisplay = 0;
-    let shippingPercent = 0;
-
-    if (appState.country === 'MY') {
-        const subtotalMYR = isTargetMYR ? subtotalDisplay : AppCalc.divide(subtotalDisplay, rate, 2);
-        const thresholdMYR = 800;
-        let baseShippingMYR = 0;
-
-        if (appState.myRegion === 'EAST') {
-            baseShippingMYR = 35;
-        } else if (appState.myRegion === 'WEST') {
-            baseShippingMYR = 15;
-        } else {
-            baseShippingMYR = 0; // 自取免運
-        }
-
-        if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
-            shippingFeeInDisplay = 0;
-        } else {
-            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : AppCalc.multiply(baseShippingMYR, rate, 2);
-        }
-
-        const progressRatio = AppCalc.divide(subtotalMYR, thresholdMYR, 4);
-        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
-        $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
-    } else {
-        const thresholdSV = 400;
-        const baseShippingTWD = appState.twRegion === 'PICKUP' ? 0 : 150;
-
-        if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
-            shippingFeeInDisplay = 0;
-        } else {
-            shippingFeeInDisplay = isTargetMYR ? AppCalc.divide(baseShippingTWD, rate, 2) : baseShippingTWD;
-        }
-
-        const progressRatio = AppCalc.divide(totalSV, thresholdSV, 4);
-        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
-        $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
-    }
-
-    $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
-
-    const grandTotal = AppCalc.add(subtotalDisplay, shippingFeeInDisplay);
-    const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const pvTw = APP_CONFIG.ORG?.PV_RATE?.TW || 25;
-    const pvMy = APP_CONFIG.ORG?.PV_RATE?.MY || 3.5;
-    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
-
-    // totalSV × rankRatio × pvMultiplier
-    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
-    let estimatedRebateDisplay = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
-
-    if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
-        estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
-    } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
-        estimatedRebateDisplay = AppCalc.multiply(rawMyrRebate, rate, 2);
-    }
-
-    const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
-
-    $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
-    $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
-    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : isPickup ? "-" : "免運費");
-    $("#summary-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
-    $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
-    $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
-
-    $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
-    $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
-    $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
-
-    const svActiveThreshold = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
-    if (totalSV < svActiveThreshold) {
-        $("#rebate-sv-warning, #sticky-rebate-warning").removeClass("d-none");
-    } else {
-        $("#rebate-sv-warning, #sticky-rebate-warning").addClass("d-none");
-    }
-
-    updateAllChartsData();
 }

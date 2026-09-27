@@ -74,8 +74,6 @@ window.addEventListener('AppReady', function() {
             header: true,
             complete: function(results) {
                 const data = results.data;
-                // 欄位解耦合映射範例：不直接依賴中文標題，透過 key 防禦
-                console.log("已成功動態同步最新試算表資料，總筆數：", data.length);
             },
             error: function(err) {
                 console.warn("未設定動態試算表 ID，採用預設靜態資料庫展示。");

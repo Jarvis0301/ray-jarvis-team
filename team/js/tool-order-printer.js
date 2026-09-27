@@ -95,7 +95,7 @@ function printOrderReceipt(orderData) {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px;">
                 <span>物流運費：</span>
-                <strong>${shipping > 0 ? `${currencySymbol}${Math.round(shipping)}` : "免運費"}</strong>
+                <strong>${shipping > 0 ? `${currencySymbol}${Math.round(shipping).toLocaleString()}` : "免運費"}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 15px; font-weight: bold; color: #d97706; border-top: 1px solid #e5e7eb; padding-top: 6px;">
                 <span>應付總金額：</span>

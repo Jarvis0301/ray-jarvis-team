@@ -25,36 +25,13 @@
             <!-- 頂部控制面板 -->
             <header class="card mb-4">
                 <div class="row g-3 align-items-center justify-content-between">
-                    <div class="col-12 col-md-3 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-6">
                         <h4 class="fw-bold text-light mb-0">
                             <i class="fa-solid fa-solid fa-chart-line text-primary me-1"></i>職級計算
                         </h4>
                     </div>
 
-                    <div class="col-12 col-md-6 col-xl-6">
-                        <div class="row g-3 align-items-center">
-                            <!-- 幣別切換按鈕群組 (TWD / MYR) -->
-                            <div class="col-12 col-md-6 col-xl-6">
-                                <div class="btn-group" role="group" id="currencyToggleGroup">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">新台幣 (TWD)</button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">馬幣 (MYR)</button>
-                                </div>
-                            </div>
-
-                            <!-- 匯率輸入框 (預設 8.00 TWD) -->
-                            <div class="col-12 col-md-6 col-xl-6">
-                                <div class="d-flex align-items-center gap-1">
-                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i>匯率 (1 MYR =)：</span>
-                                    <div class="input-group input-group-sm">
-                                        <input type="number" id="inputExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.01">
-                                        <span class="input-group-text">TWD</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-3 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-6 text-md-end">
                         <button type="button" class="filter-pill-btn btn-preset" id="btnPresetPartTime">
                             <i class="fa-solid fa-user-check me-1"></i>經理
                         </button>
@@ -67,6 +44,27 @@
                         <button type="button" class="filter-pill-btn btn-preset text-danger border-danger border-opacity-50" id="btnClearParams" title="清空現況參數">
                             <i class="fa-solid fa-rotate-left me-1"></i>清空
                         </button>
+                    </div>
+                </div>
+
+                <div class="row align-items-center g-3 mt-2 border-top border-primary">
+                    <!-- 幣別切換按鈕群組 (TWD / MYR) -->
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <div class="btn-group" role="group" id="currencyToggleGroup">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">新台幣 (TWD)</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">馬幣 (MYR)</button>
+                        </div>
+                    </div>
+
+                    <!-- 匯率輸入框 (預設 8.00 TWD) -->
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i>匯率 (1 MYR =)：</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="inputExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.01">
+                                <span class="input-group-text">TWD</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
