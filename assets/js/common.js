@@ -190,18 +190,22 @@ const APP_CONFIG = {
 (function() {
     'use strict';
 
-    // 團隊內部寫的 JS 模組清單
+    // 自動判斷當前頁面相對於根目錄的層級深度 (縮排 4 個空白)
+    const isSubEnDir = window.location.pathname.includes('/en/');
+    const basePath = isSubEnDir ? '../../assets/js/' : '../assets/js/';
+
+    // 團隊內部寫的 JS 模組清單 (動態組裝相對路徑)
     const internalModules = [
-        '../assets/js/ui.js',            // 主題與 UI 控制 (原 utils.js 改名)
-        '../assets/js/utils.js',         // 全域工具函式庫 (新增)
-        '../assets/js/dialog.js',
-        '../assets/js/sheet-adapter.js',
-        '../assets/js/ui-badges.js',
-        '../assets/js/ui-select-options.js',
-        '../assets/js/entity-resolver.js',
-        '../assets/js/date.js',
-        '../assets/js/calc.js',
-        '../assets/js/chart.js'
+        `${basePath}ui.js`,
+        `${basePath}utils.js`,
+        `${basePath}dialog.js`,
+        `${basePath}sheet-adapter.js`,
+        `${basePath}ui-badges.js`,
+        `${basePath}ui-select-options.js`,
+        `${basePath}entity-resolver.js`,
+        `${basePath}date.js`,
+        `${basePath}calc.js`,
+        `${basePath}chart.js`
     ];
 
     /**
@@ -268,35 +272,59 @@ function init() {
 function setDataTable() {
     // DataTables 全域預設配置
     if ($.fn.dataTable) {
+        // 依據頁面 lang 屬性判斷語系
+        const isEn = (document.documentElement.lang === 'en');
+
+        // 雙語字典配置
+        const langConfig = isEn ? {
+            processing: "Processing...",
+            loadingRecords: "Loading...",
+            lengthMenu: "Show _MENU_ entries",
+            zeroRecords: "No matching records found",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "Showing 0 to 0 of 0 entries",
+            infoFiltered: "(filtered from _MAX_ total entries)",
+            search: "Search:",
+            searchPlaceholder: "Type keywords...",
+            paginate: {
+                first: "‹‹",
+                previous: "‹",
+                next: "›",
+                last: "››"
+            }
+        } : {
+            processing: "處理中...",
+            loadingRecords: "載入中...",
+            lengthMenu: "顯示 _MENU_ 筆結果",
+            zeroRecords: "沒有符合的結果",
+            info: "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
+            infoEmpty: "顯示第 0 至 0 筆結果，共 0 筆",
+            infoFiltered: "(從 _MAX_ 筆結果中篩選)",
+            search: "搜尋：",
+            searchPlaceholder: "輸入關鍵字...",
+            paginate: {
+                first: "‹‹",
+                previous: "‹",
+                next: "›",
+                last: "››"
+            },
+            aria: {
+                sortAscending: ": 升冪排列",
+                sortDescending: ": 降冪排列"
+            }
+        };
+
         $.extend(true, $.fn.dataTable.defaults, {
             // --- 1. 語系設定 (繁體中文) ---
-            language: {
-                processing: "處理中...",
-                loadingRecords: "載入中...",
-                lengthMenu: "顯示 _MENU_ 筆結果",
-                zeroRecords: "沒有符合的結果",
-                info: "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
-                infoEmpty: "顯示第 0 至 0 筆結果，共 0 筆",
-                infoFiltered: "(從 _MAX_ 筆結果中篩選)",
-                search: "搜尋：",
-                searchPlaceholder: "輸入關鍵字...",
-                paginate: {
-                    first: "‹‹",
-                    previous: "‹",
-                    next: "›",
-                    last: "››"
-                },
-                aria: {
-                    sortAscending: ": 升冪排列",
-                    sortDescending: ": 降冪排列"
-                }
-            },
+            language: langConfig,
 
             // --- 2. 分頁與選單設定 ---
             pageLength: 10,                 // 預設每頁顯示幾筆
             lengthMenu: [                   // 每頁筆數下拉選單選項
                 [5, 10, 20, 30, 40, 50, 100, -1],                       // 實際傳入 DataTables 的數值 (-1 代表全部)
-                ['5', '10', '20', '30', '40', '50', '100', '全部']      // 畫面上顯示給使用者看的文字
+                isEn 
+                    ? ['5', '10', '20', '30', '40', '50', '100', 'All'] 
+                    : ['5', '10', '20', '30', '40', '50', '100', '全部']      // 畫面上顯示給使用者看的文字
             ],
             pagingType: "full_numbers",     // 分頁按鈕樣式 (前後頁 + 數字頁碼)
 

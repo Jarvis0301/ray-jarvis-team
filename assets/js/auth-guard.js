@@ -4,6 +4,8 @@
  * 三階全站共用門禁衛兵 (支援即時撤銷、自動路由與 HMAC 簽章防篡改)
  */
 (function() {
+    const isEn = (document.documentElement.lang === 'en' || localStorage.getItem('ray_team_lang_pref') === 'en');
+
     // 1. 立即隱藏 HTML 畫面，防範畫面閃爍與未授權內容外洩
     document.documentElement.style.display = 'none';
 
@@ -120,7 +122,14 @@
         .then(res => {
             if (!res.success || res.reason === "REVOKED") {
                 localStorage.removeItem(SESSION_KEY);
-                alert("【資安安全提醒】" + (res.message || "您的存取權限已被變更，請重新進行 Google 身分驗證！"));
+                
+                // 雙語資安提醒
+                const alertPrefix = isEn ? "【Security Notice】 " : "【資安安全提醒】";
+                const alertDefault = isEn 
+                    ? "Your access permissions have been updated. Please re-authenticate with Google!" 
+                    : "您的存取權限已被變更，請重新進行 Google 身分驗證！";
+                
+                alert(alertPrefix + (res.message || alertDefault));
                 window.location.href = loginPageUrl;
             } else {
                 if (sessionData) {
@@ -138,7 +147,8 @@
 
     // 全域通用登出函式
     window.uvacoLogout = function() {
-        if (confirm("確定要登出系統嗎？")) {
+        const confirmMsg = isEn ? "Are you sure you want to sign out?" : "確定要登出系統嗎？";
+        if (confirm(confirmMsg)) {
             localStorage.removeItem(SESSION_KEY);
             window.location.href = loginPageUrl;
         }

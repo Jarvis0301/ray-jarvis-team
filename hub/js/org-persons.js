@@ -213,7 +213,7 @@ function bindEvents() {
 // 3. 雲端資料同步讀取 (GVIZ CSV 依欄位順序解析)
 // ============================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     try {
         const [personRows, contactRows, langRows, partnerRows, custRows] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
@@ -1251,7 +1251,7 @@ async function savePersonRecord() {
     ];
 
     try {
-        AppLoading.show('<i class="fa-solid fa-floppy-disk text-primary"></i> 正在寫入人員主檔與通訊資料...', '儲存中...');
+        AppLoading.show('<i class="fa-solid fa-floppy-disk text-primary me-1"></i>正在寫入人員主檔與通訊資料...', '儲存中...');
         const silentOpt = { silent: true };
 
         // 1. 清理舊有通訊與語言子表

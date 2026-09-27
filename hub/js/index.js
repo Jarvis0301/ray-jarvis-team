@@ -95,7 +95,7 @@ function parseMenusTable(rows) {
         return {
             id: getVal(r, 0, `M_${String(idx + 1).padStart(4, '0')}`),
             appTrack: getVal(r, 1, '公開版'),
-            titleCn: getVal(r, 2, '未命名選單'),
+            titleZh: getVal(r, 2, '未命名選單'),
             titleEn: getVal(r, 3, ''),
             level: parseInt(getVal(r, 4, '0'), 10) || 0,
             parentId: getVal(r, 5, 'root'),
@@ -109,7 +109,7 @@ function parseMenusTable(rows) {
         };
     }).filter(item => {
         const isTrackMatch = (item.appTrack === CURRENT_APP_TRACK || item.appTrack === '全版本');
-        return item.id !== '' && item.titleCn !== '未命名選單' && item.isActive && isTrackMatch;
+        return item.id !== '' && item.titleZh !== '未命名選單' && item.isActive && isTrackMatch;
     }).sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
@@ -209,7 +209,7 @@ function buildRecursiveMenuHtml(parentId, depth) {
                 <a href="#" class="nav-item-link parent-toggle" data-target="submenu-${item.id}">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                        <span class="menu-text"> ${item.titleCn}</span>
+                        <span class="menu-text"> ${item.titleZh}</span>
                         ${badgeHtml}
                     </div>
                     <i class="fa-solid fa-chevron-down submenu-arrow small"></i>
@@ -224,7 +224,7 @@ function buildRecursiveMenuHtml(parentId, depth) {
                 <a href="${item.link}" ${targetAttr} ${clickHandler} class="nav-item-link">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                        <span class="menu-text"> ${item.titleCn}</span>
+                        <span class="menu-text"> ${item.titleZh}</span>
                         ${badgeHtml}
                     </div>
                     ${isExternal ? '<i class="fa-solid fa-arrow-up-right-from-square small"></i>' : ''}
@@ -305,7 +305,7 @@ function loadPage(pageUrl) {
         },
         error: function () {
             $('#page-content-container').html(`
-                <div class="card card-modal bg-purple border-purple text-light p-4 shadow-lg">
+                <div class="card card-modal bg-dark border-purple text-light p-4 shadow-lg">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-hammer text-purple display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
@@ -479,7 +479,7 @@ function renderSitemapFooter() {
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
                 <div class="fw-bold text-purple mb-2">
-                    <i class="${iconClass} me-1"></i>${root.titleCn}
+                    <i class="${iconClass} me-1"></i>${root.titleZh}
                 </div>`;
 
         if (children.length > 0) {
@@ -494,7 +494,7 @@ function renderSitemapFooter() {
                 sitemapBlockHtml += `
                     <li>
                         <a href="${child.link}" ${targetAttr} ${clickHandler}>
-                            <i class="${child.icon} me-1"></i>${child.titleCn}
+                            <i class="${child.icon} me-1"></i>${child.titleZh}
                         </a>
                     </li>`;
             });

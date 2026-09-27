@@ -7,9 +7,94 @@ const CURRENT_APP_TRACK = '公開版'; // 當前系統版本：'公開版' | '�
 
 const SESSION_NAME = 'ray_team_last_page_public'; // Session 快取鍵名
 
+// 語系狀態管理 (優先自快取讀取，預設繁中)
+let currentLang = localStorage.getItem('ray_team_lang_pref') || 'zh-TW';
+document.documentElement.lang = currentLang;
+
 let menuTreeMap = new Map();
+let cachedMenuItems = []; // 快取試算表選單資料，避免語系切換時重複發送請求[cite: 8]
 let currentPageUrl = 'home.html';
 let isInitialized = false;
+
+// 公開版專屬靜態 UI 雙語字典
+const I18N_SHELL = {
+    'zh-TW': {
+        pageTitle: '健康生活與自由日常',
+        brand: '健康生活與自由日常',
+        versionPublic: '公開版',
+        versionTeam: '團隊版',
+        versionHub: '核心版',
+        versionCurrentBadge: '當前',
+        sidebarLangBtn: 'English',
+        sitemap: '網站地圖 (Site Map)',
+        disclaimer: '網站聲明',
+        copyright: "© 2026 榮祥團隊 Ray's Team | 本網站由榮祥團隊獨立運營，非葡眾官方網站 | ",
+        menuLoading: '正在載入選單...'
+    },
+    'en': {
+        pageTitle: 'Health & Freedom Daily',
+        brand: 'Health & Freedom Daily',
+        versionPublic: 'Public',
+        versionTeam: 'Team',
+        versionHub: 'Core',
+        versionCurrentBadge: 'Current',
+        sidebarLangBtn: '繁體中文',
+        sitemap: 'Site Map',
+        disclaimer: 'Disclaimer',
+        copyright: "© 2026 Ray's Team | Independently operated by Ray's Team, not the official UVACO website | ",
+        menuLoading: 'Loading menu...'
+    }
+};
+
+/**
+ * 依據當前語系動態解析實際子頁面路徑 (中文: xxx.html | 英文: en/xxx.html)
+ */
+function getResolvedPageUrl(pageUrl) {
+    if (!pageUrl || pageUrl === '#' || pageUrl.startsWith('http://') || pageUrl.startsWith('https://')) {
+        return pageUrl;
+    }
+    const cleanUrl = pageUrl.replace(/^en\//, '');
+    return (currentLang === 'en') ? `en/${cleanUrl}` : cleanUrl;
+}
+
+/**
+ * 依當前語系取得選單標題 (支援 titleEn 自動 Fallback 至 titleZh)[cite: 8]
+ */
+function getMenuTitle(item) {
+    if (currentLang === 'en' && item.titleEn && item.titleEn.trim() !== '') {
+        return item.titleEn.trim();
+    }
+    return item.titleZh;
+}
+
+/**
+ * 更新外框所有靜態文字節點 (雙語即時響應)
+ * 遵循 4 個空白縮排規範
+ */
+function updatePortalShellI18n() {
+    const t = I18N_SHELL[currentLang] || I18N_SHELL['zh-TW'];
+
+    // 1. 網頁標題與品牌 Logo
+    document.title = t.brand;
+    $('#brandLogoText').text(t.brand);
+
+    // 2. 側邊欄切換語言與登出按鈕
+    $('#sidebarLangText').text(t.sidebarLangBtn);
+    $('#sidebarLogoutText').text(t.logout);
+
+    // 3. 網站地圖標題與頁尾聲明文字
+    $('#sitemapTitleText').text(t.sitemap);
+    $('#copyrightNoticeText').text(t.copyright);
+    $('#disclaimerLinkText').text(t.disclaimer);
+
+    // 4. 版本切換下拉選單各按鈕文字
+    $('#publicButton .version-btn-text').text(t.versionPublic);
+    $('#teamButton .version-btn-text').text(t.versionTeam);
+    $('#hubButton .version-btn-text').text(t.versionHub);
+
+    // 5. 重新校準當前版本按鈕外觀與徽章
+    refreshVersionDropdownLabel();
+}
 
 // ==========================================================================
 // 2. 系統生命週期與事件初始化
@@ -39,12 +124,13 @@ async function initApp() {
     initBackToTop();
     initLogoutModal();
     versionSwitch();
+    updatePortalShellI18n(); // 初始化外框雙語字串
 
     // 優先自 sessionStorage 或網址讀取上次瀏覽頁面
     const savedLastPage = sessionStorage.getItem(SESSION_NAME);
     const initialPage = (savedLastPage || 'home') + '.html';
-    currentPageUrl = initialPage;
-    loadPage(initialPage);
+    currentPageUrl = initialPage.replace(/^en\//, '');
+    loadPage(currentPageUrl);
 
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetMenu();
@@ -74,6 +160,7 @@ async function fetchGoogleSheetMenu() {
         }
 
         const menuItems = parseMenusTable(rawRows);
+        cachedMenuItems = menuItems; // 存入全域記憶體快取
         processAndRenderMenu(menuItems);
     } catch (err) {
         console.error('Google 試算表選單載入失敗:', err);
@@ -95,7 +182,7 @@ function parseMenusTable(rows) {
         return {
             id: getVal(r, 0, `M_${String(idx + 1).padStart(4, '0')}`),
             appTrack: getVal(r, 1, '公開版'),
-            titleCn: getVal(r, 2, '未命名選單'),
+            titleZh: getVal(r, 2, '未命名選單'),
             titleEn: getVal(r, 3, ''),
             level: parseInt(getVal(r, 4, '0'), 10) || 0,
             parentId: getVal(r, 5, 'root'),
@@ -109,7 +196,7 @@ function parseMenusTable(rows) {
         };
     }).filter(item => {
         const isTrackMatch = (item.appTrack === CURRENT_APP_TRACK || item.appTrack === '全版本');
-        return item.id !== '' && item.titleCn !== '未命名選單' && item.isActive && isTrackMatch;
+        return item.id !== '' && item.titleZh !== '未命名選單' && item.isActive && isTrackMatch;
     }).sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
@@ -209,7 +296,7 @@ function buildRecursiveMenuHtml(parentId, depth) {
                 <a href="#" class="nav-item-link parent-toggle" data-target="submenu-${item.id}">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                        <span class="menu-text"> ${item.titleCn}</span>
+                        <span class="menu-text"> ${getMenuTitle(item)}</span>
                         ${badgeHtml}
                     </div>
                     <i class="fa-solid fa-chevron-down submenu-arrow small"></i>
@@ -224,7 +311,7 @@ function buildRecursiveMenuHtml(parentId, depth) {
                 <a href="${item.link}" ${targetAttr} ${clickHandler} class="nav-item-link">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                        <span class="menu-text"> ${item.titleCn}</span>
+                        <span class="menu-text"> ${getMenuTitle(item)}</span>
                         ${badgeHtml}
                     </div>
                     ${isExternal ? '<i class="fa-solid fa-arrow-up-right-from-square small"></i>' : ''}
@@ -276,41 +363,52 @@ function setActiveMenuItem(pageUrl) {
 function loadPage(pageUrl) {
     if (!pageUrl || pageUrl === '#') return;
 
-    currentPageUrl = pageUrl;
+    // 1. 純化為基礎檔名 (去除 en/ 前綴)，供狀態記憶與選單高亮
+    const basePageUrl = pageUrl.replace(/^en\//, '');
+    currentPageUrl = basePageUrl;
     $('#portalSidebar').removeClass('mobile-open');
 
-    setActiveMenuItem(pageUrl);
+    setActiveMenuItem(basePageUrl);
 
-    let page = pageUrl.split('.')[0];
+    let page = basePageUrl.split('.')[0];
     if (page) {
         sessionStorage.setItem(SESSION_NAME, page);
     }
 
-    const $container = $('#page-content-container');
+    // 2. 依當前語系動態解析實際子頁面路徑 (中文: xxx.html | 英文: en/xxx.html)
+    const targetSrc = getResolvedPageUrl(basePageUrl);
+
+    // 3. 渲染 iFrame 容器
+    const $container =$('#page-content-container');
     $container.html(`
         <iframe id="portal-subpage-frame" 
                 class="seamless-iframe" 
-                src="${pageUrl}" 
+                src="${targetSrc}" 
                 scrolling="no" 
                 title="Subpage Content">
         </iframe>
     `);
 
+    // 4. 非同步偵測子頁面存在狀態
     $.ajax({
-        url: pageUrl,
+        url: targetSrc,
         type: 'GET',
         dataType: 'html',
         success: function () {
             // 子頁面載入成功
         },
         error: function () {
+            const isEn = (currentLang === 'en');
+            const noticeTitle = isEn ? 'Under Construction, Stay Tuned!' : '本頁面建置中，敬請期待！';
+            const btnBackText = isEn ? 'Back to Home' : '返回首頁';
+
             $('#page-content-container').html(`
-                <div class="card card-modal bg-purple border-purple text-light p-4 shadow-lg">
+                <div class="card card-modal bg-dark border-green text-light p-4 shadow-lg">
                     <div class="card-body text-center">
-                        <i class="fa-solid fa-hammer text-purple display-4 mb-3"></i>
-                        <h3>本頁面建置中，敬請期待！</h3>
-                        <button class="btn btn-outline-purple mt-2" onclick="loadPage('home.html')">
-                            <i class="fa-solid fa-house me-1"></i>返回首頁
+                        <i class="fa-solid fa-hammer text-green display-4 mb-3"></i>
+                        <h3>${noticeTitle}</h3>
+                        <button class="btn btn-outline-green mt-2" onclick="loadPage('home.html')">
+                            <i class="fa-solid fa-house me-1"></i>${btnBackText}
                         </button>
                     </div>
                 </div>
@@ -479,7 +577,7 @@ function renderSitemapFooter() {
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
                 <div class="fw-bold text-primary mb-2">
-                    <i class="${iconClass} me-1"></i>${root.titleCn}
+                    <i class="${iconClass} me-1"></i>${getMenuTitle(root)}
                 </div>`;
 
         if (children.length > 0) {
@@ -494,7 +592,7 @@ function renderSitemapFooter() {
                 sitemapBlockHtml += `
                     <li>
                         <a href="${child.link}" ${targetAttr} ${clickHandler}>
-                            <i class="${child.icon} me-1"></i>${child.titleCn}
+                            <i class="${child.icon} me-1"></i>${getMenuTitle(child)}
                         </a>
                     </li>`;
             });
@@ -560,73 +658,102 @@ function initLogoutModal() {
 
 function versionSwitch() {
     const currentPath = window.location.pathname;
-    const mainBtn = document.getElementById('versionDropdownBtn');
-    const versionBtns = document.querySelectorAll('.open-version-btn');
+    const $mainBtn =$('#versionDropdownBtn');
+    const $versionBtns =$('.open-version-btn');
 
+    const isEn = (currentLang === 'en');
+
+    // 官方英文對齊字典
+    const i18nTrack = {
+        public: isEn ? 'Public' : '公開版',
+        team:   isEn ? 'Team' : '團隊版',
+        hub:    isEn ? 'Core' : '核心版',
+        badge:  isEn ? 'Current' : '當前'
+    };
+
+    // Google OAuth 白名單安全鑑權 (公開版訪客不具備 Hub 權限時自動隱藏)[cite: 8, 11]
     const rawSession = localStorage.getItem('ray_team_auth_session');
-    let sessionData = null;
+    let hasHubAccess = false;
+
     if (rawSession) {
         try {
-            sessionData = JSON.parse(rawSession);
+            const sessionData = JSON.parse(rawSession);
             const now = new Date().getTime();
-            const hubPerm = (sessionData.permissions) ? sessionData.permissions['hub'] : null;
+            const hubPerm = sessionData.permissions ? sessionData.permissions['hub'] : null;
 
-            // 具備核心版權限才顯示按鈕
-            if (sessionData.expireAt && sessionData.expireAt > now && (hubPerm === '編輯' || hubPerm === '檢視') && sessionData.signature) {
-                $('#hubButton').show();
-            } else {
-                $('#hubButton').hide();
+            if (sessionData.expireAt && sessionData.expireAt > now && 
+                (hubPerm === '編輯' || hubPerm === '檢視') && sessionData.signature) {
+                hasHubAccess = true;
             }
         } catch (e) {
-            $('#hubButton').hide();
-            console.warn('解析 Auth Session 發生異常:', e);
+            console.warn('[versionSwitch] 解析 Auth Session 發生異常:', e);
         }
     }
 
+    if (hasHubAccess) {
+        $('#hubButton').show();
+    } else {
+        $('#hubButton').hide();
+    }
+
+    // 更新下拉選單按鈕文字 (保持圖示不丟失)
+    const updateBtnText = ($btn, text) => {
+        const $textSpan =$btn.find('.version-btn-text');
+        if ($textSpan.length) {$textSpan.text(text);
+        } else {
+            const $icon =$btn.find('i').first();
+            $btn.empty().append($icon).append(` <span class="version-btn-text">${text}</span>`);
+        }
+    };
+
+    updateBtnText($('#publicButton'), i18nTrack.public);
+    updateBtnText($('#teamButton'), i18nTrack.team);
+    updateBtnText($('#hubButton'), i18nTrack.hub);
+
+    // 比對當前路徑 (公開版預設匹配 publicButton)[cite: 8]
     let matchedBtn = null;
-
-    versionBtns.forEach(btn => {
-        const rawUrl = btn.getAttribute('data-url');
+    $versionBtns.each(function () {
+        const rawUrl = $(this).attr('data-url') || '';
         const pathKey = rawUrl.replace(/\.\./g, '');
-
         if (pathKey && currentPath.includes(pathKey)) {
-            matchedBtn = btn;
+            matchedBtn = this;
         }
     });
 
-    if (!matchedBtn && versionBtns.length > 0) {
-        matchedBtn = versionBtns[0];
+    if (!matchedBtn && $versionBtns.length > 0) {
+        matchedBtn = document.getElementById('publicButton') || $versionBtns[0];
     }
 
+    $versionBtns.removeClass('active').find('.badge-current-mark').remove();
+
     if (matchedBtn) {
-        matchedBtn.classList.add('active');
+        const $matched = $(matchedBtn);$matched.addClass('active');
 
-        const badgeSpan = document.createElement('span');
-        badgeSpan.className = 'badge badge-white shadow-sm ms-2';
-        badgeSpan.textContent = '當前';
+        // 提取主題色 Token (公開版預設為 btn-green-subtle -> green)[cite: 8, 10]
+        const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle')) || 'btn-green-subtle';
+        const colorName = colorBtnClass.split('-')[1] || 'green';
+        const colorTextClass = `text-${colorName}`;
 
-        if (mainBtn) {
-            const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle'));
-            const colorTextClass = 'text-' + colorBtnClass.split('-')[1].toString();
-            if (colorBtnClass) {
-                mainBtn.className = mainBtn.className.replace(/btn-[a-z]+-subtle/g, colorBtnClass);
-                badgeSpan.className = badgeSpan.className.replace(/text-[a-z]+/g, colorTextClass);
-            }
+        const badgeHtml = `<span class="badge badge-white shadow-sm ms-2 ${colorTextClass} badge-current-mark">${i18nTrack.badge}</span>`;
+        //$matched.append(badgeHtml);
 
-            const labelSpan = matchedBtn.querySelector('span:first-child');
-            if (labelSpan) {
-                mainBtn.innerHTML = labelSpan.innerHTML;
-            }
+        if ($mainBtn.length) {$mainBtn.attr('class', function (i, currentClasses) {
+                return currentClasses.replace(/btn-[a-z]+-subtle/g, '').trim() + ` ${colorBtnClass}`;
+            });
+
+            const iconClass = $matched.find('i').attr('class') || 'fa-solid fa-leaf';
+            const labelText = $matched.find('.version-btn-text').text();
+
+            $mainBtn.html(`<i class="${iconClass}"></i> <span id="versionCurrentText">${labelText}</span>`);
         }
     }
 
-    versionBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const url = this.getAttribute('data-url');
-            if (url) {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        });
+    // 防止事件重複綁定[cite: 8]
+    $versionBtns.off('click.versionSwitch').on('click.versionSwitch', function () {
+        const url = $(this).attr('data-url');
+        if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
     });
 }
 
@@ -638,5 +765,102 @@ function showErrorNotice(msg) {
         });
     } else {
         alert(msg);
+    }
+}
+
+/**
+ * 門戶原頁無刷新切換語系控制器 (縮排 4 個空白)
+ */
+function switchLanguage() {
+    // 1. 切換語系狀態並寫入 LocalStorage 快取
+    currentLang = (currentLang === 'en') ? 'zh-TW' : 'en';
+    localStorage.setItem('ray_team_lang_pref', currentLang);
+    document.documentElement.lang = currentLang;
+
+    // 2. 即時更新外框靜態文字與按鈕外觀
+    updatePortalShellI18n();
+    versionSwitch();
+
+    // 3. 0 毫秒重繪選單與網站地圖 (直接消耗記憶體快取)
+    if (cachedMenuItems.length > 0) {
+        processAndRenderMenu(cachedMenuItems);
+    }
+
+    // 4. 原頁使用現有 loadPage 加載對應語系之子頁面
+    loadPage(currentPageUrl);
+}
+
+/**
+ * 即時更新外框所有靜態文字節點 (保持圖示與半形空格)
+ */
+function updatePortalShellI18n() {
+    const t = I18N_SHELL[currentLang] || I18N_SHELL['zh-TW'];
+
+    // 1. 網頁標題與品牌 Logo
+    document.title = t.brand;
+    $('#brandLogoText').text(t.brand);
+
+    // 2. 側邊欄切換語言與登出按鈕
+    $('#sidebarLangText').text(t.sidebarLangBtn);
+    $('#sidebarLogoutText').text(t.logout);
+
+    // 3. 網站地圖標題與頁尾聲明文字
+    $('#sitemapTitleText').text(t.sitemap);
+    $('#copyrightNoticeText').text(t.copyright);
+    $('#disclaimerLinkText').text(t.disclaimer);
+
+    // 4. 版本切換下拉選單各按鈕文字
+    $('#publicButton .version-btn-text').text(t.versionPublic);
+    $('#teamButton .version-btn-text').text(t.versionTeam);
+    $('#hubButton .version-btn-text').text(t.versionHub);
+
+    // 5. 重新校準當前版本按鈕外觀與徽章
+    refreshVersionDropdownLabel();
+}
+
+/**
+ * 刷新版本主按鈕的標籤
+ */
+function refreshVersionDropdownLabel() {
+    const t = I18N_SHELL[currentLang] || I18N_SHELL['zh-TW'];
+    const currentPath = window.location.pathname;
+    const mainBtn = document.getElementById('versionDropdownBtn');
+    const versionBtns = document.querySelectorAll('.open-version-btn');
+
+    let matchedBtn = null;
+    versionBtns.forEach(btn => {
+        const rawUrl = btn.getAttribute('data-url');
+        const pathKey = rawUrl.replace(/\.\./g, '');
+        if (pathKey && currentPath.includes(pathKey)) {
+            matchedBtn = btn;
+        }
+    });
+
+    if (!matchedBtn && versionBtns.length > 0) {
+        matchedBtn = versionBtns[0];
+    }
+
+    if (matchedBtn && mainBtn) {
+        // 清理所有按鈕上的舊徽章
+        $('.open-version-btn .badge-current-mark').remove();
+        matchedBtn.classList.add('active');
+
+        // 動態生成徽章
+        const badgeSpan = document.createElement('span');
+        badgeSpan.className = 'badge badge-white shadow-sm ms-2 badge-current-mark';
+        badgeSpan.textContent = t.versionCurrentBadge;
+
+        const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle'));
+        const colorTextClass = 'text-' + (colorBtnClass ? colorBtnClass.split('-')[1] : 'blue');
+        if (colorBtnClass) {
+            mainBtn.className = mainBtn.className.replace(/btn-[a-z]+-subtle/g, colorBtnClass);
+            badgeSpan.className = badgeSpan.className.replace(/text-[a-z]+/g, colorTextClass);
+        }
+
+        // 取得匹配按鈕內的圖示與動態文字
+        const iconHtml = $(matchedBtn).find('i').prop('outerHTML');
+        const textVal = $(matchedBtn).find('.version-btn-text').text();
+        mainBtn.innerHTML = `${iconHtml} <span id="versionCurrentText">${textVal}</span>`;
+        //matchedBtn.appendChild(badgeSpan);
     }
 }

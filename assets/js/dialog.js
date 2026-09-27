@@ -137,24 +137,30 @@ class AppDialog {
     static _getOrCreateModal() {
         let modalElem = document.getElementById('globalAppModal');
         if (!modalElem) {
+            // 動態判定當前語系環境
+            const isEn = (document.documentElement.lang === 'en');
+            const defaultTitle = isEn ? 'Notice' : '提示訊息';
+            const defaultCancel = isEn ? 'Cancel' : '取消';
+            const defaultConfirm = isEn ? 'Confirm' : '確定';
+
             const modalHtml = `
             <div class="modal fade" id="globalAppModal" tabindex="-1" aria-hidden="true" style="z-index: 999999;">
                 <div class="modal-dialog">
                     <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                         <div class="modal-header border-secondary">
                             <h5 class="modal-title" id="globalAppModalTitle">
-                                <i class="fa-solid fa-circle-info text-info me-2" id="globalAppModalIcon"></i>
-                                <span id="globalAppModalTitleText">提示訊息</span>
+                                <i class="fa-solid fa-circle-info text-info me-1" id="globalAppModalIcon"></i>
+                                <span id="globalAppModalTitleText">${defaultTitle}</span>
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" id="globalAppModalBody"></div>
                         <div class="modal-footer border-secondary" id="globalAppModalFooter">
                             <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" id="globalAppModalCancelBtn" data-bs-dismiss="modal">
-                                <i class="fa-solid fa-xmark"></i> 取消
+                                <i class="fa-solid fa-xmark"></i> <span id="globalAppModalCancelText">${defaultCancel}</span>
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="globalAppModalConfirmBtn">
-                                <i class="fa-solid fa-check"></i> 確定
+                                <i class="fa-solid fa-check"></i> <span id="globalAppModalConfirmText">${defaultConfirm}</span>
                             </button>
                         </div>
                     </div>
@@ -179,9 +185,11 @@ class AppDialog {
             const modalElem = this._getOrCreateModal();
             const bsModal = bootstrap.Modal.getOrCreateInstance(modalElem);
 
-            const title = options.title || '系統提示';
+            // 雙語預設文字適配
+            const isEn = (document.documentElement.lang === 'en');
+            const title = options.title || (isEn ? 'System Notice' : '系統提示');
             const iconClass = options.icon || 'fa-solid fa-circle-info text-info';
-            const btnText = options.btnText || '確定';
+            const btnText = options.btnText || (isEn ? 'OK' : '確定');
             const btnClass = options.btnClass || 'btn-info';
 
             document.getElementById('globalAppModalTitleText').textContent = title;
@@ -193,7 +201,7 @@ class AppDialog {
 
             cancelBtn.style.display = 'none';
             confirmBtn.className = `btn ${btnClass} btn-sm rounded-pill px-4`;
-            confirmBtn.textContent = btnText;
+            confirmBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${btnText}`;
 
             const handleConfirm = () => {
                 confirmBtn.removeEventListener('click', handleConfirm);
@@ -228,10 +236,12 @@ class AppDialog {
             const modalElem = this._getOrCreateModal();
             const bsModal = bootstrap.Modal.getOrCreateInstance(modalElem);
 
-            const title = options.title || '確認操作';
+            // 雙語預設文字適配
+            const isEn = (document.documentElement.lang === 'en');
+            const title = options.title || (isEn ? 'Confirm Action' : '確認操作');
             const iconClass = options.icon || 'fa-solid fa-triangle-exclamation text-warning';
-            const confirmText = options.confirmText || '確認';
-            const cancelText = options.cancelText || '取消';
+            const confirmText = options.confirmText || (isEn ? 'Confirm' : '確認');
+            const cancelText = options.cancelText || (isEn ? 'Cancel' : '取消');
             const confirmClass = options.confirmClass || 'btn-danger';
 
             document.getElementById('globalAppModalTitleText').textContent = title;
@@ -242,10 +252,10 @@ class AppDialog {
             const confirmBtn = document.getElementById('globalAppModalConfirmBtn');
 
             cancelBtn.style.display = 'inline-block';
-            cancelBtn.textContent = cancelText;
+            cancelBtn.innerHTML = `<i class="fa-solid fa-xmark"></i> ${cancelText}`;
 
             confirmBtn.className = `btn ${confirmClass} btn-sm rounded-pill px-3`;
-            confirmBtn.textContent = confirmText;
+            confirmBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${confirmText}`;
 
             let userChoice = false;
 
@@ -355,8 +365,13 @@ class AppLoading {
     static _scrollListener = null;
 
     static _ensureLoadingOverlay() {
-        let $overlay = $('#globalLoadingOverlay');
+        let $overlay =$('#globalLoadingOverlay');
         if (!$overlay.length) {
+            // 雙語載入提示
+            const isEn = (document.documentElement.lang === 'en');
+            const defaultTitle = isEn ? 'Processing Data...' : '資料處理中...';
+            const defaultDesc = isEn ? 'Securely connecting to cloud, please wait...' : '正在與雲端安全通訊，請稍候';
+
             $('body').append(`
                 <div id="globalLoadingOverlay" class="uvaco-loading-overlay">
                     <div class="uvaco-loading-card" id="globalLoadingCard">
@@ -364,13 +379,13 @@ class AppLoading {
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <h6 class="text-light fw-bold mb-1" id="globalLoadingTitle">
-                            <i class="fa-solid fa-spinner fa-spin"></i> 資料處理中...
+                            <i class="fa-solid fa-spinner fa-spin"></i> ${defaultTitle}
                         </h6>
-                        <div class="text-muted small" id="globalLoadingDesc">正在與雲端安全通訊，請稍候</div>
+                        <div class="text-muted small" id="globalLoadingDesc">${defaultDesc}</div>
                     </div>
                 </div>
             `);
-            $overlay = $('#globalLoadingOverlay');
+            $overlay =$('#globalLoadingOverlay');
         }
         return $overlay;
     }

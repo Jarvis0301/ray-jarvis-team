@@ -1876,7 +1876,7 @@ function openOutboundDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-warehouse text-primary"></i> 商流歸屬與實體扣庫
+                <i class="fa-solid fa-warehouse text-primary me-1"></i>商流歸屬與實體扣庫
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">銷貨業務類別</div>
@@ -1898,7 +1898,7 @@ function openOutboundDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-truck text-info"></i> 收件客情與實體配送
+                <i class="fa-solid fa-truck text-info me-1"></i>收件客情與實體配送
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">收件對象身分</div>
@@ -1928,7 +1928,7 @@ function openOutboundDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-coins text-warning"></i> 財務金流與實質毛利結算
+                <i class="fa-solid fa-coins text-warning me-1"></i>財務金流與實質毛利結算
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品實收</div>
@@ -1966,7 +1966,7 @@ function openOutboundDetailModal(orderId) {
 
         <article class="card p-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
-                <i class="fa-solid fa-comment-dots text-secondary"></i> 單據備註事項
+                <i class="fa-solid fa-comment-dots text-secondary me-1"></i>單據備註事項
             </h6>
             <div class="text-light small p-2 rounded" style="background: rgba(10, 5, 18, 0.4);">
                 ${item.remarks || '未填寫單據備註事項'}

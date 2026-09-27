@@ -396,24 +396,24 @@ function updateQualificationStatus(isPersonalQualified, isManagerQualified, isAu
     const svManagerThreshold = CFG_ORG.SV_LINE_MANAGER || 3200;
 
     if (isPersonalQualified) {
-        $txtPersonal.html(`<i class="fa-solid fa-circle-check text-success"></i> 個人責任額已達標 (滿 ${svActiveThreshold.toLocaleString()} SV)`);
+        $txtPersonal.html(`<i class="fa-solid fa-circle-check text-success me-1"></i>個人責任額已達標 (滿 ${svActiveThreshold.toLocaleString()} SV)`);
     } else {
-        $txtPersonal.html(`<i class="fa-solid fa-circle-xmark text-danger"></i> 個人責任額未達標 (不足 ${svActiveThreshold.toLocaleString()} SV，全月不領獎)`);
+        $txtPersonal.html(`<i class="fa-solid fa-circle-xmark text-danger me-1"></i>個人責任額未達標 (不足 ${svActiveThreshold.toLocaleString()} SV，全月不領獎)`);
     }
 
     if (isManagerQualified) {
-        $txtGroup.html('<i class="fa-solid fa-circle-check text-success"></i> 合格經理小組責任額已達標');
+        $txtGroup.html('<i class="fa-solid fa-circle-check text-success me-1"></i>合格經理小組責任額已達標');
     } else {
-        $txtGroup.html(`<i class="fa-solid fa-circle-xmark text-warning"></i> 小組未達 ${svManagerThreshold.toLocaleString()} SV (向上緊縮歸併)`);
+        $txtGroup.html(`<i class="fa-solid fa-circle-xmark text-warning me-1"></i>小組未達 ${svManagerThreshold.toLocaleString()} SV (向上緊縮歸併)`);
     }
 
     if (isAutoRescued) {
         $autoRescueBox.show();
-        $("#autoRescueTitle").html('<i class="fa-solid fa-shield-halved text-success"></i> 業績自動補救：已啟動');
+        $("#autoRescueTitle").html('<i class="fa-solid fa-shield-halved text-success me-1"></i>業績自動補救：已啟動');
         $("#autoRescueDesc").text(`具備 ${activeLines} 條合格經理線（超過4條），免除個人小組 ${svManagerThreshold.toLocaleString()} SV 考核責任額以領取經理與領導獎金（★ 合格小組獎金除外，仍須實質達標）。`);
     } else {
         $autoRescueBox.show();
-        $("#autoRescueTitle").html('<i class="fa-solid fa-circle-info text-info"></i> 業績自動補救條件：未啟動');
+        $("#autoRescueTitle").html('<i class="fa-solid fa-circle-info text-info me-1"></i>業績自動補救條件：未啟動');
         $("#autoRescueDesc").text(`需晉升珍珠級以上且培育 5 條以上合格經理線，方可啟動免小組 ${svManagerThreshold.toLocaleString()} SV 責任額機制。`);
     }
 }

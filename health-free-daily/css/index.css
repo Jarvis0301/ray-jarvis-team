@@ -2,33 +2,12 @@
    1. 核心變數與基礎設定 (CSS Variables & Base)
 ================================================== */
 :root {
-/*     --uvaco-bg-primary: #081612;    
-    --uvaco-bg-card: #12251e;
-    --uvaco-primary: #10b981;
-    --uvaco-secondary: #34d399;
-    --accent-hover: rgba(52, 211, 153, 0.15);
-    --uvaco-border-color: rgba(52, 211, 153, 0.2);
-    --uvaco-text-primary: #f1f5f9;
-    --uvaco-text-muted: #94a3b8;
-    --uvaco-accent: #f59e0b; */
     --bg-header: #0a1b14;
     --bg-sidebar: #0d1f18;
-    --header-height: 70px;
     --sidebar-width: 200px;
     --sidebar-collapsed-width: 80px;
+    --header-height: 70px;
 }
-
-/* body {
-    background-color: var(--uvaco-bg-primary);
-    color: var(--uvaco-text-primary);
-    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-} */
 
 /* ==================================================
    2. 頂部標題欄 (Header) 與通用元件
@@ -58,31 +37,6 @@
     align-items: center;
     gap: 0.5rem;
 }
-
-/* .toggle-btn {
-    background: transparent;
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--uvaco-secondary);
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.toggle-btn:hover {
-    background-color: var(--accent-hover);
-    color: #ffffff;
-    border-color: var(--uvaco-primary);
-} */
-
-/* 通用綠色主題工具類 */
-/* .bg-green { background-color: var(--uvaco-bg-card) !important; }
-.btn-outline-green { color: var(--uvaco-secondary); border-color: var(--uvaco-primary); }
-.btn-outline-green:hover { background-color: var(--uvaco-secondary); color: #ffffff; }
-.border-green { border-color: var(--uvaco-border-color) !important; }
-.text-green { color: var(--uvaco-primary) !important; }
-.text-green-bright { color: var(--uvaco-secondary) !important; }
-.spinner-border.text-green { color: var(--uvaco-primary) !important; } */
 
 /* ==================================================
    3. 版面佈局結構 (Portal Layout Wrapper)
@@ -177,7 +131,7 @@
 }
 
 .nav-item-link:hover {
-    background-color: var(--accent-hover);
+    background-color: var(--uvaco-border-glow);
 }
 
 .menu-icon-box {
@@ -209,7 +163,7 @@
 /* 滑鼠懸停於子選單項目時：向右微幅滑動 + 亮字 + 背景亮色 */
 .submenu-container .nav-item-link:hover {
     color: #ffffff !important;
-    background-color: var(--accent-hover, rgba(52, 211, 153, 0.2)) !important;
+    background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
     transform: translateX(5px);
     /* 微幅向右位移，增加靈動感 */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
@@ -250,14 +204,14 @@
     background: rgba(245, 158, 11, 0.18) !important;
     border-left: 3px solid var(--uvaco-accent) !important;
     /* Amber琥珀金指示邊條，做出對比 */
-    color: var(--uvaco-accent) !important;
+    color: var(--uvaco-text-accent) !important;
     /* 字體呈琥珀金高亮 */
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .submenu-container .nav-item-link.active .menu-icon-box {
-    color: var(--uvaco-accent) !important;
+    color: var(--uvaco-text-accent) !important;
     opacity: 1 !important;
 }
 
@@ -351,7 +305,7 @@
 
     .portal-sidebar.collapsed:hover .submenu-container .nav-item-link:hover {
         color: #ffffff !important;
-        background-color: var(--accent-hover, rgba(52, 211, 153, 0.2)) !important;
+        background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
         transform: translateX(5px);
         /* 微幅向右位移，增加靈動感 */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
