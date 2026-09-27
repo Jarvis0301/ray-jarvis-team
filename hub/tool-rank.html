@@ -128,7 +128,7 @@
 
             <!-- 上半部：輸入控制艙 vs 目標缺口與權利 -->
             <section class="row g-4 mb-4">
-                <div class="col-lg-5">
+                <div class="col-lg-6">
                     <div class="card h-100">
                         <div class="card-header">
                             <span><i class="fa-solid fa-sliders text-primary me-1"></i>個人與組織現況參數</span>
@@ -223,7 +223,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-7">
+                <div class="col-lg-6">
                     <div class="card h-100 d-flex flex-column justify-content-between">
                         <div class="card-header">
                             <span><i class="fa-solid fa-list-check text-primary me-1"></i>晉升條件檢核與差距診斷</span>
@@ -258,72 +258,63 @@
                 </div>
             </section>
 
-            <!-- 圖表戰情展示區 -->
             <section class="row g-4 mb-4">
-                <div class="col-lg-4 col-md-6">
+                <!-- 【左翼戰區：金流收益戰術中樞】(圓餅結構 + 獎金細部拆解) -->
+                <div class="col-12 col-lg-6">
                     <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-pie text-warning me-1"></i>獎金收益結構占比
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartBonusPie"></canvas>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">
+                                <i class="fa-solid fa-sack-dollar text-warning me-1"></i>獎金收益結構與實戰分紅細部拆解
+                            </span>
+                            <span class="badge bg-warning-subtle text-warning">動態實算</span>
+                        </div>
+                        <div class="card-body">
+                            <!-- 上半部：收益結構圓餅圖 (限制高度以維持視覺重心) -->
+                            <div class="card-chart-container-transparent mb-3">
+                                <canvas id="chartBonusPie"></canvas>
+                            </div>
+
+                            <!-- 下半部：各項獎金數據拆解清單 -->
+                            <div class="table-responsive border-top border-secondary border-opacity-25 pt-2">
+                                <table class="table table-sm table-dark-custom align-middle mb-0">
+                                    <tbody id="incomeBreakdownTableBody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6">
+                <!-- 【右翼戰區：晉升攻堅與防線中樞】(雷達分析 + 通關檢核 + 線路補救) -->
+                <div class="col-12 col-lg-6">
                     <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-line text-primary me-1"></i>晉升指標達成率分析
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartGapsRadar"></canvas>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">
+                                <i class="fa-solid fa-bullseye text-primary me-1"></i>晉升達成指標診斷與拓撲健全防線
+                            </span>
+                            <span class="badge bg-primary-subtle text-primary">指標通關</span>
                         </div>
-                    </div>
-                </div>
+                        <div class="card-body">
+                            <!-- 上半部：晉升指標雷達圖 -->
+                            <div class="card-chart-container-transparent mb-3">
+                                <canvas id="chartGapsRadar"></canvas>
+                            </div>
 
-                <div class="col-lg-4 col-md-12">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-simple text-success me-1"></i>各職階預估收益梯隊
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartRankIncomeBar"></canvas>
+                            <!-- 下半部：門檻通關檢核表與防線清單 (採雙拼子網格提升空間密度) -->
+                            <div class="row border-top border-secondary border-opacity-25 pt-3">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <div class="small text-secondary fw-bold mb-2">
+                                        <i class="fa-solid fa-clipboard-check text-primary me-1"></i>通關檢核
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" id="gateChecklistContainer"></div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="small text-secondary fw-bold mb-2">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i>線路補救防線
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" id="topologyRescueContainer"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 實戰三大落地分析模組 -->
-            <section class="row g-4 mb-4">
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i>晉升門檻通關檢核表
-                        </h6>
-                        <div class="d-flex flex-column gap-2" id="gateChecklistContainer"></div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-money-bill-transfer text-warning me-1"></i>獎金與分紅細部拆解
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-dark-custom mb-0">
-                                <tbody id="incomeBreakdownTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-shield-halved text-success me-1"></i>組織線路健全與補救防線
-                        </h6>
-                        <div class="d-flex flex-column gap-3" id="topologyRescueContainer"></div>
                     </div>
                 </div>
             </section>

@@ -816,23 +816,6 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
         suggestedMax: 100,
         unit: '%'
     }));
-
-    // --- 圖表 3：各階職級基準收益對比 (垂直柱狀圖) ---
-    const ranksSample = appState.activeRankList.slice(0, 7);
-    const sampleIncomesTwd = [1200, 4800, 19000, 32000, 65000, 145000, 280000];
-    const { rate: currencyRate } = getCurrencyFactor();
-
-    const barColors = ranksSample.map(r => r.rank_id === currentRank.rank_id ? '#fbbf24' : '#8b5cf6');
-
-    AppChart.render('chartRankIncomeBar', AppChart.createBar({
-        labels: ranksSample.map(r => r.rank_name_zh),
-        data: sampleIncomesTwd.slice(0, ranksSample.length).map(v => Math.round(v * currencyRate)),
-        datasetLabel: '基準預估',
-        colors: barColors,
-        isHorizontal: false,
-        unit: currencySymbol,
-        yStepInteger: false
-    }));
 }
 
 // ==========================================================================
@@ -866,10 +849,10 @@ function renderRankDataTable() {
 
         return {
             rank: badgeHtml,
-            conditions: conds.join(' ‧ ') || `入會資料袋 ${formatMoney(1000)}`,
-            rebate_rate: `${Math.round(r.direct_rebate_rate * 100)}%`,
-            leadership: r.leadership_gen_depth > 0 ? `${r.leadership_gen_depth} 代 (6%)` : '—',
-            rights: rightsArr.join(' ‧ ') || '個人階差回饋'
+            conditions: `<span class="text-light small">${conds.join(' ‧ ') || '入會資料袋 ' + formatMoney(1000)}</span>`,
+            rebate_rate: `<span class="text-warning fw-bold">${Math.round(r.direct_rebate_rate * 100)}%</span>`,
+            leadership: r.leadership_gen_depth > 0 ? `${r.leadership_gen_depth} 代 (6%)` : '-',
+            rights: `<span class="text-secondary small">${rightsArr.join(' ‧ ') || '個人階差回饋'}</span>`
         };
     });
 
@@ -884,10 +867,10 @@ function renderRankDataTable() {
             paging: false,
             columns: [
                 { data: 'rank', className: 'text-nowrap text-center' },
-                { data: 'conditions', className: 'text-light small' },
-                { data: 'rebate_rate', className: 'text-end text-warning fw-bold' },
+                { data: 'conditions' },
+                { data: 'rebate_rate', className: 'text-end' },
                 { data: 'leadership', className: 'text-end text-success' },
-                { data: 'rights', className: 'text-secondary small' }
+                { data: 'rights' }
             ]
         });
     }

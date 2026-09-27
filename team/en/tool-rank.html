@@ -126,7 +126,7 @@
 
             <!-- Top Section: Simulation Form vs Criteria & Entitlements Diagnosis -->
             <section class="row g-4 mb-4">
-                <div class="col-lg-5">
+                <div class="col-lg-6">
                     <div class="card h-100">
                         <div class="card-header">
                             <span><i class="fa-solid fa-sliders text-primary me-1"></i> Personal & Organizational Parameters</span>
@@ -221,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-7">
+                <div class="col-lg-6">
                     <div class="card h-100 d-flex flex-column justify-content-between">
                         <div class="card-header">
                             <span><i class="fa-solid fa-list-check text-primary me-1"></i> Advancement Criteria & Gap Diagnosis</span>
@@ -256,72 +256,63 @@
                 </div>
             </section>
 
-            <!-- Strategic Charts Section -->
             <section class="row g-4 mb-4">
-                <div class="col-lg-4 col-md-6">
+                <!-- 【Left Hub: Bonus Structure & Detailed Dividend Audit】 -->
+                <div class="col-12 col-lg-6">
                     <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-pie text-warning me-1"></i> Bonus Structure Breakdown
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartBonusPie"></canvas>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">
+                                <i class="fa-solid fa-sack-dollar text-warning me-1"></i> Bonus Structure & Detailed Audit
+                            </span>
+                            <span class="badge bg-warning-subtle text-warning">Dynamic Audit</span>
+                        </div>
+                        <div class="card-body">
+                            <!-- Upper: Doughnut/Pie Bonus Canvas (Height constrained) -->
+                            <div class="card-chart-container-transparent mb-3">
+                                <canvas id="chartBonusPie"></canvas>
+                            </div>
+
+                            <!-- Lower: Detailed Bonus Breakdown Table -->
+                            <div class="table-responsive border-top border-secondary border-opacity-25 pt-2">
+                                <table class="table table-sm table-dark-custom align-middle mb-0">
+                                    <tbody id="incomeBreakdownTableBody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6">
+                <!-- 【Right Hub: Advancement Radar & Organization Safety Net】 -->
+                <div class="col-12 col-lg-6">
                     <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-line text-primary me-1"></i> Advancement Radar Analysis
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartGapsRadar"></canvas>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">
+                                <i class="fa-solid fa-bullseye text-primary me-1"></i> Advancement Radar & Safety Net
+                            </span>
+                            <span class="badge bg-primary-subtle text-primary">Gate Audit</span>
                         </div>
-                    </div>
-                </div>
+                        <div class="card-body">
+                            <!-- Upper: Advancement Radar Canvas -->
+                            <div class="card-chart-container-transparent mb-3">
+                                <canvas id="chartGapsRadar"></canvas>
+                            </div>
 
-                <div class="col-lg-4 col-md-12">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-simple text-success me-1"></i> Benchmark Income by Rank Tier
-                        </h6>
-                        <div class="card-chart-container-transparent">
-                            <canvas id="chartRankIncomeBar"></canvas>
+                            <!-- Lower: Gate Checklist & Topology Rescue (2-Column Subgrid) -->
+                            <div class="row border-top border-secondary border-opacity-25 pt-3">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <div class="small text-secondary fw-bold mb-2">
+                                        <i class="fa-solid fa-clipboard-check text-primary me-1"></i> Gate Checklist
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" id="gateChecklistContainer"></div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="small text-secondary fw-bold mb-2">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Line Safety Net
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" id="topologyRescueContainer"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Three Practical Analytical Modules -->
-            <section class="row g-4 mb-4">
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> Advancement Checklist & Gate Audit
-                        </h6>
-                        <div class="d-flex flex-column gap-2" id="gateChecklistContainer"></div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-money-bill-transfer text-warning me-1"></i> Detailed Bonus & Dividend Audit
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-dark-custom mb-0">
-                                <tbody id="incomeBreakdownTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Organization Line Health & Safety Net
-                        </h6>
-                        <div class="d-flex flex-column gap-3" id="topologyRescueContainer"></div>
                     </div>
                 </div>
             </section>
