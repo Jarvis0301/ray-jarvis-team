@@ -44,6 +44,20 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Currency Switcher Toolbar -->
+                <div class="row align-items-center g-3 mt-2 pt-2 border-top border-secondary border-opacity-25">
+                    <div class="col-12 col-md-auto d-flex align-items-center gap-2">
+                        <span class="text-secondary small"><i class="fa-solid fa-coins text-warning me-1"></i> Currency:</span>
+                        <div class="btn-group" role="group" id="grpCurrency">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-currency="TWD">TWD (NT$)</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-currency="MYR">MYR (RM)</button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-auto">
+                        <span class="badge badge-secondary-subtle small" id="dispCurrentPvBadge">Productivity Value: PV = 25</span>
+                    </div>
+                </div>
             </header>
 
             <!-- ================================================================= -->
@@ -79,7 +93,7 @@
                                 <h3 class="h6 fw-bold text-white mb-2">
                                     <i class="fa-solid fa-user-check text-indigo me-1"></i> Master
                                 </h3>
-                                <div class="h4 fw-bold text-indigo mb-2">NT$ 20,000 ~ 40,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
+                                <div class="h4 fw-bold text-indigo mb-2 val-path-mgr">NT$ 20,000 ~ 40,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
                                 <p class="text-muted small mb-3">Accumulate 12,000 SV group volume to unlock 20% Tiered Bonus, 10% Qualified Team Bonus, and 5% Qualified Master Bonus.</p>
                             </div>
                             <div class="card-incard p-2">
@@ -99,7 +113,7 @@
                                 <h3 class="h6 fw-bold text-white mb-2">
                                     <i class="fa-solid fa-gem text-pink me-1"></i> Pearl Master
                                 </h3>
-                                <div class="h4 fw-bold text-pink mb-2">NT$ 70,000 ~ 200,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
+                                <div class="h4 fw-bold text-pink mb-2 val-path-pearl">NT$ 70,000 ~ 200,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
                                 <p class="text-muted small mb-3">Develop 4 qualified Master lines to unlock 4 generations of Leadership Bonus & monthly Dividend Bonus. Reaching 5 lines activates Automatic Rescue.</p>
                             </div>
                             <div class="card-incard p-2">
@@ -119,7 +133,7 @@
                                 <h3 class="h6 fw-bold text-white mb-2">
                                     <i class="fa-solid fa-award text-teal me-1"></i> Emerald Master
                                 </h3>
-                                <div class="h4 fw-bold text-teal mb-2">NT$ 200,000 ~ 300,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
+                                <div class="h4 fw-bold text-teal mb-2 val-path-emerald">NT$ 200,000 ~ 300,000<span class="fs-6 text-primary ms-1">/ Month</span></div>
                                 <p class="text-muted small mb-3">Maintain 6 qualified Master lines for 3 consecutive months. Cultivate the 5th generation of Leadership Bonus with self-sustaining passive momentum.</p>
                             </div>
                             <div class="card-incard p-2">
@@ -139,7 +153,7 @@
                                 <h3 class="h6 fw-bold text-white mb-2">
                                     <i class="fa-solid fa-crown text-cyan me-1"></i> Blue Diamond Master
                                 </h3>
-                                <div class="h4 fw-bold text-cyan mb-2">NT$ 300,000 +<span class="fs-6 text-primary ms-1">/ Month</span></div>
+                                <div class="h4 fw-bold text-cyan mb-2 val-path-diamond">NT$ 300,000 +<span class="fs-6 text-primary ms-1">/ Month</span></div>
                                 <p class="text-muted small mb-3">Maintain 10 lines (including 3 active Pearl Masters) for 4 consecutive months. Enjoy 6 generations of Leadership Bonus and luxury car grant ownership.</p>
                             </div>
                             <div class="card-incard p-2">
@@ -149,7 +163,6 @@
                     </div>
                 </div>
             </section>
-            
 
             <!-- ================================================================= -->
             <!-- MODULE 3: THE FOUR PILLARS OF COMPENSATION                       -->
@@ -221,7 +234,7 @@
                                     </p>
                                     
                                     <div class="table-responsive my-3">
-                                        <table class="table table-dark-custom align-middle w-100">
+                                        <table class="table table-dark-custom">
                                             <thead>
                                                 <tr>
                                                     <th>Title Rank</th>
@@ -267,12 +280,12 @@
                                     <div class="card-incard p-3 my-2">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="text-white fw-bold"><i class="fa-solid fa-calculator text-info me-1"></i> Personal Rebate & Margin Calculation Demo</span>
-                                            <span class="text-warning small fw-bold">Productivity Value (PV) = 25</span>
+                                            <span class="text-warning small fw-bold">Productivity Value (PV) = <span class="val-pv-ratio">25</span></span>
                                         </div>
                                         <small class="text-muted d-block mb-1">Assuming you are a Master (20%), downline Associate (10%) orders 2,800 SV, personal consumption 400 SV:</small>
                                         <div class="g-2 mt-1">
-                                            <div class="text-muted small">Personal Rebate (20%): <span class="text-info fw-bold">NT$ 2,000</span></div>
-                                            <div class="text-muted small">Group Tiered Margin (20% - 10%): <span class="text-warning fw-bold">NT$ 7,000</span></div>
+                                            <div class="text-muted small">Personal Rebate (20%): <span class="text-info fw-bold val-demo-personal">NT$ 2,000</span></div>
+                                            <div class="text-muted small">Group Tiered Margin (20% - 10%): <span class="text-warning fw-bold val-demo-group">NT$ 7,000</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -320,13 +333,13 @@
                                         </p>
                                         <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
                                             <span class="text-warning small"><i class="fa-solid fa-coins me-1"></i> Combined Monthly Dual Bonus Reaches:</span>
-                                            <span class="text-warning fw-bold fs-5">NT$ 19,000 / Month</span>
+                                            <span class="text-warning fw-bold fs-5 val-bonus-dual-mo">NT$ 19,000 / Month</span>
                                         </div>
                                         <small class="text-muted d-block mt-1">As overseas markets expand, the global revenue reservoir continues to grow!</small>
                                     </div>
 
                                     <div class="table-responsive my-3">
-                                        <table class="table table-dark-custom align-middle w-100">
+                                        <table class="table table-dark-custom">
                                             <thead>
                                                 <tr>
                                                     <th>Bonus Program</th>
@@ -340,17 +353,17 @@
                                                     <td><span class="fw-bold text-white"><i class="fa-solid fa-users me-1 text-info"></i> Qualified Master Bonus</span></td>
                                                     <td class="text-end"><span class="badge badge-secondary">5.0%</span></td>
                                                     <td>Personal 160 SV + Merged Group 3,200 SV</td>
-                                                    <td class="text-end text-info fw-bold">NT$ 7,000</td>
+                                                    <td class="text-end text-info fw-bold val-bonus-mgr">NT$ 7,000</td>
                                                 </tr>
                                                 <tr>
                                                     <td><span class="fw-bold text-white"><i class="fa-solid fa-users-gear me-1 text-warning"></i> Qualified Team Bonus</span></td>
                                                     <td class="text-end"><span class="badge badge-secondary">10.0%</span></td>
                                                     <td>Personal 160 SV + Actual Personal Group 3,200 SV</td>
-                                                    <td class="text-end text-warning fw-bold">NT$ 12,000</td>
+                                                    <td class="text-end text-warning fw-bold val-bonus-group">NT$ 12,000</td>
                                                 </tr>
                                                 <tr class="border-top border-secondary">
                                                     <td colspan="3" class="text-end text-white fw-bold">Combined Qualified Master Dual Bonus:</td>
-                                                    <td class="text-end text-warning fw-bold fs-6">NT$ 19,000 / Month</td>
+                                                    <td class="text-end text-warning fw-bold fs-6 val-bonus-dual-mo">NT$ 19,000 / Month</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -359,7 +372,7 @@
                                     <div class="alert alert-warning mb-0 small">
                                         <div class="mb-1">
                                             <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
-                                            <strong>Key Earning Rule:</strong> The Qualified Team Bonus (NT$ 12,000) <strong>strictly requires that your personal group generates an actual 3,200 SV</strong> in that month (the Pearl Master 5th-leg Automatic Rescue does not apply here; rescue protects only Master and Leadership qualifications).
+                                            <strong>Key Earning Rule:</strong> The Qualified Team Bonus (<strong class="val-bonus-group">NT$ 12,000</strong>) <strong>strictly requires that your personal group generates an actual 3,200 SV</strong> in that month (the Pearl Master 5th-leg Automatic Rescue does not apply here; rescue protects only Master and Leadership qualifications).
                                         </div>
                                         <div class="text-muted">
                                             <i class="fa-solid fa-circle-info text-info me-1"></i> <strong>Newly Promoted Masters:</strong> In the month of promotion to Master, achieving 6,400 SV or more in personal group unlocks both Qualified Team and Master Bonuses simultaneously; subsequent months return to the standard 3,200 SV threshold.
@@ -420,7 +433,7 @@
                                     </div>
 
                                     <div class="table-responsive my-3">
-                                        <table class="table table-dark-custom align-middle w-100">
+                                        <table class="table table-dark-custom">
                                             <thead>
                                                 <tr>
                                                     <th>Title Rank</th>
@@ -487,7 +500,7 @@
                                         </div>
                                     </div>
                                     <div class="card-incard p-3">
-                                        <small class="text-light"><i class="fa-solid fa-shield-cat text-warning me-1"></i> <strong>Point Conversion Formula:</strong> Leadership Bonus = Qualified Generation SV × 6% × Point Value (est. ~0.7) × Productivity Value (PV = 25).</small>
+                                        <small class="text-light"><i class="fa-solid fa-shield-cat text-warning me-1"></i> <strong>Point Conversion Formula:</strong> Leadership Bonus = Qualified Generation SV × 6% × Point Value (est. ~0.7) × Productivity Value (PV = <span class="val-pv-ratio">25</span>).</small>
                                     </div>
                                 </div>
                             </div>
@@ -557,13 +570,13 @@
                                         </div>
                                         <ul class="text-secondary small mb-0 ps-3">
                                             <li class="mb-1">
-                                                <strong class="text-light">Grant Package:</strong> Blue Diamond car achievement includes a <strong>NT$ 700,000 cash down payment grant</strong> plus <strong>36 monthly installments (~NT$ 27,000/month)</strong>.
+                                                <strong class="text-light">Grant Package:</strong> Blue Diamond car achievement includes a <strong class="text-white val-c3-car-down">NT$ 700,000</strong> cash down payment grant plus <strong>36 monthly installments (<span class="val-c3-car-monthly-mo">~NT$ 27,000/month</span>)</strong>.
                                             </li>
                                             <li class="mb-1">
                                                 <strong class="text-light">Direct Ownership:</strong> The down payment is paid directly by the company, and the <strong>vehicle title is registered under the distributor's personal name</strong>—never a leased corporate car.
                                             </li>
                                             <li class="mb-0">
-                                                <strong class="text-light">Renewal Grants:</strong> Completing a 3-year term and advancing to Star Blue Diamond allows re-applying for a vehicle grant or <strong>receiving up to NT$ 1,700,000 in direct cash</strong>.
+                                                <strong class="text-light">Renewal Grants:</strong> Completing a 3-year term and advancing to Star Blue Diamond allows re-applying for a vehicle grant or <strong>receiving up to <span class="val-c3-car-cash">NT$ 1,700,000</span> in direct cash</strong>.
                                             </li>
                                         </ul>
                                     </div>
@@ -588,7 +601,7 @@
                                     <div class="card-incard p-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="text-light small fw-bold"><i class="fa-solid fa-coins text-warning me-1"></i> Average Blue Diamond Annual Earnings:</span>
-                                            <span class="text-warning fw-bold">Approx. NT$ 3,000,000 ~ 10,000,000+</span>
+                                            <span class="text-warning fw-bold val-diamond-annual-range">Approx. NT$ 3,000,000 ~ 10,000,000+</span>
                                         </div>
                                     </div>
                                 </div>
@@ -749,7 +762,7 @@
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h3 class="section-title h5 mb-0"><i class="fa-solid fa-users text-warning me-1"></i> Personal Group Volume (Actual Group Production)</h3>
                                         <div class="text-end">
-                                            <span class="badge badge-outline-accent">Unlocks NT$ 12,000 Team Bonus</span>
+                                            <span class="badge badge-outline-accent">Unlocks Team Bonus</span>
                                             <span class="badge badge-outline-accent">Strict Performance</span>
                                         </div>
                                     </div>
@@ -760,7 +773,7 @@
                                     <div class="card-incard p-3 my-2">
                                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-key me-1"></i> Thresholds & Entitlements:</div>
                                         <ul class="text-secondary small mb-0 ps-3">
-                                            <li class="mb-1"><strong class="text-light">Qualified Team Bonus Requirement:</strong> Generating an actual <strong class="text-white">3,200 SV</strong> in personal group volume unlocks the <strong class="text-warning">NT$ 12,000 Qualified Team Bonus</strong>!</li>
+                                            <li class="mb-1"><strong class="text-light">Qualified Team Bonus Requirement:</strong> Generating an actual <strong class="text-white">3,200 SV</strong> in personal group volume unlocks the <strong class="text-warning val-bonus-group">NT$ 12,000</strong> Qualified Team Bonus!</li>
                                             <li class="mb-1"><strong class="text-light">Exclusion & Penetration:</strong> Once a partner advances to Master, their volume decouples unless they order precisely 0 SV, in which case their downline volume penetrates upward.</li>
                                             <li class="mb-0"><strong class="text-light">Rescue Exclusion Warning:</strong> The Pearl Master 5th-leg Automatic Rescue does NOT apply to Qualified Team Bonus; this bonus strictly requires 3,200 SV in personal group volume.</li>
                                         </ul>
@@ -806,7 +819,7 @@
                                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-key me-1"></i> Thresholds & Entitlements:</div>
                                         <ul class="text-secondary small mb-0 ps-3">
                                             <li class="mb-1"><strong class="text-light">Qualified Master Benchmark:</strong> Personal volume ≥ 160 SV and Merged Group Volume reaching <strong class="text-white">3,200 SV</strong> confirms Qualified Master status for that month.</li>
-                                            <li class="mb-1"><strong class="text-light">Unlocks Master Pool & Leadership:</strong> Qualifies you for the <strong class="text-info">NT$ 7,000 Qualified Master Bonus</strong> and preserves eligibility for 6 generations of Leadership Bonus.</li>
+                                            <li class="mb-1"><strong class="text-light">Unlocks Master Pool & Leadership:</strong> Qualifies you for the <strong class="text-info val-bonus-mgr">NT$ 7,000</strong> Qualified Master Bonus and preserves eligibility for 6 generations of Leadership Bonus.</li>
                                             <li class="mb-0"><strong class="text-light">Qualified Masters Decouple:</strong> When downline Masters achieve 3,200 SV independently, their line decouples to become an active qualified line.</li>
                                         </ul>
                                     </div>
@@ -925,7 +938,7 @@
             </section>
 
             <!-- ================================================================= -->
-            <!-- MODULE 4: 5 VOLUME CONSOLIDATION STATES (TABS WITH RESERVED VISUALS)-->
+            <!-- MODULE 5: 5 VOLUME CONSOLIDATION STATES (TABS WITH RESERVED VISUALS)-->
             <!-- ================================================================= -->
             <section class="bonus-module-pod pod-theme-indigo" id="manager-status-section">
                 <!-- Unified Header Strip -->
@@ -1050,7 +1063,7 @@
                                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-hand-holding-dollar me-1"></i> How does this benefit you as the upline?</div>
                                         <ul class="text-secondary small mb-0 ps-3">
                                             <li class="mb-1"><strong class="text-light">Upward Compression:</strong> Under Dynamic Compression, their entire group volume compresses upward into your Merged Group Volume!</li>
-                                            <li class="mb-0"><strong class="text-light">Supports Your Responsibility:</strong> Directly assists in fulfilling your 3,200 SV merged quota, securing your Qualified Master Bonus (NT$ 7,000).</li>
+                                            <li class="mb-0"><strong class="text-light">Supports Your Responsibility:</strong> Directly assists in fulfilling your 3,200 SV merged quota, securing your Qualified Master Bonus (<strong class="val-bonus-mgr">NT$ 7,000</strong>).</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1097,7 +1110,7 @@
                                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-hand-holding-dollar me-1"></i> How does this benefit you as the upline?</div>
                                         <ul class="text-secondary small mb-0 ps-3">
                                             <li class="mb-1"><strong class="text-light">Direct Penetration:</strong> Non-Master orders bypass this Master and count directly toward your <strong class="text-warning">Personal Group Volume</strong>!</li>
-                                            <li class="mb-0"><strong class="text-light">Unlocks Team Bonus:</strong> Helps your personal group reach 3,200 SV to capture the <strong class="text-success">NT$ 12,000 Qualified Team Bonus</strong>!</li>
+                                            <li class="mb-0"><strong class="text-light">Unlocks Team Bonus:</strong> Helps your personal group reach 3,200 SV to capture the <strong class="text-success val-bonus-group">NT$ 12,000</strong> Qualified Team Bonus!</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1191,7 +1204,7 @@
                                         <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-hand-holding-dollar me-1"></i> How does this benefit you as the upline?</div>
                                         <ul class="text-secondary small mb-0 ps-3">
                                             <li class="mb-1"><strong class="text-light">Zero Retail Pressure:</strong> The system borrows volume from the 5th line to cover your 3,200 SV quota—no retail pressure needed!</li>
-                                            <li class="mb-0"><strong class="text-light">Senior Bonuses Intact:</strong> Fully preserves Leadership Bonuses and Dividend pools (<strong class="text-danger">Qualified Team Bonus of NT$ 12,000 excluded</strong>).</li>
+                                            <li class="mb-0"><strong class="text-light">Senior Bonuses Intact:</strong> Fully preserves Leadership Bonuses and Dividend pools (<strong class="text-danger">Qualified Team Bonus of <span class="val-bonus-group">NT$ 12,000</span> excluded</strong>).</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1223,7 +1236,7 @@
                         <i class="fa-solid fa-table-list me-1"></i> Field Reference Guide: 5 Downline Master Volume States
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-dark-custom align-middle w-100 mb-0 small">
+                        <table class="table table-dark-custom mb-0 small">
                             <thead>
                                 <tr>
                                     <th>Downline Master State</th>
@@ -1246,14 +1259,14 @@
                                     <td class="text-center">≥ 160 SV</td>
                                     <td class="text-center">&lt; 3,200 SV</td>
                                     <td><strong class="text-info">Dynamic Compression</strong> to Merged Group</td>
-                                    <td>Entire volume helps you fulfill 3,200 SV, securing NT$ 7,000 Master Bonus!</td>
+                                    <td>Entire volume helps you fulfill 3,200 SV, securing <span class="val-bonus-mgr">NT$ 7,000</span> Master Bonus!</td>
                                 </tr>
                                 <tr>
                                     <td><strong class="text-warning"><i class="fa-solid fa-bolt me-1"></i> 3. Zero-Volume Special</strong></td>
                                     <td class="text-center"><strong class="text-warning">= 0 SV</strong></td>
                                     <td class="text-center">Any</td>
                                     <td><strong class="text-warning">Official Penetration</strong> to Personal Group</td>
-                                    <td>Non-Master orders penetrate into your group; claim 10% Team Bonus (NT$ 12,000)!</td>
+                                    <td>Non-Master orders penetrate into your group; claim 10% Team Bonus (<span class="val-bonus-group">NT$ 12,000</span>)!</td>
                                 </tr>
                                 <tr>
                                     <td><strong class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> 4. Insufficient Quota</strong></td>
@@ -1290,7 +1303,7 @@
                     </div>
                     <div class="mt-2 mt-md-0">
                         <span class="badge badge-outline-secondary text-light px-3 py-2">
-                            <i class="fa-solid fa-sliders text-warning me-1"></i> Standard Parameters: Productivity Value (PV) = 25 ‧ Leadership Point Value Est. = 0.70
+                            <i class="fa-solid fa-sliders text-warning me-1"></i> Standard Parameters: Productivity Value (PV) = <span class="val-pv-ratio">25</span> ‧ Leadership Point Value Est. = 0.70
                         </span>
                     </div>
                 </div>
@@ -1334,26 +1347,26 @@
                                 </div>
                                 <div class="text-md-end mt-2 mt-md-0">
                                     <span class="text-muted small d-block">Estimated Monthly Income</span>
-                                    <span class="h4 fw-bold text-info mb-0">Approx. NT$ 28,000</span>
+                                    <span class="h4 fw-bold text-info mb-0 val-case1-total">Approx. NT$ 28,000</span>
                                 </div>
                             </div>
 
                             <div class="card-incard p-3 mb-3">
                                 <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-square-root-variable me-1"></i> Formula Breakdown & Calculations:</div>
                                 <ol class="text-secondary small mb-0 ps-3">
-                                    <li class="mb-1"><strong class="text-light">Personal Rebate:</strong> 400 SV × Master Rate 20% × PV 25 = <span class="text-white fw-bold">NT$ 2,000</span></li>
-                                    <li class="mb-1"><strong class="text-light">Tiered Differential Bonus:</strong> 2,800 SV × Avg. Margin 10% × PV 25 = <span class="text-white fw-bold">NT$ 7,000</span><br/>
+                                    <li class="mb-1"><strong class="text-light">Personal Rebate:</strong> 400 SV × Master Rate 20% × PV <span class="val-pv-ratio">25</span> = <span class="text-white fw-bold val-c1-personal">NT$ 2,000</span></li>
+                                    <li class="mb-1"><strong class="text-light">Tiered Differential Bonus:</strong> 2,800 SV × Avg. Margin 10% × PV <span class="val-pv-ratio">25</span> = <span class="text-white fw-bold val-c1-group">NT$ 7,000</span><br/>
                                         <span class="text-muted">※ Explanation: Downline includes Members (5%), Associates (10%), and Senior Associates (15%), yielding 5%~15% margins (avg. 10%).</span>
                                     </li>
-                                    <li class="mb-1"><strong class="text-light">Qualified Master Bonus:</strong> Global Pool Allocation ≒ <span class="text-white fw-bold">NT$ 7,000</span></li>
-                                    <li class="mb-0"><strong class="text-light">Qualified Team Bonus:</strong> Global Pool Allocation ≒ <span class="text-white fw-bold">NT$ 12,000</span><br/>
-                                        <span class="text-warning">※ Combined dual global bonus reaches NT$ 19,000/month; Qualified Team Bonus strictly requires actual 3,200 SV in personal group.</span>
+                                    <li class="mb-1"><strong class="text-light">Qualified Master Bonus:</strong> Global Pool Allocation ≒ <span class="text-white fw-bold val-bonus-mgr">NT$ 7,000</span></li>
+                                    <li class="mb-0"><strong class="text-light">Qualified Team Bonus:</strong> Global Pool Allocation ≒ <span class="text-white fw-bold val-bonus-group">NT$ 12,000</span><br/>
+                                        <span class="text-warning">※ Combined dual global bonus reaches <span class="val-bonus-dual-mo">NT$ 19,000 / Month</span>; Qualified Team Bonus strictly requires actual 3,200 SV in personal group.</span>
                                     </li>
                                 </ol>
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-dark-custom align-middle w-100 mb-0">
+                                <table class="table table-dark-custom mb-0">
                                     <thead>
                                         <tr>
                                             <th>Bonus Program</th>
@@ -1368,33 +1381,33 @@
                                             <td>Personal Rebate</td>
                                             <td>Personal 400 SV</td>
                                             <td class="text-end">20.0%</td>
-                                            <td class="text-end">400 × 20% × 25</td>
-                                            <td class="text-end text-white">NT$ 2,000</td>
+                                            <td class="text-end val-c1-formula-personal">400 × 20% × 25</td>
+                                            <td class="text-end text-white val-c1-personal">NT$ 2,000</td>
                                         </tr>
                                         <tr>
                                             <td>Tiered Differential Bonus</td>
                                             <td>Downline 2,800 SV</td>
                                             <td class="text-end">5% ~ 15% (Avg. 10%)</td>
-                                            <td class="text-end">2,800 × 10% × 25</td>
-                                            <td class="text-end text-white">NT$ 7,000</td>
+                                            <td class="text-end val-c1-formula-group">2,800 × 10% × 25</td>
+                                            <td class="text-end text-white val-c1-group">NT$ 7,000</td>
                                         </tr>
                                         <tr>
                                             <td>Qualified Master Bonus</td>
                                             <td>Merged Group ≥ 3,200 SV</td>
                                             <td class="text-end">Global 5.0% Pool</td>
                                             <td class="text-end">Global Pool Share</td>
-                                            <td class="text-end text-white">NT$ 7,000</td>
+                                            <td class="text-end text-white val-bonus-mgr">NT$ 7,000</td>
                                         </tr>
                                         <tr>
                                             <td>Qualified Team Bonus</td>
                                             <td>Actual Group ≥ 3,200 SV</td>
                                             <td class="text-end">Global 10.0% Pool</td>
                                             <td class="text-end">Global Pool Share</td>
-                                            <td class="text-end text-white">NT$ 12,000</td>
+                                            <td class="text-end text-white val-bonus-group">NT$ 12,000</td>
                                         </tr>
                                         <tr class="border-top border-secondary">
                                             <td colspan="4" class="text-end text-info fw-bold">Part-Time Master Estimated Monthly Total:</td>
-                                            <td class="text-end text-info fw-bold fs-6">NT$ 28,000</td>
+                                            <td class="text-end text-info fw-bold fs-6 val-case1-total-tbl">NT$ 28,000</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1415,41 +1428,41 @@
                                 </div>
                                 <div class="text-md-end mt-2 mt-md-0">
                                     <span class="text-muted small d-block">Estimated Monthly Income</span>
-                                    <span class="h4 fw-bold text-cyan mb-0">Approx. NT$ 149,000</span>
+                                    <span class="h4 fw-bold text-cyan mb-0 val-case2-total">Approx. NT$ 149,000</span>
                                 </div>
                             </div>
 
                             <div class="card-incard p-3 mb-3">
                                 <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-square-root-variable me-1"></i> Formula Breakdown & Calculations:</div>
                                 <ol class="text-secondary small mb-0 ps-3">
-                                    <li class="mb-1"><strong class="text-light">Base Retail & Master Pools:</strong> Personal Rebate (NT$ 2,000) + Tiered Margin (NT$ 7,000) + Master Bonus (NT$ 7,000) + Team Bonus (NT$ 12,000) = <strong class="text-white">NT$ 28,000</strong></li>
+                                    <li class="mb-1"><strong class="text-light">Base Retail & Master Pools:</strong> Personal Rebate (<span class="val-c1-personal">NT$ 2,000</span>) + Tiered Margin (<span class="val-c1-group">NT$ 7,000</span>) + Master Bonus (<span class="val-bonus-mgr">NT$ 7,000</span>) + Team Bonus (<span class="val-bonus-group">NT$ 12,000</span>) = <strong class="text-white val-c2-base-sum">NT$ 28,000</strong></li>
                                     <li class="mb-1"><strong class="text-light">Leadership Bonus (4 Generations):</strong>
                                         <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                            3,200 SV base × 13 Qualified Masters × 6% per gen × Point Value 0.70 × PV 25<br/>
-                                            = 41,600 SV × 6% × 0.70 × 25 ≒ <strong class="text-cyan">NT$ 44,000</strong>
+                                            3,200 SV base × 13 Qualified Masters × 6% per gen × Point Value 0.70 × PV <span class="val-pv-ratio">25</span><br/>
+                                            = <span class="val-c2-calc-steps">41,600 SV × 6% × 0.70 × 25</span> ≒ <strong class="text-cyan val-c2-leadership">NT$ 44,000</strong>
                                         </div>
                                         <span class="text-muted">※ Explanation: Pearl Masters qualify for 4 generations; non-qualified downline Masters compress upward dynamically.</span>
                                     </li>
                                     <li class="mb-1"><strong class="text-light">Monthly Dividend Bonus:</strong>
                                         <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                            7 Active Master Lines × Approx. NT$ 6,000 ≒ <strong class="text-cyan">NT$ 42,000</strong>
+                                            7 Active Master Lines × Global 5% Allocation ≒ <strong class="text-cyan val-c2-pearldiv">NT$ 42,000</strong>
                                         </div>
                                     </li>
                                     <li class="mb-1"><strong class="text-light">Travel Rewards (Mid-Year Bonus Monthly Allocation):</strong>
                                         <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                            7 Active Lines Weighted Share ≒ Approx. <strong class="text-cyan">NT$ 10,000 / Month</strong> (Accumulated July ~ June, approx. NT$ 120,000 disbursed in June)
+                                            7 Active Lines Weighted Share ≒ <strong class="text-cyan val-c2-travel-mo">Approx. NT$ 10,000 / Month</strong> (Accumulated July ~ June, disbursed in June)
                                         </div>
                                     </li>
                                     <li class="mb-0"><strong class="text-light">Annual Excellence Rewards (Year-End Bonus Monthly Allocation):</strong>
                                         <div class="text-light my-1 ps-2 border-start border-2 border-info">
-                                            4 Generations Total Volume + Active Line Weighted Share ≒ Approx. <strong class="text-cyan">NT$ 25,000 / Month</strong> (Accumulated over 12 months, approx. NT$ 300,000 disbursed in Dec)
+                                            4 Generations Total Volume + Active Line Weighted Share ≒ <strong class="text-cyan val-c2-excellence-mo">Approx. NT$ 25,000 / Month</strong> (Accumulated over 12 months, disbursed in Dec)
                                         </div>
                                     </li>
                                 </ol>
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-dark-custom align-middle w-100 mb-0">
+                                <table class="table table-dark-custom mb-0">
                                     <thead>
                                         <tr>
                                             <th>Bonus Program</th>
@@ -1464,40 +1477,40 @@
                                             <td>Base Retail & Master Pools</td>
                                             <td>Personal 400 + Group 2,800 SV</td>
                                             <td class="text-end">Tiered Margin + Dual Pools</td>
-                                            <td class="text-end">2,000 + 7,000 + 19,000</td>
-                                            <td class="text-end text-white">NT$ 28,000</td>
+                                            <td class="text-end val-c2-base-calc-str">2,000 + 7,000 + 19,000</td>
+                                            <td class="text-end text-white val-c2-base-sum">NT$ 28,000</td>
                                         </tr>
                                         <tr>
                                             <td>Leadership Bonus</td>
                                             <td>13 Qualified Masters (4 Gens)</td>
                                             <td class="text-end">3,200 × 13 × 6%</td>
-                                            <td class="text-end">41,600 × 6% × 0.7 × 25</td>
-                                            <td class="text-end text-white">≒ NT$ 44,000</td>
+                                            <td class="text-end val-c2-calc-steps">41,600 × 6% × 0.7 × 25</td>
+                                            <td class="text-end text-white val-c2-leadership">≒ NT$ 44,000</td>
                                         </tr>
                                         <tr>
                                             <td>Monthly Dividend Bonus</td>
                                             <td>7 Active Master Lines</td>
                                             <td class="text-end">Global 5% Weighted Share</td>
-                                            <td class="text-end">7 Lines × ~NT$ 6,000</td>
-                                            <td class="text-end text-white">NT$ 42,000</td>
+                                            <td class="text-end">7 Lines Weighted</td>
+                                            <td class="text-end text-white val-c2-pearldiv">NT$ 42,000</td>
                                         </tr>
                                         <tr>
                                             <td>Travel Rewards</td>
                                             <td>7 Active Master Lines</td>
                                             <td class="text-end">Global 1.5% Weighted Share</td>
                                             <td class="text-end">Disbursed in June (Monthly Avg.)</td>
-                                            <td class="text-end text-white">≒ NT$ 10,000</td>
+                                            <td class="text-end text-white val-c2-travel">≒ NT$ 10,000</td>
                                         </tr>
                                         <tr>
                                             <td>Annual Excellence Rewards</td>
                                             <td>4 Gens Volume + 7 Active Lines</td>
                                             <td class="text-end">Global 5.0% Dual Weighting</td>
                                             <td class="text-end">Disbursed in Dec (Monthly Avg.)</td>
-                                            <td class="text-end text-white">≒ NT$ 25,000</td>
+                                            <td class="text-end text-white val-c2-excellence">≒ NT$ 25,000</td>
                                         </tr>
                                         <tr class="border-top border-secondary">
                                             <td colspan="4" class="text-end text-cyan fw-bold">Full-Time Pearl Master Estimated Monthly Total:</td>
-                                            <td class="text-end text-cyan fw-bold fs-6">≒ NT$ 149,000</td>
+                                            <td class="text-end text-cyan fw-bold fs-6 val-case2-total-tbl">≒ NT$ 149,000</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1518,34 +1531,34 @@
                                 </div>
                                 <div class="text-md-end mt-2 mt-md-0">
                                     <span class="text-muted small d-block">Estimated Average Annual Earnings</span>
-                                    <span class="h4 fw-bold text-warning mb-0">Approx. NT$ 3,000,000+ / Year</span>
+                                    <span class="h4 fw-bold text-warning mb-0 val-c3-annual-total">Approx. NT$ 3,000,000+ / Year</span>
                                 </div>
                             </div>
 
                             <div class="card-incard p-3 mb-3">
                                 <div class="text-warning fw-bold small mb-2"><i class="fa-solid fa-square-root-variable me-1"></i> Formula Breakdown & Calculations:</div>
                                 <ol class="text-secondary small mb-0 ps-3">
-                                    <li class="mb-1"><strong class="text-light">Base Retail & Master Pools:</strong> Personal 400 + Group 2,800 + Master Bonus (NT$ 7,000) + Team Bonus (NT$ 12,000) = <strong class="text-white">NT$ 28,000 / Month</strong></li>
+                                    <li class="mb-1"><strong class="text-light">Base Retail & Master Pools:</strong> Personal 400 + Group 2,800 + Master Bonus (<span class="val-bonus-mgr">NT$ 7,000</span>) + Team Bonus (<span class="val-bonus-group">NT$ 12,000</span>) = <strong class="text-white val-c2-base-sum">NT$ 28,000</strong> / Month</li>
                                     <li class="mb-1"><strong class="text-light">Leadership Bonus (Full 6 Generations):</strong>
                                         <div class="text-light my-1 ps-2 border-start border-2 border-warning">
-                                            3,200 SV base × 22 Qualified Masters × 6% per gen × Point Value 0.70 × PV 25<br/>
-                                            = 70,400 × 6% × 0.70 × 25 ≒ <strong class="text-warning">NT$ 74,000 / Month</strong>
+                                            3,200 SV base × 22 Qualified Masters × 6% per gen × Point Value 0.70 × PV <span class="val-pv-ratio">25</span><br/>
+                                            = <span class="val-c3-calc-steps">70,400 × 6% × 0.70 × 25</span> ≒ <strong class="text-warning val-c3-leadership">NT$ 74,000 / Month</strong>
                                         </div>
                                     </li>
-                                    <li class="mb-1"><strong class="text-light">Monthly Dividend Bonus (10 Lines):</strong> 10 Active Lines × NT$ 6,000 = <strong class="text-warning">NT$ 60,000 / Month</strong></li>
-                                    <li class="mb-1"><strong class="text-light">Travel Rewards + Annual Excellence (Monthly Avg.):</strong> Travel Fund ~NT$ 19,000/mo + Annual Excellence ~NT$ 46,000/mo = <strong class="text-warning">NT$ 65,000 / Month</strong></li>
+                                    <li class="mb-1"><strong class="text-light">Monthly Dividend Bonus (10 Lines):</strong> 10 Active Lines × Global 5% Allocation = <strong class="text-warning val-c3-pearldiv">NT$ 60,000 / Month</strong></li>
+                                    <li class="mb-1"><strong class="text-light">Travel Rewards + Annual Excellence (Monthly Avg.):</strong> Travel Fund + Annual Excellence = <strong class="text-warning val-c3-travel-excel-sum">NT$ 65,000 / Month</strong></li>
                                     <li class="mb-1"><strong class="text-light">Dream Car Purchase Fund:</strong>
                                         <ul class="ps-3 mt-1 mb-0">
-                                            <li><strong class="text-warning">Down Payment Grant:</strong> Upon promotion, the company disburses a <strong class="text-warning">NT$ 700,000 cash grant</strong> (registered under the distributor's personal name).</li>
-                                            <li><strong class="text-warning">Monthly Installment Subsidy:</strong> 36 monthly subsidies of approx. <strong class="text-warning">NT$ 27,000 / Month</strong>.</li>
+                                            <li><strong class="text-warning">Down Payment Grant:</strong> Upon promotion, the company disburses a <strong class="text-warning val-c3-car-down">NT$ 700,000</strong> cash grant (registered under the distributor's personal name).</li>
+                                            <li><strong class="text-warning">Monthly Installment Subsidy:</strong> 36 monthly subsidies of <strong class="text-warning val-c3-car-monthly-mo">~NT$ 27,000 / Month</strong>.</li>
                                         </ul>
                                     </li>
-                                    <li class="mb-0"><strong class="text-light">Star Blue Diamond Renewals:</strong> Completing a 3-year term and advancing allows re-applying for a vehicle grant or <strong class="text-warning">receiving up to NT$ 1,700,000 in cash awards</strong>.</li>
+                                    <li class="mb-0"><strong class="text-light">Star Blue Diamond Renewals:</strong> Completing a 3-year term and advancing allows re-applying for a vehicle grant or <strong class="text-warning">receiving up to <span class="val-c3-car-cash">NT$ 1,700,000</span> in cash awards</strong>.</li>
                                 </ol>
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-dark-custom align-middle w-100 mb-0">
+                                <table class="table table-dark-custom mb-0">
                                     <thead>
                                         <tr>
                                             <th>Program & Achievement</th>
@@ -1560,58 +1573,58 @@
                                             <td>Base Retail & Master Pools</td>
                                             <td>Personal 400 + Group 2,800 SV</td>
                                             <td class="text-end">Tiered Margin + Dual Pools</td>
-                                            <td class="text-end">2,000 + 7,000 + 19,000</td>
-                                            <td class="text-end text-white">NT$ 28,000</td>
+                                            <td class="text-end val-c2-base-calc-str">2,000 + 7,000 + 19,000</td>
+                                            <td class="text-end text-white val-c2-base-sum">NT$ 28,000</td>
                                         </tr>
                                         <tr>
                                             <td>Leadership Bonus (6 Generations)</td>
                                             <td>22 Qualified Masters (Full Depth)</td>
                                             <td class="text-end">3,200 × 22 × 6%</td>
-                                            <td class="text-end">70,400 × 6% × 0.7 × 25</td>
-                                            <td class="text-end text-white">≒ NT$ 74,000</td>
+                                            <td class="text-end val-c3-calc-steps">70,400 × 6% × 0.7 × 25</td>
+                                            <td class="text-end text-white val-c3-leadership">≒ NT$ 74,000</td>
                                         </tr>
                                         <tr>
                                             <td>Monthly Dividend Bonus</td>
                                             <td>10 Qualified Master Lines</td>
                                             <td class="text-end">Global 5% Weighted Share</td>
-                                            <td class="text-end">10 Lines × ~NT$ 6,000</td>
-                                            <td class="text-end text-white">NT$ 60,000</td>
+                                            <td class="text-end">10 Lines Weighted</td>
+                                            <td class="text-end text-white val-c3-pearldiv">NT$ 60,000</td>
                                         </tr>
                                         <tr>
                                             <td>Travel Rewards</td>
                                             <td>10 Qualified Master Lines</td>
                                             <td class="text-end">Global 1.5% Weighted Share</td>
                                             <td class="text-end">Disbursed in June (Monthly Avg.)</td>
-                                            <td class="text-end text-white">≒ NT$ 19,000</td>
+                                            <td class="text-end text-white val-c3-travel">≒ NT$ 19,000</td>
                                         </tr>
                                         <tr>
                                             <td>Annual Excellence Rewards</td>
                                             <td>4 Gens Volume + 10 Active Lines</td>
                                             <td class="text-end">Global 5.0% Dual Weighting</td>
                                             <td class="text-end">Disbursed in Dec (Monthly Avg.)</td>
-                                            <td class="text-end text-white">≒ NT$ 46,000</td>
+                                            <td class="text-end text-white val-c3-excellence">≒ NT$ 46,000</td>
                                         </tr>
                                         <tr>
                                             <td>Luxury Car Monthly Subsidy</td>
                                             <td>36 Monthly Installment Grants</td>
                                             <td class="text-end">Car Fund Monthly Remittance</td>
                                             <td class="text-end">Monthly Recurring Subsidy</td>
-                                            <td class="text-end text-white">≒ NT$ 27,000</td>
+                                            <td class="text-end text-white val-c3-car-monthly">≒ NT$ 27,000</td>
                                         </tr>
                                         <tr class="border-top border-secondary">
                                             <td colspan="4" class="text-end text-warning fw-bold">Blue Diamond Master Estimated Monthly Total:</td>
-                                            <td class="text-end text-warning fw-bold fs-6">≒ NT$ 254,000 / Month</td>
+                                            <td class="text-end text-warning fw-bold fs-6 val-c3-monthly-total">≒ NT$ 254,000 / Month</td>
                                         </tr>
                                         <tr class="bg-black">
-                                            <td colspan="4" class="text-end text-warning fw-bold">Annual Total Earnings (approx. NT$ 254,000 × 12 Months):</td>
-                                            <td class="text-end text-warning fw-bold fs-5">≒ NT$ 3,048,000 / Year</td>
+                                            <td colspan="4" class="text-end text-warning fw-bold">Annual Total Earnings:</td>
+                                            <td class="text-end text-warning fw-bold fs-5 val-c3-annual-total">≒ NT$ 3,048,000 / Year</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
                             <div class="card-incard mt-3 p-3">
-                                <i class="fa-solid fa-car-side text-warning me-1"></i> <strong class="text-light">First-Time Promotion Car Achievement:</strong> Achieving Blue Diamond status for 4 months triggers an immediate <strong class="text-warning">NT$ 700,000 new vehicle down payment grant</strong> (applicable to unregistered Mercedes-Benz or BMW vehicles, titled directly in the distributor's name). This NT$ 700,000 milestone grant is in addition to the recurring annual earnings shown above.
+                                <i class="fa-solid fa-car-side text-warning me-1"></i> <strong class="text-light">First-Time Promotion Car Achievement:</strong> Achieving Blue Diamond status for 4 months triggers an immediate <strong class="text-warning val-c3-car-down">NT$ 700,000</strong> new vehicle down payment grant (applicable to unregistered Mercedes-Benz or BMW vehicles, titled directly in the distributor's name). This milestone grant is in addition to the recurring annual earnings shown above.
                             </div>
                         </div>
                     </div>

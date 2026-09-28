@@ -33,6 +33,28 @@ let isInitialized = false;
 // Currency & Exchange Rate State
 let currentCurrency = APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD';
 
+const CFG_FIXED_BONUS = APP_CONFIG.ORG?.BONUS_FIXED_AMOUNT || {
+    GROUP: { TWD: 12000.00, MYR: 1500.00 },
+    MANAGER: { TWD: 7000.00, MYR: 875.00 }
+};
+
+/**
+ * 依當前幣別與匯率取得定額獎金金額 (合格小組 GROUP / 合格經理 MANAGER)
+ */
+function getFixedBonusAmount(bonusType, isMYR, exchangeRate) {
+    const bonusConfig = CFG_FIXED_BONUS[bonusType];
+    if (!bonusConfig) return 0;
+
+    if (isMYR) {
+        // 若 common.js 有設定馬幣基準定額且大於 0，優先直接採用；否則依即時匯率換算
+        if (bonusConfig.MYR && bonusConfig.MYR > 0) {
+            return bonusConfig.MYR;
+        }
+        return (exchangeRate > 0) ? AppCalc.divide(bonusConfig.TWD, exchangeRate, 2) : 0;
+    }
+    return bonusConfig.TWD || 0;
+}
+
 /**
  * Retrieves the active exchange rate and currency factor configuration
  */
@@ -405,13 +427,16 @@ function runSimulation() {
     const groupDiffIncome = isPersonalQualified ? (mSv * 0.10 * pv) : 0;
 
     // Fixed Qualified Pool Bonuses (Qualified Team NT$ 12,000 / Qualified Master NT$ 7,000)
+    const defaultFxRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+    const currentFxRate = parseFloat($('#inputExchangeRate').val()) || defaultFxRate;
+
     // Qualified Team Bonus strictly requires actual 3,200 SV group quota (Auto-Remedy excluded)
     const isGroupBonusQualified = isPersonalQualified && (currentRank.rank_level >= 40) && currentRank.has_group_bonus && isGroupSvReached;
     // Qualified Master Bonus allows Auto-Remedy beneficiaries
     const isManagerBonusQualified = isManagerQualified && currentRank.has_manager_bonus;
 
-    const rawGroupBonus = isGroupBonusQualified ? 12000 : 0;
-    const rawManagerBonus = isManagerBonusQualified ? 7000 : 0;
+    const groupBonusIncome = isGroupBonusQualified ? getFixedBonusAmount('GROUP', isMYR, currentFxRate) : 0;
+    const managerBonusIncome = isManagerBonusQualified ? getFixedBonusAmount('MANAGER', isMYR, currentFxRate) : 0;
 
     // High-Rank Qualified Legs and Generational Depth Audit
     const reqActiveLines = currentRank.qualified_lines_req || 1;
@@ -440,8 +465,6 @@ function runSimulation() {
     let rawCarFund = (isPearlTierQualified && currentRank.has_car_fund && totalOrgSv >= currentRank.month_total_org_sv_req) ? 27000 : 0;
 
     // Currency Conversion
-    const groupBonusIncome = isMYR ? Math.round(rawGroupBonus * currencyRate) : rawGroupBonus;
-    const managerBonusIncome = isMYR ? Math.round(rawManagerBonus * currencyRate) : rawManagerBonus;
     const leadershipBonusIncome = isMYR ? Math.round(rawLeadership * currencyRate) : rawLeadership;
     const pearlDividendIncome = isMYR ? Math.round(rawPearlDiv * currencyRate) : rawPearlDiv;
     const excellenceIncome = isMYR ? Math.round(rawExcellence * currencyRate) : rawExcellence;

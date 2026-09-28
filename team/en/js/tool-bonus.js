@@ -22,6 +22,10 @@ const SHEET_NAMES = {
 const CFG_ORG = APP_CONFIG?.ORG || {};
 const CFG_FIN = APP_CONFIG?.FIN || {};
 const CFG_TAX = CFG_FIN.TAX_RULES || {};
+const CFG_FIXED_BONUS = CFG_ORG.BONUS_FIXED_AMOUNT || {
+    GROUP: { TWD: 12000.00, MYR: 1500.00 },
+    MANAGER: { TWD: 7000.00, MYR: 875.00 }
+};
 
 // Global Reactive State
 let appState = {
@@ -512,16 +516,30 @@ function recalculateAll() {
         $(this).find(".cell-diff-amount").text(formatMoney(lineBonus));
     });
 
+    const getFixedBonus = (bonusType) => {
+        const bonusConfig = CFG_FIXED_BONUS[bonusType];
+        if (!bonusConfig) return 0;
+
+        if (curr === 'MYR') {
+            // 若 common.js 有設定馬幣基準額且大於 0，優先直接取用；否則依畫面即時匯率進行動態折算
+            if (bonusConfig.MYR && bonusConfig.MYR > 0) {
+                return bonusConfig.MYR;
+            }
+            return (fxRate > 0) ? AppCalc.divide(bonusConfig.TWD, fxRate, 2) : 0;
+        }
+        return bonusConfig.TWD || 0;
+    };
+
     // 4. Fixed-Rate Qualified Bonuses (2026 Standards: Team NT$ 12,000 / Master NT$ 7,000)
     // Qualified Team Bonus: Strictly requires substantive group SV >= 3,200 (Auto-remedy excluded)
     const isGroupBonusQualified = isPersonalQualified && (currentRank.rank_level >= 40) && isGroupSvReached;
     let qualifiedGroupBonus = (isGroupBonusQualified && (currentRank.has_group_bonus === 'Y' || currentRank.has_group_bonus === 'TRUE'))
-        ? toCurrentCurrency(12000)
+        ? getFixedBonus('GROUP')
         : 0;
 
     // Qualified Master Bonus: Master qualified status (Auto-remedy included)
     let qualifiedManagerBonus = (isManagerQualified && (currentRank.has_manager_bonus === 'Y' || currentRank.has_manager_bonus === 'TRUE'))
-        ? toCurrentCurrency(7000)
+        ? getFixedBonus('MANAGER')
         : 0;
 
     // 5. Global Leadership Bonus (svManagerReq × 6% × Point Value × PV)

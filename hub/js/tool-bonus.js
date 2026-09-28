@@ -20,6 +20,10 @@ const SHEET_NAMES = {
 const CFG_ORG = APP_CONFIG?.ORG || {};
 const CFG_FIN = APP_CONFIG?.FIN || {};
 const CFG_TAX = CFG_FIN.TAX_RULES || {};
+const CFG_FIXED_BONUS = CFG_ORG.BONUS_FIXED_AMOUNT || {
+    GROUP: { TWD: 12000.00, MYR: 1500.00 },
+    MANAGER: { TWD: 7000.00, MYR: 875.00 }
+};
 
 // 全域狀態機
 let appState = {
@@ -505,16 +509,30 @@ function recalculateAll() {
         $(this).find(".cell-diff-amount").text(formatMoney(lineBonus));
     });
 
+    const getFixedBonus = (bonusType) => {
+        const bonusConfig = CFG_FIXED_BONUS[bonusType];
+        if (!bonusConfig) return 0;
+
+        if (curr === 'MYR') {
+            // 若 common.js 有設定馬幣基準額且大於 0，優先直接取用；否則依畫面即時匯率進行動態折算
+            if (bonusConfig.MYR && bonusConfig.MYR > 0) {
+                return bonusConfig.MYR;
+            }
+            return (fxRate > 0) ? AppCalc.divide(bonusConfig.TWD, fxRate, 2) : 0;
+        }
+        return bonusConfig.TWD || 0;
+    };
+
     // 4. 定額合格獎金 (2026年新制：合格小組 NT$ 12,000 / 合格經理 NT$ 7,000)
     // ★ 合格小組獎金：一定要當月個人小組實質達標 3,200 SV（珍珠自動補救不算，除外不適用）
     const isGroupBonusQualified = isPersonalQualified && (currentRank.rank_level >= 40) && isGroupSvReached;
     let qualifiedGroupBonus = (isGroupBonusQualified && (currentRank.has_group_bonus === 'Y' || currentRank.has_group_bonus === '是')) 
-        ? toCurrentCurrency(12000) 
+        ? getFixedBonus('GROUP')
         : 0;
 
     // 合格經理獎金：經理合格即可領取（包含自動補救啟動者）
     let qualifiedManagerBonus = (isManagerQualified && (currentRank.has_manager_bonus === 'Y' || currentRank.has_manager_bonus === '是')) 
-        ? toCurrentCurrency(7000) 
+        ? getFixedBonus('MANAGER')
         : 0;
 
     // 5. 全球領導獎金 (合格經理責任額 SV × 6% × 領導點值 × PV)

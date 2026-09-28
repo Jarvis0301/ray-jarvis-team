@@ -25,6 +25,28 @@ let isInitialized = false;
 // 幣別與匯率管理
 let currentCurrency = APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD';
 
+const CFG_FIXED_BONUS = APP_CONFIG.ORG?.BONUS_FIXED_AMOUNT || {
+    GROUP: { TWD: 12000.00, MYR: 1500.00 },
+    MANAGER: { TWD: 7000.00, MYR: 875.00 }
+};
+
+/**
+ * 依當前幣別與匯率取得定額獎金金額 (合格小組 GROUP / 合格經理 MANAGER)
+ */
+function getFixedBonusAmount(bonusType, isMYR, exchangeRate) {
+    const bonusConfig = CFG_FIXED_BONUS[bonusType];
+    if (!bonusConfig) return 0;
+
+    if (isMYR) {
+        // 若 common.js 有設定馬幣基準定額且大於 0，優先直接採用；否則依即時匯率換算
+        if (bonusConfig.MYR && bonusConfig.MYR > 0) {
+            return bonusConfig.MYR;
+        }
+        return (exchangeRate > 0) ? AppCalc.divide(bonusConfig.TWD, exchangeRate, 2) : 0;
+    }
+    return bonusConfig.TWD || 0;
+}
+
 /**
  * 取得當前設定匯率與幣別換算比率
  */
@@ -390,13 +412,17 @@ function runSimulation() {
     const groupDiffIncome = isPersonalQualified ? (mSv * 0.10 * pv) : 0;
 
     // ★ 2026 年新制：合格小組 NT$ 12,000 / 合格經理 NT$ 7,000 (分開計算與顯示)
+    const defaultFxRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+    const currentFxRate = parseFloat($('#inputExchangeRate').val()) || defaultFxRate;
+
     // 合格小組獎金：一定要當月個人小組實質業績達標 3,200 SV（珍珠自動補救不算）
     const isGroupBonusQualified = isPersonalQualified && (currentRank.rank_level >= 40) && currentRank.has_group_bonus && isGroupSvReached;
     // 合格經理獎金：經理資格合格即可領取（包含自動補救啟動者）
     const isManagerBonusQualified = isManagerQualified && currentRank.has_manager_bonus;
 
-    const rawGroupBonus = isGroupBonusQualified ? 12000 : 0;
-    const rawManagerBonus = isManagerBonusQualified ? 7000 : 0;
+    // 直接依當前幣別與匯率取得精算金額，消除寫死之 12000 / 7000
+    const groupBonusIncome = isGroupBonusQualified ? getFixedBonusAmount('GROUP', isMYR, currentFxRate) : 0;
+    const managerBonusIncome = isManagerBonusQualified ? getFixedBonusAmount('MANAGER', isMYR, currentFxRate) : 0;
 
     // ★ 高階體系合格線與領導代數門檻檢核
     const reqActiveLines = currentRank.qualified_lines_req || 1;
@@ -426,8 +452,6 @@ function runSimulation() {
     let rawCarFund = (isPearlTierQualified && currentRank.has_car_fund && totalOrgSv >= currentRank.month_total_org_sv_req) ? 27000 : 0;
 
     // 依匯率折算當前幣別
-    const groupBonusIncome = isMYR ? Math.round(rawGroupBonus * currencyRate) : rawGroupBonus;
-    const managerBonusIncome = isMYR ? Math.round(rawManagerBonus * currencyRate) : rawManagerBonus;
     const leadershipBonusIncome = isMYR ? Math.round(rawLeadership * currencyRate) : rawLeadership;
     const pearlDividendIncome = isMYR ? Math.round(rawPearlDiv * currencyRate) : rawPearlDiv;
     const excellenceIncome = isMYR ? Math.round(rawExcellence * currencyRate) : rawExcellence;

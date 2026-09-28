@@ -1,6 +1,23 @@
 // Page Initialization Event Listener (Compatible with AppReady & Native DOMContentLoaded)
 window.addEventListener('AppReady', () => {
-    // 1. Initialize DataTable.js (Declared column alignment classes)
+    // 1. 動態讀取 common.js 定額獎金並注入對照表經理權益欄位
+    const cfgFixedBonus = APP_CONFIG?.ORG?.BONUS_FIXED_AMOUNT;
+    if (cfgFixedBonus) {
+        const grpTwd = cfgFixedBonus.GROUP?.TWD ? `NT$ ${cfgFixedBonus.GROUP.TWD.toLocaleString()}` : '10%';
+        const mgrTwd = cfgFixedBonus.MANAGER?.TWD ? `NT$ ${cfgFixedBonus.MANAGER.TWD.toLocaleString()}` : '5%';
+
+        // 尋找經理列並更新其權益亮點說明文字
+        $('#rankAdvancementTable tbody tr').each(function () {
+            const rankText = $(this).find('td:first').text();
+            if (rankText.includes('經理') && !rankText.includes('松柏') && !rankText.includes('長青') && !rankText.includes('珍珠') && !rankText.includes('翡翠') && !rankText.includes('藍鑽')) {
+                $(this).find('td:last').html(`
+                    <span class="text-info fw-bold">20%</span> 階差 + 小組 10% (${grpTwd}) + 經理 5% (${mgrTwd})
+                `);
+            }
+        });
+    }
+
+    // 2. Initialize DataTable.js (Declared column alignment classes)
     $('#rankAdvancementTable').DataTable({
         info: false,
         paging: false,
@@ -11,7 +28,7 @@ window.addEventListener('AppReady', () => {
         ]
     });
 
-    // 2. Initialize Chart.js
+    // 3. Initialize Chart.js
     const canvasEl = document.getElementById('rankProgressChart');
     if (!canvasEl) return;
 

@@ -145,6 +145,18 @@ const APP_CONFIG = {
         SV_LINE_ACTIVE: 160,                      // 當月自用活躍合格責任額 (全職級領獎門檻)
         SV_LINE_MANAGER: 3200,                    // 經理當月合格小組責任額 (領取合格小組/經理獎金門檻)
 
+        // 2026 年新制定額獎金基準 (基準幣別：TWD)
+        BONUS_FIXED_AMOUNT: {
+            GROUP: {
+                TWD: 12000.00,                    // 合格小組獎金 (新台幣)
+                MYR: 1500.00                      // 馬來西亞基準額或設為 null (由匯率動態折算)
+            },
+            MANAGER: {
+                TWD: 7000.00,                     // 合格經理獎金 (新台幣)
+                MYR: 875.00                       // 馬來西亞基準額或設為 null (由匯率動態折算)
+            }
+        },
+
         // 點值算力體系 (PV & 點值係數)
         PV_RATE: {
             TW: 25.0,                             // 台灣生產力點值 (1 PV = NT$ 25)
@@ -152,7 +164,6 @@ const APP_CONFIG = {
         },
         LEADERSHIP_POINT_VALUE: 0.7               // 全球領導獎金基準點值 (0.7)
     },
-
     // 06_財務
     FIN: {
         DEFAULT_CURRENCY: "TWD",                  // 系統預設結算幣別
