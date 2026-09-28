@@ -41,3 +41,109 @@
     padding-left: 0.85rem;
     border-left: 4px solid var(--uvaco-secondary, #38bdf8);
 }
+
+/* ==========================================================================
+   榮祥團隊 ‧ 獎金制度門戶專屬外艙與層次樣式表
+   ========================================================================== */
+
+/* 1. 模組實體外艙容器：加強物理邊界與立體沉降感 */
+.bonus-module-pod {
+    position: relative;
+    background: var(--uvaco-bg-card-secondary);
+    border: 1px solid var(--uvaco-border-glow);
+    border-radius: 0.85rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px var(--uvaco-dark);
+    margin-bottom: 2rem;
+}
+
+.bonus-module-pod:hover {
+    border-color: var(--pod-accent-color);
+}
+
+/* 2. 艙體一致性抬頭列條 */
+.pod-header-strip {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .pod-header-strip {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* 3. 標題左側導光軌 */
+.pod-title-group {
+    position: relative;
+    padding-left: 1rem;
+}
+
+.pod-title-group::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--pod-accent-color, #06b6d4);
+    box-shadow: 0 0 10px var(--pod-accent-color, #06b6d4);
+}
+
+/* 4. 模組引導主題標籤 */
+.pod-index-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--pod-accent-color, #06b6d4);
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+/* 5. 四大模組色彩主題指派 (科技藍、皇冠金、點數青、深湛紫、太陽橘) */
+.pod-theme-cyan {
+    --pod-accent-color: #06b6d4;
+    border-top: 3px solid #06b6d4;
+}
+
+.pod-theme-gold {
+    --pod-accent-color: #fbbf24;
+    border-top: 3px solid #fbbf24;
+}
+
+.pod-theme-teal {
+    --pod-accent-color: #20c997;
+    border-top: 3px solid #20c997;
+}
+
+.pod-theme-indigo {
+    --pod-accent-color: #818cf8;
+    border-top: 3px solid #818cf8;
+}
+
+.pod-theme-orange {
+    --pod-accent-color: #f97316;
+    border-top: 3px solid #f97316;
+}
+
+/* 6. 手機端適配調整 */
+@media (max-width: 768px) {
+    .bonus-module-pod {
+        padding: 1.1rem 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+    .pod-title-group {
+        padding-left: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .bonus-module-pod {
+        padding: 0.5rem;
+    }
+}
