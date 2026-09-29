@@ -48,7 +48,7 @@ function renderAllBonusCalculations(currency = 'TWD') {
         ? (cfgFixed.MANAGER?.MYR && cfgFixed.MANAGER.MYR > 0 ? cfgFixed.MANAGER.MYR : SysCalc.divide(cfgFixed.MANAGER?.TWD || 7000, fxRate, 2))
         : (cfgFixed.MANAGER?.TWD || 7000);
 
-    // 雙全球獎金合計 (台幣 19,000 / 馬幣 2,375)
+    // 菁英獎金 (Elite Bonus) 合計：合格小組 + 合格經理雙全球分紅 (台幣 19,000 / 馬幣 2,375)
     const dualBonus = SysCalc.add(groupBonus, managerBonus);
 
     // 貨幣前綴與文字格式化排版輔助函式
