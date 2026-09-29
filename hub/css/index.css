@@ -47,6 +47,10 @@
     margin-top: var(--header-height);
     flex: 1;
     position: relative;
+
+    &.sidebar-collapsed .portal-content {
+        margin-left: var(--sidebar-collapsed-width);
+    }
 }
 
 /* 左側側邊欄主體 */
@@ -65,27 +69,35 @@
     flex-direction: column;
 }
 
-/* 動態選單獨立捲動區塊 */
+/* 動態選單獨立捲動區塊與紫光捲動條 */
 #dynamicMenuContainer {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden !important; /* 防護：消除側邊欄展開動畫時的水平流動與捲軸閃爍 */
-}
 
-/* 獨立美化選單區域紫光捲動條 */
-#dynamicMenuContainer::-webkit-scrollbar { width: 5px; }
-#dynamicMenuContainer::-webkit-scrollbar-thumb { background-color: rgba(168, 85, 247, 0.35); border-radius: 4px; }
-#dynamicMenuContainer::-webkit-scrollbar-track { background-color: transparent; }
+    &::-webkit-scrollbar {
+        width: 5px;
+
+        &-thumb {
+            background-color: rgba(168, 85, 247, 0.35);
+            border-radius: 4px;
+        }
+
+        &-track {
+            background-color: transparent;
+        }
+    }
+}
 
 /* 底部固定登出按鈕區塊 */
 .sidebar-footer {
     border-top: 1px solid var(--uvaco-border-color);
     background-color: var(--bg-sidebar);
-}
 
-.sidebar-footer .btn {
-    transition: background-color 0.25s ease, padding 0.3s ease;
-    white-space: nowrap !important;
+    .btn {
+        transition: background-color 0.25s ease, padding 0.3s ease;
+        white-space: nowrap !important;
+    }
 }
 
 /* ==================================================
@@ -100,7 +112,8 @@
     white-space: nowrap !important;
 }
 
-.sidebar-menu, .submenu-container {
+.sidebar-menu, 
+.submenu-container {
     list-style: none;
     padding: 0.5rem 0.5rem;
     margin: 0;
@@ -117,10 +130,10 @@
     margin-bottom: 0.3rem;
     transition: all 0.25s ease;
     font-size: 0.95rem;
-}
 
-.nav-item-link:hover {
-    background-color: var(--uvaco-border-glow);
+    &:hover {
+        background-color: var(--uvaco-border-glow);
+    }
 }
 
 .menu-icon-box {
@@ -138,27 +151,41 @@
     margin-bottom: 0.5rem;
     border-left: 2px solid rgba(168, 85, 247, 0.3); /* 紫光樹狀階梯引導線 */
     display: none;
-}
 
-.submenu-container.show {
-    display: block;
-}
+    &.show {
+        display: block;
+    }
 
-.submenu-container .nav-item-link {
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
+    .nav-item-link {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
-/* 滑鼠懸停於子選單項目時：向右微幅滑動 + 亮字 + 背景亮色 */
-.submenu-container .nav-item-link:hover {
-    color: #ffffff !important;
-    background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
-    transform: translateX(5px); /* 微幅向右位移，增加靈動感 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
+        /* 滑鼠懸停於子選單項目時：向右微幅滑動 + 亮字 + 背景亮色 */
+        &:hover {
+            color: #ffffff !important;
+            background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
+            transform: translateX(5px); /* 微幅向右位移，增加靈動感 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 
-.submenu-container .nav-item-link:hover .menu-icon-box {
-    opacity: 1 !important;
-    transform: scale(1.1);
+            .menu-icon-box {
+                opacity: 1 !important;
+                transform: scale(1.1);
+            }
+        }
+
+        /* 子選單當前頁面高亮 */
+        &.active {
+            background: var(--uvaco-bg-accent) !important;
+            border-left: 3px solid var(--uvaco-accent) !important;     /* 魅影粉紅指示邊條，做出亮眼對比 */
+            color: var(--uvaco-text-accent) !important;                /* 字體呈粉紅高亮 */
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+            .menu-icon-box {
+                color: var(--uvaco-text-accent) !important;
+                opacity: 1 !important;
+            }
+        }
+    }
 }
 
 /* ==================================================
@@ -173,31 +200,17 @@
     font-weight: 700;
     box-shadow: inset 4px 0 12px -2px rgba(168, 85, 247, 0.4);
     position: relative;
-}
 
-/* 主選單右側呼吸紫色小圓點 */
-.sidebar-menu > .nav-item > .nav-item-link.active::after {
-    content: '';
-    width: 7px;
-    height: 7px;
-    background-color: var(--uvaco-secondary);
-    border-radius: 50%;
-    box-shadow: 0 0 10px var(--uvaco-secondary);
-    margin-left: auto;
-}
-
-/* --- 子選單 (Submenu) 當前頁面高亮 --- */
-.submenu-container .nav-item-link.active {
-    background: var(--uvaco-bg-accent) !important;
-    border-left: 3px solid var(--uvaco-accent) !important;     /* 魅影粉紅指示邊條，做出亮眼對比 */
-    color: var(--uvaco-text-accent) !important;                /* 字體呈粉紅高亮 */
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.submenu-container .nav-item-link.active .menu-icon-box {
-    color: var(--uvaco-text-accent) !important;
-    opacity: 1 !important;
+    /* 主選單右側呼吸紫色小圓點 */
+    &::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        background-color: var(--uvaco-secondary);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--uvaco-secondary);
+        margin-left: auto;
+    }
 }
 
 /* ==================================================
@@ -205,54 +218,54 @@
 ================================================== */
 .portal-sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
-}
 
-/* 收折時隱藏文字、箭頭與右側高亮小圓點 */
-.portal-sidebar.collapsed .menu-text,
-.portal-sidebar.collapsed .submenu-arrow,
-.portal-sidebar.collapsed .nav-item-link.active::after {
-    display: none !important;
-}
+    /* 收折時隱藏文字、箭頭與右側高亮小圓點 */
+    .menu-text,
+    .submenu-arrow,
+    .nav-item-link.active::after {
+        display: none !important;
+    }
 
-.portal-sidebar.collapsed .nav-item-link {
-    justify-content: center;
-    padding: 0.8rem 0;
-}
+    .nav-item-link {
+        justify-content: center;
+        padding: 0.8rem 0;
+    }
 
-/* 登出按鈕置中 */
-.portal-sidebar.collapsed .sidebar-footer .btn {
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
+    /* 登出按鈕置中 */
+    .sidebar-footer .btn {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 
-/* 收折時：已展開的子選單依然保留顯示 Icon */
-.portal-sidebar.collapsed .submenu-container {
-    display: none;
-}
+    /* 收折時：已展開的子選單依然保留顯示 Icon */
+    .submenu-container {
+        display: none;
 
-.portal-sidebar.collapsed .submenu-container.show {
-    display: block !important;
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-    border-left: none !important;
-}
+        &.show {
+            display: block !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            border-left: none !important;
+        }
 
-.portal-sidebar.collapsed .submenu-container .nav-item-link {
-    justify-content: center !important;
-    padding: 0.6rem 0 !important;
-    background-color: transparent !important;
-}
+        .nav-item-link {
+            justify-content: center !important;
+            padding: 0.6rem 0 !important;
+            background-color: transparent !important;
 
-.portal-sidebar.collapsed .submenu-container .menu-icon-box {
-    font-size: 0.8rem !important;
-    opacity: 0.7;
-}
+            &:hover .menu-icon-box,
+            &.active .menu-icon-box {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+        }
 
-.portal-sidebar.collapsed .submenu-container .nav-item-link:hover .menu-icon-box,
-.portal-sidebar.collapsed .submenu-container .nav-item-link.active .menu-icon-box {
-    opacity: 1;
-    transform: scale(1.15);
+        .menu-icon-box {
+            font-size: 0.8rem !important;
+            opacity: 0.7;
+        }
+    }
 }
 
 /* ==================================================
@@ -262,52 +275,52 @@
     .portal-sidebar.collapsed:hover {
         width: var(--sidebar-width);
         box-shadow: 8px 0 30px rgba(0, 0, 0, 0.65);
-    }
 
-    .portal-sidebar.collapsed:hover .menu-text {
-        display: inline !important;
-    }
+        .menu-text {
+            display: inline !important;
+        }
 
-    .portal-sidebar.collapsed:hover .submenu-arrow {
-        display: inline-block !important;
-    }
+        .submenu-arrow {
+            display: inline-block !important;
+        }
 
-    .portal-sidebar.collapsed:hover .nav-item-link {
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-    }
+        .nav-item-link {
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+        }
 
-    .portal-sidebar.collapsed:hover .submenu-container.show {
-        display: block !important;
-        padding-left: 1rem !important;
-        margin-left: 1.2rem !important;
-        border-left: 2px solid rgba(168, 85, 247, 0.3) !important;
-    }
+        .submenu-container.show {
+            display: block !important;
+            padding-left: 1rem !important;
+            margin-left: 1.2rem !important;
+            border-left: 2px solid rgba(168, 85, 247, 0.3) !important;
 
-    .portal-sidebar.collapsed:hover .submenu-container .nav-item-link {
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
+            .nav-item-link {
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
-    .portal-sidebar.collapsed:hover .submenu-container .nav-item-link:hover {
-        color: #ffffff !important;
-        background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
-        transform: translateX(5px); /* 微幅向右位移，增加靈動感 */
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    }
+                &:hover {
+                    color: #ffffff !important;
+                    background-color: var(--uvaco-border-glow, rgba(52, 211, 153, 0.2)) !important;
+                    transform: translateX(5px);
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 
-    .portal-sidebar.collapsed:hover .submenu-container .nav-item-link:hover .menu-icon-box {
-        opacity: 1 !important;
-        transform: scale(1.1);
-    }
+                    .menu-icon-box {
+                        opacity: 1 !important;
+                        transform: scale(1.1);
+                    }
+                }
+            }
+        }
 
-    .portal-sidebar.collapsed:hover .sidebar-footer .btn {
-        justify-content: center !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
+        .sidebar-footer .btn {
+            justify-content: center !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
 
-    .portal-sidebar.collapsed:hover .sidebar-menu > .nav-item > .nav-item-link.active::after {
-        display: block !important;
+        .sidebar-menu > .nav-item > .nav-item-link.active::after {
+            display: block !important;
+        }
     }
 }
 
@@ -322,10 +335,6 @@
     min-height: calc(100vh - var(--header-height));
     display: flex;
     flex-direction: column;
-}
-
-.portal-wrapper.sidebar-collapsed .portal-content {
-    margin-left: var(--sidebar-collapsed-width);
 }
 
 #page-content-container {
@@ -353,14 +362,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
 
-.card-modal .card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
 }
 
 /* ==================================================
@@ -380,11 +389,11 @@
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.6s ease, transform 0.6s ease;
-}
 
-.desktop-sitemap.visible {
-    opacity: 1;
-    transform: translateY(0);
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .sitemap-title {
@@ -398,16 +407,22 @@
     list-style: none;
     padding: 0;
     margin: 0;
-}
 
-.sitemap-list li { margin-bottom: 0.5rem; }
-.sitemap-list a {
-    color: var(--uvaco-text-muted);
-    text-decoration: none;
-    font-size: 0.88rem;
-    transition: color 0.2s ease;
+    li {
+        margin-bottom: 0.5rem;
+    }
+
+    a {
+        color: var(--uvaco-text-muted);
+        text-decoration: none;
+        font-size: 0.88rem;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--uvaco-secondary);
+        }
+    }
 }
-.sitemap-list a:hover { color: var(--uvaco-secondary); }
 
 .footer-social-btns {
     display: flex;
@@ -429,13 +444,13 @@
     text-decoration: none;
     font-size: 1.2rem;
     transition: all 0.3s ease;
-}
 
-.social-btn:hover {
-    background-color: var(--uvaco-secondary);
-    color: #ffffff;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    &:hover {
+        background-color: var(--uvaco-secondary);
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
 }
 
 .copyright-text {
@@ -443,10 +458,16 @@
     font-size: 0.85rem;
     text-align: center;
     line-height: 1.6;
-}
 
-.copyright-text a { color: var(--uvaco-secondary); text-decoration: none; }
-.copyright-text a:hover { text-decoration: underline; }
+    a {
+        color: var(--uvaco-secondary);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
 
 /* ==================================================
    10. 行動裝置響應式調整 (Mobile RWD < 992px)
@@ -455,11 +476,11 @@
     .portal-sidebar {
         transform: translateX(-100%);
         width: 200px !important;
-    }
 
-    .portal-sidebar.mobile-open {
-        transform: translateX(0);
-        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+        &.mobile-open {
+            transform: translateX(0);
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+        }
     }
 
     .portal-content {
@@ -495,16 +516,16 @@
     visibility: hidden;
     transform: translateY(20px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.back-to-top-btn.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+    &.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
 
-.back-to-top-btn:hover {
-    background-color: var(--uvaco-secondary);
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    &:hover {
+        background-color: var(--uvaco-secondary);
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
 }

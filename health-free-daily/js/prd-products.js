@@ -507,9 +507,9 @@ function renderProducts() {
         // 右上角標籤：即將上市優先，其次為明星商品（外層以 position 容器包覆定位）
         let topRightTag = '';
         if (item.status === 'COMING_SOON') {
-            topRightTag = `<div class="position-absolute top-0 end-0 m-2 z-2">${UIBadges.product.launchStatus('COMING_SOON')}</div>`;
+            topRightTag = `${UIBadges.product.launchStatus('COMING_SOON')}`;
         } else if (item.is_featured) {
-            topRightTag = `<div class="position-absolute top-0 end-0 m-2 z-2">${UIBadges.product.featured(true)}</div>`;
+            topRightTag = `${UIBadges.product.featured(true)}`;
         }
 
         // 左上角次系列與型態標籤
@@ -520,13 +520,13 @@ function renderProducts() {
         col.className = 'col col-12 col-sm-6 col-lg-3 mb-4';
         col.innerHTML = `
             <div class="card h-100 product-card text-light shadow-sm">
-                <div class="card-img-wrapper position-relative overflow-hidden">
-                    <div class="position-absolute top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
-                        ${subcategoryBadge}
-                        ${typeBadge}
-                    </div>
+                <div class="top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
+                    ${subcategoryBadge}
+                    ${typeBadge}
                     ${topRightTag}
-                    <img src="${item.primary_image_url}" class="card-img-top product-thumbnail" alt="${item.name}" loading="lazy" onerror="window.imgError(this, 'product', 220, 220)">
+                </div>
+                <div class="img-container" style="height: 220px;">
+                    <img src="${item.primary_image_url}" class="img-detail" alt="${item.name}" loading="lazy" onerror="window.imgError(this, 'product', 220, 220)">
                 </div>
                 <div class="card-body d-flex flex-column p-3">
                     <h5 class="fw-bold text-light mb-2">${item.name}</h5>

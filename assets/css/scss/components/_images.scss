@@ -1,0 +1,78 @@
+/* ==========================================================================
+   全域產品展示與縮圖元件庫 (Product Image Components)
+   ========================================================================== */
+
+// 1. 表格 / 列表微型縮圖預覽
+.img-thumb-preview {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: var(--uvaco-border-radius-sm, 0.375rem);
+    background-color: transparent;
+    border: 1px solid var(--uvaco-border-glow);
+    padding: 2px;
+}
+
+// 2. 卡片圖格外框（支援卡片整體 hover 聯動縮放）
+.img-container {
+    background-color: var(--uvaco-bg-card-inner);
+    border-radius: var(--uvaco-border-radius-lg, 0.75rem);
+    border: 1px solid var(--uvaco-border-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+    overflow: hidden;
+
+    .img-detail {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+}
+
+/* ==========================================================================
+   全域通用圖片預留容器 (Image Placeholder Component)
+   ========================================================================== */
+.img-placeholder-container {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-radius: var(--uvaco-border-radius-md, 0.5rem);
+    border: 2px dashed var(--uvaco-border-color);
+    background: linear-gradient(135deg, var(--uvaco-bg-card-primary) 0%, var(--uvaco-bg-card-secondary) 100%);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: linear-gradient(135deg, var(--uvaco-bg-card-primary-hover) 0%, var(--uvaco-bg-card-secondary-hover) 100%);
+        border-color: var(--uvaco-border-highlight);
+        box-shadow: 0 0 20px var(--uvaco-border-glow);
+    }
+
+    .img-placeholder-icon {
+        font-size: 2.5rem;
+        color: var(--uvaco-secondary);
+        margin-bottom: 0.75rem;
+        opacity: 0.75;
+    }
+
+    .img-placeholder-title {
+        color: var(--uvaco-text-primary);
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .img-placeholder-spec {
+        display: inline-block;
+        color: var(--uvaco-text-muted);
+        font-size: 0.75rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}

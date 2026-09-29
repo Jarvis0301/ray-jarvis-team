@@ -1,47 +1,3 @@
-.img-placeholder-box {
-    background-color: rgba(11, 19, 41, 0.6);
-    border: 2px dashed rgba(56, 189, 248, 0.3);
-    border-radius: var(--uvaco-border-radius-md, 0.5rem);
-    padding: 2rem 1rem;
-    text-align: center;
-    transition: border-color 0.3s ease;
-}
-
-.img-placeholder-box:hover {
-    border-color: var(--uvaco-secondary, #38bdf8);
-}
-
-.img-placeholder-icon {
-    font-size: 2.8rem;
-    color: var(--uvaco-secondary);
-    margin-bottom: 12px;
-    opacity: 0.85;
-}
-
-.img-placeholder-title {
-    color: var(--uvaco-text-primary);
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 6px;
-}
-
-.img-placeholder-spec {
-    color: var(--uvaco-text-muted);
-    font-size: 0.85rem;
-    background-color: rgba(0, 0, 0, 0.3);
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.section-title {
-    color: var(--uvaco-text-primary, #f8fafc);
-    font-weight: 700;
-    padding-left: 0.85rem;
-    border-left: 4px solid var(--uvaco-secondary, #38bdf8);
-}
-
 /* ==========================================================================
    榮祥團隊 ‧ 獎金制度門戶專屬外艙與層次樣式表
    ========================================================================== */
@@ -55,10 +11,10 @@
     padding: 1.5rem;
     box-shadow: 0 8px 24px var(--uvaco-dark);
     margin-bottom: 2rem;
-}
 
-.bonus-module-pod:hover {
-    border-color: var(--pod-accent-color);
+    &:hover {
+        border-color: var(--pod-accent-color);
+    }
 }
 
 /* 2. 艙體一致性抬頭列條 */
@@ -83,10 +39,9 @@
 .pod-title-group {
     position: relative;
     padding-left: 1rem;
-}
 
-.pod-title-group::before {
-    content: "";
+    &::before {
+        content: "";
     position: absolute;
     left: 0;
     top: 4px;
@@ -95,6 +50,7 @@
     border-radius: 2px;
     background: var(--pod-accent-color, #06b6d4);
     box-shadow: 0 0 10px var(--pod-accent-color, #06b6d4);
+    }
 }
 
 /* 4. 模組引導主題標籤 */

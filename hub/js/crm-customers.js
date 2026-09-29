@@ -724,7 +724,7 @@ function renderCardsView(dataList) {
         const avatarUrl = person.avatar_url || getDefaultAvatar(gender);
         const partnerNameOnly = EntityResolver.partner(c.assigned_partner_id, partnerMasterList, personMasterList, 1);
         const borderClass = c.customer_type === '事業種子' ? 'is-seed' : (c.customer_type === 'VIP顧客' ? 'is-vip' : (c.customer_type === '已轉夥伴' ? 'is-converted' : ''));
-        const tagsHtml = (c.customer_tags || '').split(',').filter(Boolean).map(t => `<span class="badge-tag">${t.trim()}</span>`).join(' ');
+        const tagsHtml = (c.customer_tags || '').split(',').filter(Boolean).map(t => `<span class="badge badge-secondary-subtle">${t.trim()}</span>`).join(' ');
 
         const nationalityDisplay = (person.nationality && person.nationality.trim()) ? person.nationality.trim() : '中華民國';
         const ethnicityDisplay = (person.ethnicity && person.ethnicity.trim()) ? person.ethnicity.trim() : '華人';

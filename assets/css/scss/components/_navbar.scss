@@ -71,8 +71,23 @@
     }
 }
 
+.nav-pills {
+    .nav-link {
+        color: var(--uvaco-text-muted, #94a3b8);
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-weight: 600;
+
+        &.active {
+            background-color: rgba(2, 132, 199, 0.25);
+            color: var(--uvaco-secondary, #38bdf8);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+    }
+}    
+
 // --------------------------------------------------------------------------
-// 2. 表單/彈窗子分頁膠囊列 (.form-tabs-mobile-nav，支援手機端橫向手勢滑動)
+// 3. 表單/彈窗子分頁膠囊列 (.form-tabs-mobile-nav，支援手機端橫向手勢滑動)
 // --------------------------------------------------------------------------
 .form-tabs-mobile-nav {
     display: flex;

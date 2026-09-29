@@ -24,6 +24,17 @@
         color: var(--uvaco-text-primary);
     }
 
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        background-color: transparent;
+        border-top: 1px solid var(--uvaco-border-color);
+        color: var(--uvaco-text-primary);
+        padding: 0.5rem 0.5rem;
+        margin-top: 0.5rem;
+    }
+
     &:hover {
         border-color: var(--uvaco-border-highlight);
         box-shadow: 0 0 2rem var(--uvaco-border-glow);
@@ -49,6 +60,17 @@
         padding: 0.5rem;
         color: var(--uvaco-text-primary);
     }
+
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        background-color: transparent;
+        border-top: 1px solid var(--uvaco-border-color);
+        color: var(--uvaco-text-primary);
+        padding: 0.5rem 0.5rem;
+        margin-top: 0.5rem;
+    }
 }
 
 .card-chart {
@@ -59,20 +81,17 @@
 }
 
 .card-chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    padding: 1rem;
     background-color: var(--uvaco-bg-card-hover);
     border: 1px solid var(--uvaco-border-highlight);
     border-radius: var(--uvaco-border-radius-xl, 1rem);
-    padding: 1rem;
-    position: relative;
-    height: 300px;
-    width: 100%;
-}
 
-.card-chart-container-transparent {
-    background-color: transparent;
-    border: transparent;
-    padding: 1rem;
-    position: relative;
-    height: 300px;
-    width: 100%;
+    /* 狀態修飾子 */
+    &.is-transparent {
+        background-color: transparent;
+        border: transparent;
+    }
 }
