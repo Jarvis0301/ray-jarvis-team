@@ -396,7 +396,7 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
 }
 
 // ==========================================================================
-// 8. 缺額智能湊單求解器 (Goal SV Solver)
+// 8. 缺額智慧湊單求解器 (Goal SV Solver)
 // ==========================================================================
 function recalculateSolver() {
     const defaultTargetSV = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
