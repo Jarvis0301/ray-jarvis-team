@@ -1,0 +1,84 @@
+/* ==========================================================================
+   財務金額、點數與數值排印工具類 (Tabular Figures & Typography)
+   ========================================================================== */
+
+// 基礎等寬數值抽象（保留主字型外觀，數字採用等寬字模）
+%tabular-numeric {
+    font-variant-numeric: tabular-nums;
+    -moz-font-feature-settings: "tnum";
+    -webkit-font-feature-settings: "tnum";
+    font-feature-settings: "tnum";
+    letter-spacing: -0.01em;
+}
+
+.tabular-nums {
+    @extend %tabular-numeric;
+}
+
+/* 1. 金流數值： */
+// 單價
+.text-price-unit {
+    @extend %tabular-numeric;
+    color: var(--bs-yellow, #f59e0b) !important;
+    font-weight: 500;
+}
+
+// 總價
+.text-price-total {
+    @extend %tabular-numeric;
+    color: var(--bs-orange, #f97316) !important;
+    font-weight: 700;
+}
+
+/* 2. 點數數值： */
+// 單件 SV
+.text-sv-unit {
+    @extend %tabular-numeric;
+    color: var(--bs-teal, #14b8a6) !important;
+    font-weight: 400;
+    font-size: 0.875rem;
+}
+
+// 總 SV
+.text-sv-total {
+    @extend %tabular-numeric;
+    color: var(--bs-teal-text-emphasis, #5eead4) !important;
+    font-weight: 700;
+}
+
+/* 3. 換算乘數與衍生因子：PV、點值、台馬匯率 */
+.text-rate {
+    @extend %tabular-numeric;
+    color: var(--bs-pink-text-emphasis, #fbcfe8) !important;
+    font-weight: 600;
+}
+
+/* 4. 成本與毛利損益 */
+// 成本
+.text-cost {
+    @extend %tabular-numeric;
+    color: var(--bs-blue-text-emphasis, #7dd3fc) !important;
+    font-weight: 400;
+}
+
+// 利潤
+.text-profit-positive {
+    @extend %tabular-numeric;
+    color: var(--bs-success, #34d399) !important;
+    font-weight: 700;
+}
+
+// 虧損
+.text-profit-negative {
+    @extend %tabular-numeric;
+    color: var(--bs-danger, #ef4444) !important;
+    font-weight: 700;
+}
+
+/* 5. 全資料表系統受控主外鍵、單號與代碼 (維持純等寬字型，以利字元校驗與對齊) */
+.text-key {
+    color: var(--bs-cyan-text-emphasis, #67e8f9) !important;
+    font-family: var(--bs-font-monospace);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}

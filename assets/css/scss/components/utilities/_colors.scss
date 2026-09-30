@@ -218,29 +218,28 @@ $uvaco-contrast-fallbacks: (
 // Colors: blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, white, gray, gray-dark, black
 // ==========================================================================
 
-// 🎯 UVACO 基準深色底色 (對接暗黑主題基底 #051811 / #060d19 / #0a0518 之平均沉降色)
-$uvaco-dark-base-bg: #070d19 !default;
+// 🎯 UVACO 基準深色底色 (對齊暗黑主題基底之深邃沉降色)
+$uvaco-dark-base-bg: #0a0518 !default;
 
-// 🎯 UVACO 標準 Extended Palette (經由 WCAG 人因對比度優化之色階 Map)
+// 🎯 UVACO 標準 Extended Palette (100% 對齊新版基礎顏色系統定義)
 $expanded-theme-colors: (
-    "blue":      #38bdf8, // 鋼鐵晴空藍 (對齊團隊版 secondary)
-    "indigo":    #6366f1, // 戰略靛藍
-    "purple":    #8b5cf6, // 魅影深紫 (對齊核心版 primary)
-    "pink":      #ec4899, // 霓虹粉 (對齊核心版 accent)
-    "red":       #ef4444, // 危險玫瑰紅 (對齊 danger)
-    "orange":    #f97316, // 活力亮橘
-    "yellow":    #fde047, // 高感光純檸檬黃 (對齊純黃色系)
-    "green":     #10b981, // 翡翠草綠 (對齊公開版 primary)
-    "teal":      #14b8a6, // 科技藍綠
-    "cyan":      #06b6d4, // 戰略青藍 (對齊 info)
-    "white":     #ffffff, // 純白高亮
-    "gray":      #84a3be, // UVACO 莫蘭迪霧藍灰 (對齊 muted 色階)
-    "gray-dark": #0f172a, // 深沉灰色
-    "black":     #000000  // 純黑
+    "blue":      var(--bs-blue),        // 鋼鐵晴空藍
+    "indigo":    var(--bs-indigo),      // 戰略靛藍 (進銷存成本色)
+    "purple":    var(--bs-purple),      // 【校正】魅影紫 (標準光譜紫，區隔 primary 8b5cf6)
+    "pink":      var(--bs-pink),        // 電光霓虹粉
+    "red":       var(--bs-red),         // 危險玫瑰紅
+    "orange":    var(--bs-orange),      // 盛夏太陽橘 (財務總額色)
+    "yellow":    var(--bs-yellow),      // 【校正】太陽暖黃 (財務單價色，強調色為 fde047)
+    "green":     var(--bs-green),       // 翡翠草綠
+    "teal":      var(--bs-teal),        // 科技藍綠 (SV 點數考核色)
+    "cyan":      var(--bs-cyan),        // 賽博極光青
+    "white":     var(--bs-white),       // 純白高亮
+    "gray":      var(--bs-gray),        // 【校正】魅影薰衣灰 (對齊全域 --bs-gray)
+    "gray-dark": var(--bs-gray-dark),   // 【校正】曜石深黑灰 (對齊全域 --bs-gray-dark)
+    "black":     var(--bs-black)        // 純黑
 ) !default;
 
-// 3.1 採用 W3C 相感亮度 (Relative Luminance) 演算器 (解決 HSL 算式之黃/綠色度盲點)
-// 單一通道的 sRGB -> Linear 轉換
+// 3.1 採用 W3C 相對感光度 (Relative Luminance) 演算器 (解決 HSL 算式之黃/綠色度盲點)
 @function _srgb-to-linear($channel) {
     $c: math.div($channel, 255);
     @if ($c <= 0.04045) {
@@ -250,52 +249,50 @@ $expanded-theme-colors: (
     }
 }
 
-// 標準 W3C WCAG 相對亮度計算
 @function get-wcag-contrast($color) {
     $r: _srgb-to-linear(color.channel($color, "red", $space: rgb));
     $g: _srgb-to-linear(color.channel($color, "green", $space: rgb));
     $b: _srgb-to-linear(color.channel($color, "blue", $space: rgb));
 
-    // WCAG 2.1 權重
     $luminance: (0.2126 * $r) + (0.7152 * $g) + (0.0722 * $b);
 
-    // 標準對比臨界點 (WCAG 4.5:1 臨界值約為 0.179)
     @if ($luminance > 0.179) {
-        @return var(--uvaco-bg-primary); // 亮色背景配深色文字
+        @return var(--uvaco-bg-primary, #0a0518); // 亮底搭配深色字
     } @else {
-        @return #ffffff;                 // 暗色背景配純白文字
+        @return #ffffff;                          // 暗底搭配高亮白字
     }
 }
 
 @each $name, $color in $expanded-theme-colors {
     $contrast-text: get-wcag-contrast($color);
     
-    // 🎯 UVACO 獨家：與動態主題底色 $uvaco-dark-base-bg 按比例調合，產生沉降微光 Subtles
+    // 預先計算 Sass Fallback 數值
     $subtle-bg: color.mix($color, $uvaco-dark-base-bg, 16%);
     $subtle-border: color.mix($color, $uvaco-dark-base-bg, 38%);
     $emphasis-text: color.mix($color, #ffffff, 88%);
 
     // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
     .bg-#{$name} {
-        background-color: $color !important;
+        color: $contrast-text !important;
+        background-color: var(--bs-#{$name}, #{$color}) !important;
     }
     .bg-#{$name}-subtle {
-        background-color: $subtle-bg !important;
+        background-color: var(--bs-#{$name}-bg-subtle, #{$subtle-bg}) !important;
     }
     .text-bg-#{$name} {
         color: $contrast-text !important;
-        background-color: $color !important;
+        background-color: var(--bs-#{$name}, #{$color}) !important;
     }
 
     // --- Text & Links (.text-*, .text-*-emphasis, .link-*) ---
     .text-#{$name} {
-        color: $color !important;
+        color: var(--bs-#{$name}, #{$color}) !important;
     }
     .text-#{$name}-emphasis {
-        color: $emphasis-text !important;
+        color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text}) !important;
     }
     .link-#{$name} {
-        color: $color;
+        color: var(--bs-#{$name}, #{$color});
         &:hover, &:focus {
             color: color.mix(#ffffff, $color, 25%);
         }
@@ -303,141 +300,141 @@ $expanded-theme-colors: (
 
     // --- Borders (.border-*, .border-*-subtle) ---
     .border-#{$name} {
-        border-color: $color !important;
+        border-color: var(--bs-#{$name}, #{$color}) !important;
     }
     .border-#{$name}-subtle {
-        border-color: $subtle-border !important;
+        border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border}) !important;
     }
 
     // --- Focus Rings (.focus-ring-*) ---
     .focus-ring-#{$name} {
-        --bs-focus-ring-color: #{color.change($color, $alpha: 0.3)};
+        --bs-focus-ring-color: rgba(var(--bs-#{$name}-rgb, #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)}), 0.25);
     }
 
     // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
     .btn-#{$name} {
         --bs-btn-color: #{$contrast-text};
-        --bs-btn-bg: #{$color};
-        --bs-btn-border-color: #{$color};
+        --bs-btn-bg: var(--bs-#{$name}, #{$color});
+        --bs-btn-border-color: var(--bs-#{$name}, #{$color});
         --bs-btn-hover-color: #{$contrast-text};
         --bs-btn-hover-bg: #{color.mix(#000000, $color, 15%)};
         --bs-btn-hover-border-color: #{color.mix(#000000, $color, 20%)};
-        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-focus-shadow-rgb: var(--bs-#{$name}-rgb, #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)});
         --bs-btn-active-color: #{$contrast-text};
         --bs-btn-active-bg: #{color.mix(#000000, $color, 25%)};
         --bs-btn-active-border-color: #{color.mix(#000000, $color, 30%)};
         --bs-btn-disabled-color: #{$contrast-text};
-        --bs-btn-disabled-bg: #{$color};
-        --bs-btn-disabled-border-color: #{$color};
+        --bs-btn-disabled-bg: var(--bs-#{$name}, #{$color});
+        --bs-btn-disabled-border-color: var(--bs-#{$name}, #{$color});
     }
 
     .btn-outline-#{$name} {
-        --bs-btn-color: #{$color};
+        --bs-btn-color: var(--bs-#{$name}, #{$color});
         --bs-btn-bg: transparent;
-        --bs-btn-border-color: #{$color};
+        --bs-btn-border-color: var(--bs-#{$name}, #{$color});
         --bs-btn-hover-color: #{$contrast-text};
-        --bs-btn-hover-bg: #{$color};
-        --bs-btn-hover-border-color: #{$color};
-        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-hover-bg: var(--bs-#{$name}, #{$color});
+        --bs-btn-hover-border-color: var(--bs-#{$name}, #{$color});
+        --bs-btn-focus-shadow-rgb: var(--bs-#{$name}-rgb, #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)});
         --bs-btn-active-color: #{$contrast-text};
-        --bs-btn-active-bg: #{$color};
-        --bs-btn-active-border-color: #{$color};
-        --bs-btn-disabled-color: #{$color};
+        --bs-btn-active-bg: var(--bs-#{$name}, #{$color});
+        --bs-btn-active-border-color: var(--bs-#{$name}, #{$color});
+        --bs-btn-disabled-color: var(--bs-#{$name}, #{$color});
         --bs-btn-disabled-bg: transparent;
-        --bs-btn-disabled-border-color: #{$color};
+        --bs-btn-disabled-border-color: var(--bs-#{$name}, #{$color});
     }
 
     // 🌟 UVACO 擴充：.btn-#{$name}-subtle (低調微光實心按鈕)
     .btn-#{$name}-subtle {
-        --bs-btn-color: #{$emphasis-text};
-        --bs-btn-bg: #{$subtle-bg};
-        --bs-btn-border-color: #{$subtle-border};
+        --bs-btn-color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        --bs-btn-bg: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        --bs-btn-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
         --bs-btn-hover-color: #ffffff;
         --bs-btn-hover-bg: #{color.mix($color, $uvaco-dark-base-bg, 40%)};
-        --bs-btn-hover-border-color: #{$color};
-        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-hover-border-color: var(--bs-#{$name}, #{$color});
+        --bs-btn-focus-shadow-rgb: var(--bs-#{$name}-rgb, #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)});
         --bs-btn-active-color: #ffffff;
-        --bs-btn-active-bg: #{$color};
-        --bs-btn-active-border-color: #{$color};
+        --bs-btn-active-bg: var(--bs-#{$name}, #{$color});
+        --bs-btn-active-border-color: var(--bs-#{$name}, #{$color});
         --bs-btn-disabled-color: #{color.mix(#ffffff, $uvaco-dark-base-bg, 35%)};
-        --bs-btn-disabled-bg: #{$subtle-bg};
-        --bs-btn-disabled-border-color: #{$subtle-border};
+        --bs-btn-disabled-bg: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        --bs-btn-disabled-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
     }
 
-    // 🌟 UVACO 擴充：.btn-outline-#{$name}-subtle (微光外框按鈕：Hover 時文字白、底色微亮、外框提亮)
+    // 🌟 UVACO 擴充：.btn-outline-#{$name}-subtle (微光外框按鈕)
     .btn-outline-#{$name}-subtle {
-        --bs-btn-color: #{$emphasis-text};
+        --bs-btn-color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
         --bs-btn-bg: transparent;
-        --bs-btn-border-color: #{$subtle-border};
+        --bs-btn-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
         --bs-btn-hover-color: #ffffff;
-        --bs-btn-hover-bg: #{$subtle-bg};
+        --bs-btn-hover-bg: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
         --bs-btn-hover-border-color: #{color.mix($color, #ffffff, 25%)};
-        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-focus-shadow-rgb: var(--bs-#{$name}-rgb, #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)});
         --bs-btn-active-color: #ffffff;
         --bs-btn-active-bg: #{color.mix($color, $uvaco-dark-base-bg, 35%)};
-        --bs-btn-active-border-color: #{$color};
+        --bs-btn-active-border-color: var(--bs-#{$name}, #{$color});
         --bs-btn-disabled-color: #{color.mix(#ffffff, $uvaco-dark-base-bg, 25%)};
         --bs-btn-disabled-bg: transparent;
-        --bs-btn-disabled-border-color: #{$subtle-border};
+        --bs-btn-disabled-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
     }
 
     // --- Badges (.badge-*, .badge-outline-*, .badge-*-subtle, .badge-outline-*-subtle) ---
     .badge-#{$name} {
-        background-color: #{$color};
+        background-color: var(--bs-#{$name}, #{$color});
         color: #{$contrast-text};
-        border: 1px solid #{$color};
+        border: 1px solid var(--bs-#{$name}, #{$color});
     }
 
     .badge-outline-#{$name} {
         background-color: transparent;
-        color: #{$color};
-        border: 1px solid #{$color};
+        color: var(--bs-#{$name}, #{$color});
+        border: 1px solid var(--bs-#{$name}, #{$color});
     }
 
     .badge-#{$name}-subtle {
-        background-color: #{$subtle-bg};
-        color: #{$emphasis-text};
-        border: 1px solid #{$subtle-border};
+        background-color: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        border: 1px solid var(--bs-#{$name}-border-subtle, #{$subtle-border});
     }
 
     .badge-outline-#{$name}-subtle {
         background-color: transparent;
-        color: #{$emphasis-text};
-        border: 1px solid #{$subtle-border};
+        color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        border: 1px solid var(--bs-#{$name}-border-subtle, #{$subtle-border});
     }
 
     // --- Alerts (.alert-*) ---
     .alert-#{$name} {
-        --bs-alert-color: #{$emphasis-text};
-        --bs-alert-bg: #{$subtle-bg};
-        --bs-alert-border-color: #{$subtle-border};
+        --bs-alert-color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        --bs-alert-bg: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        --bs-alert-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
         --bs-alert-link-color: #{color.mix(#ffffff, $emphasis-text, 15%)};
     }
 
     // --- List Group (.list-group-item-*) ---
     .list-group-item-#{$name} {
-        color: $emphasis-text;
-        background-color: $subtle-bg;
-        border-color: $subtle-border;
+        color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        background-color: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
 
         &.list-group-item-action {
             &:hover, &:focus {
-                color: $emphasis-text;
+                color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
                 background-color: color.mix(#ffffff, $subtle-bg, 6%);
             }
             &.active {
                 color: $contrast-text;
-                background-color: $color;
-                border-color: $color;
+                background-color: var(--bs-#{$name}, #{$color});
+                border-color: var(--bs-#{$name}, #{$color});
             }
         }
     }
 
     // --- Tables (.table-*) ---
     .table-#{$name} {
-        --bs-table-color: #{$emphasis-text};
-        --bs-table-bg: #{$subtle-bg};
-        --bs-table-border-color: #{$subtle-border};
+        --bs-table-color: var(--bs-#{$name}-text-emphasis, #{$emphasis-text});
+        --bs-table-bg: var(--bs-#{$name}-bg-subtle, #{$subtle-bg});
+        --bs-table-border-color: var(--bs-#{$name}-border-subtle, #{$subtle-border});
         --bs-table-striped-bg: #{color.mix(#ffffff, $subtle-bg, 4%)};
         --bs-table-hover-bg: #{color.mix(#ffffff, $subtle-bg, 8%)};
         --bs-table-active-bg: #{color.mix(#ffffff, $subtle-bg, 12%)};
