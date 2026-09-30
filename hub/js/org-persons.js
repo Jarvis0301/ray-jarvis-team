@@ -521,7 +521,7 @@ function formatPersonTableRow(p) {
                 <img src="${avatarUrl}" class="rounded-circle border border-primary border-opacity-50" width="32" height="32" alt="${dispName}">
                 <div>
                     <div class="fw-bold text-white">${dispName}</div>
-                    <div class="text-secondary small">${p.person_id}</div>
+                    <div class="text-secondary small tabular-nums">${p.person_id}</div>
                 </div>
             </div>
         `,

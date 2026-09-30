@@ -857,7 +857,7 @@ function renderAdjustmentsTable() {
         return {
             id_and_type: `
                 <div>
-                    <div class="fw-bold text-info-emphasis">${a.id}</div>
+                    <div class="text-key-monospace">${a.id}</div>
                     ${typeBadge}
                 </div>
             `,
@@ -880,10 +880,10 @@ function renderAdjustmentsTable() {
             `,
             cost_breakdown: `
                 <div>
-                    <div class="text-orange fw-bold">${formatCurrency(a.total_cost, a.currency_code)}</div>
+                    <div class="text-price-total">${formatCurrency(a.total_cost, a.currency_code)}</div>
                 </div>
             `,
-            sv_breakdown: `<span class="text-teal fw-bold">${svDisplay}</span>`,
+            sv_breakdown: `<span class="text-sv-total">${svDisplay}</span>`,
             parties: `
                 <div>
                     <div class="text-white fw-bold"><i class="fa-solid fa-user-shield text-primary me-1"></i>${operatorResolved}</div>
@@ -941,7 +941,7 @@ function renderTransfersTable() {
         return {
             id_and_date: `
                 <div>
-                    <div class="fw-bold text-info-emphasis">${t.id}</div>
+                    <div class="text-key-monospace">${t.id}</div>
                     <div class="text-secondary small">${t.adj_date}</div>
                 </div>
             `,
@@ -957,9 +957,9 @@ function renderTransfersTable() {
                     <span class="text-primary-emphasis small">批號：${t.batch_no || '-'}</span>
                 </div>
             `,
-            quantity: `<span class="text-info">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
-            cost: `<span class="text-orange fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
-            sv: `<span class="text-teal fw-bold">${formatSV(t.total_sv, 'INTERNAL')} SV</span>`,
+            quantity: `<span class="text-info tabular-nums">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
+            cost: `<span class="text-price-total">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
+            sv: `<span class="text-sv-total">${formatSV(t.total_sv, 'INTERNAL')} SV</span>`,
             operator: `<span class="text-light">${operatorResolved}</span>`,
             actions: actionButtons
         };
@@ -1010,7 +1010,7 @@ function openAdjustmentDetailModal(adjId) {
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">單據編號 (PK)</span>
-                <span class="text-info-emphasis fw-bold">${item.id}</span>
+                <span class="text-key-monospace">${item.id}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">異動類型</span>
@@ -1022,7 +1022,7 @@ function openAdjustmentDetailModal(adjId) {
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-secondary small">扣庫庫存編號</span>
-                <span class="text-info-emphasis fw-bold">${item.stock_id || '-'}</span>
+                <span class="text-key-monospace">${item.stock_id || '-'}</span>
             </div>
         </article>
 
@@ -1036,11 +1036,11 @@ function openAdjustmentDetailModal(adjId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方產品編號</div>
-                <div class="col-7 text-info text-end font-monospace">${item.official_product_code || item.product_id || '-'}</div>
+                <div class="col-7 text-end text-key-monospace">${item.official_product_code || item.product_id || '-'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">異動批號</div>
-                <div class="col-7 text-end text-primary-emphasis font-monospace">${item.batch_no || '-'}</div>
+                <div class="col-7 text-end text-primary-emphasis">${item.batch_no || '-'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">效期截止日</div>
@@ -1048,7 +1048,7 @@ function openAdjustmentDetailModal(adjId) {
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">異動數量</div>
-                <div class="col-7 text-end fw-bold fs-6 ${item.quantity >= 0 ? 'text-success' : 'text-danger'}">${qtyDisplay}</div>
+                <div class="col-7 text-end fw-bold fs-6 tabular-nums ${item.quantity >= 0 ? 'text-success' : 'text-danger'}">${qtyDisplay}</div>
             </div>
         </article>
 
@@ -1080,19 +1080,19 @@ function openAdjustmentDetailModal(adjId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">成本單價</div>
-                <div class="col-7 text-yellow text-end">${unitCostDisplay}</div>
+                <div class="col-7 text-price-unit text-end">${unitCostDisplay}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">成本總損益 / 額度</div>
-                <div class="col-7 text-orange fw-bold text-end">${costDisplay}</div>
+                <div class="col-7 text-price-total text-end">${costDisplay}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">單件 SV</div>
-                <div class="col-7 text-teal-emphasis text-end">${unitSvDisplay}</div>
+                <div class="col-7 text-sv-unit text-end">${unitSvDisplay}</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">影響總 SV</div>
-                <div class="col-7 text-teal fw-bold text-end">${svDisplay}</div>
+                <div class="col-7 text-sv-total text-end">${svDisplay}</div>
             </div>
         </article>
 

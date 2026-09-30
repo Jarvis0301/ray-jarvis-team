@@ -43,7 +43,7 @@
                                 </button>
                             </div>
                             <div class="col">
-                                <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddStockModal()">
+                                <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddAdjustmentModal()">
                                     <i class="fa-solid fa-plus me-1"></i>新增庫存
                                 </button>
                             </div>
@@ -129,7 +129,7 @@
                             <i class="fa-solid fa-scale-unbalanced-flip text-danger"></i>
                         </div>
                         <div class="h4 mb-0 fw-bold text-danger" id="statLossAmount">NT$ 0</div>
-                        <div class="text-secondary small mt-1">累計損耗盒數：<span class="text-danger fw-bold" id="statLossBoxes">0</span> 盒</div>
+                        <div class="text-secondary small mt-1">累計損耗盒數：<span class="text-profit-negative" id="statLossBoxes">0</span> 盒</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
@@ -139,7 +139,7 @@
                             <i class="fa-solid fa-gift text-warning"></i>
                         </div>
                         <div class="h4 mb-0 fw-bold text-warning" id="statDemoCost">NT$ 0</div>
-                        <div class="text-secondary small mt-1">推廣自用件數：<span class="text-warning fw-bold" id="statDemoQty">0</span> 件</div>
+                        <div class="text-secondary small mt-1">推廣自用件數：<span class="text-cost" id="statDemoQty">0</span> 件</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
@@ -613,10 +613,10 @@
                                         </span>
                                     </div>
                                     <div class="col-6 col-xl-4 text-xl-end">
-                                        <span class="text-yellow fw-bold" id="auditLblVarianceCost">NT$ 0.00</span>
+                                        <span class="text-price-total" id="auditLblVarianceCost">NT$ 0.00</span>
                                     </div>
                                     <div class="col-6 col-xl-3 text-xl-end">
-                                        <span class="text-teal fw-bold" id="auditLblVarianceSv">0 SV</span>
+                                        <span class="text-sv-total" id="auditLblVarianceSv">0 SV</span>
                                     </div>
                                 </div>
                             </div>

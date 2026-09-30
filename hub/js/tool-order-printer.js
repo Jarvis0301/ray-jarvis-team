@@ -161,8 +161,8 @@ function showMobileReceiptModal(orderData) {
                 <div class="small text-muted">${item.code} x ${item.qty}</div>
             </div>
             <div class="text-end">
-                <div class="text-warning fw-bold">${currencySymbol}${Math.round(item.price).toLocaleString()}</div>
-                <div class="text-teal fw-bold">${item.sv.toLocaleString()} SV</div>
+                <div class="text-price-total">${currencySymbol}${Math.round(item.price).toLocaleString()}</div>
+                <div class="text-sv-total">${item.sv.toLocaleString()} SV</div>
             </div>
         </div>
     `).join('');

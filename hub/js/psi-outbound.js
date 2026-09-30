@@ -906,7 +906,7 @@ function formatTableRow(item) {
     return {
         id_and_cat: `
             <div>
-                <div class="fw-bold text-info-emphasis">${item.id}</div>
+                <div class="text-key-monospace">${item.id}</div>
                 <span class="badge badge-outline-secondary-subtle">${item.order_category}</span>
             </div>
         `,
@@ -933,20 +933,20 @@ function formatTableRow(item) {
         payment_status: paymentBadge,
         quantities: `
             <div>
-                <span class="fw-bold text-white">${item.total_boxes}</span> 盒
-                ${item.total_pieces > 0 ? `<div class="text-secondary small">${item.total_pieces} 支/條</div>` : ''}
+                <span class="fw-bold text-white tabular-nums">${item.total_boxes}</span> 盒
+                ${item.total_pieces > 0 ? `<div class="text-secondary tabular-nums small">${item.total_pieces} 支/條</div>` : ''}
             </div>
         `,
         financials: `
             <div>
-                <div class="fw-bold text-orange">${salesText}</div>
+                <div class="text-price-total">${salesText}</div>
                 ${item.total_profit_amount !== 0 ? `
                     <div class="text-secondary small">成本：${costText}</div>
                     <div class="text-secondary small">毛利：${profitText}</div>
                 ` : ''}
             </div>
         `,
-        sv: `<span class="text-teal fw-bold">${formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
+        sv: `<span class="text-sv-total">${formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
         hold: holdBadge,
         status: statusBadge,
         actions: actionButtons
@@ -1267,19 +1267,19 @@ function renderOutboundItemsTableFromStaging(isLocked) {
                     <td>
                         <span class="text-secondary">${UIBadges.psi.feeItem(it.is_fee_item)} / ${it.sales_unit}</span>
                     </td>
-                    <td class="text-yellow text-end">${formatCurrency(it.unit_price, curr)}</td>
-                    <td class="text-red text-end">${formatCurrency(it.unit_cost, curr)}</td>
-                    <td class="text-teal text-end">${formatSV(it.unit_sv, 'INTERNAL')} SV</td>
+                    <td class="text-price-unit text-end">${formatCurrency(it.unit_price, curr)}</td>
+                    <td class="text-cost text-end">${formatCurrency(it.unit_cost, curr)}</td>
+                    <td class="text-sv-unit text-end">${formatSV(it.unit_sv, 'INTERNAL')} SV</td>
                     <td class="text-end">${it.ordered_qty} / ${it.shipped_qty}</td>
-                    <td class="fw-bold text-orange text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
-                    <td class="fw-bold text-accent text-end">${formatCurrency(it.subtotal_cost, curr)}</td>
-                    <td class="fw-bold text-info text-end">${formatCurrency(it.subtotal_profit, curr)}</td>
-                    <td class="fw-bold text-teal text-end">${formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
+                    <td class="text-price-total text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
+                    <td class="text-cost text-end">${formatCurrency(it.subtotal_cost, curr)}</td>
+                    <td class="${it.subtotal_profit >= 0 ? 'text-profit-positive' : 'text-profit-negative'} text-end">${formatCurrency(it.subtotal_profit, curr)}</td>
+                    <td class="text-sv-total text-end">${formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
                         <div class="text-secondary small">${AppDate.toDisplay(it.expiry_date) || '-'}</div>
                     </td>
-                    <td class="text-info-emphasis">${it.stock_id || '-'}</td>
+                    <td class="text-key-monospace">${it.stock_id || '-'}</td>
                     <td class="text-end">
                         <div class="btn-group btn-group-sm">
                             <button class="btn btn-outline-primary" ${opBtnDisabled} title="編輯明細" onclick="editInlineItem('${it.id}')">
@@ -1858,7 +1858,7 @@ function openOutboundDetailModal(orderId) {
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">系統銷貨單號 (PK)</span>
-                <span class="text-info-emphasis fw-bold">${item.id}</span>
+                <span class="text-key-monospace">${item.id}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">出庫履約狀態</span>
@@ -1932,31 +1932,31 @@ function openOutboundDetailModal(orderId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品實收</div>
-                <div class="col-7 text-yellow text-end">${formatCurrency(item.product_amount, curr)}</div>
+                <div class="col-7 text-price-unit text-end">${formatCurrency(item.product_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">運雜費</div>
-                <div class="col-7 text-white text-end">${formatCurrency(item.shipping_fee, curr)}</div>
+                <div class="col-7 text-white text-end tabular-nums">${formatCurrency(item.shipping_fee, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">整單實收總額</div>
-                <div class="col-7 text-orange fw-bold text-end fs-6">${formatCurrency(item.total_sales_amount, curr)}</div>
+                <div class="col-7 text-price-total text-end fs-6">${formatCurrency(item.total_sales_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">進貨成本總額</div>
-                <div class="col-7 text-accent text-end">${formatCurrency(item.total_cost_amount, curr)}</div>
+                <div class="col-7 text-cost text-end">${formatCurrency(item.total_cost_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實質毛利價差利潤</div>
-                <div class="col-7 text-info fw-bold text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
+                <div class="col-7 ${item.total_profit_amount >= 0 ? 'text-profit-positive' : 'text-profit-negative'} text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出庫整件 / 散件</div>
-                <div class="col-7 text-white fw-bold text-end">${item.total_boxes || 0} / ${item.total_pieces || 0}</div>
+                <div class="col-7 text-white fw-bold text-end tabular-nums">${item.total_boxes || 0} / ${item.total_pieces || 0}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出庫 SV</div>
-                <div class="col-7 text-teal fw-bold text-end fs-6">${formatSV(item.total_sv, 'INTERNAL')} SV</div>
+                <div class="col-7 text-sv-total text-end fs-6">${formatSV(item.total_sv, 'INTERNAL')} SV</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">付款方式 / 平台</div>

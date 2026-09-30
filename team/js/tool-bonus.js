@@ -374,8 +374,8 @@ function renderDownlines() {
                 <td>
                     <input type="number" class="form-control form-control-sm text-end inp-dl-sv" value="${item.sv}" step="100" min="0">
                 </td>
-                <td class="text-end text-secondary cell-diff-rate">0%</td>
-                <td class="text-end text-yellow cell-diff-amount">0</td>
+                <td class="text-end text-secondary tabular-nums cell-diff-rate">0%</td>
+                <td class="text-end text-price-unit cell-diff-amount">0</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-del-downline" data-id="${item.id}" title="刪除夥伴">
                         <i class="fa-solid fa-trash-can"></i>
@@ -748,10 +748,10 @@ function renderBonusTableData(dataset, grossTotal) {
                     className: 'text-end',
                     render: data => {
                         const val = Number(data) || 0;
-                        return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
+                        return `<span class="${val > 0 ? 'text-price-unit' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
                     }
                 },
-                { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
+                { data: 'rate', render: data => `<span class="text-secondary tabular-nums">${data}</span>` },
                 { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
             ],
             language: {
@@ -765,7 +765,7 @@ function renderBonusTableData(dataset, grossTotal) {
     }
 
     // 同步更新表頭幣別標註與表尾合計
-    $('.dataTables_scrollHead thead th, #tblBonusAudit thead th').eq(1).text(amountColTitle);
+    //$('.dataTables_scrollHead thead th, #tblBonusAudit thead th').eq(1).text(amountColTitle);
     $("#valTableGrossTotal").text(`${formatCurrency(grossTotal, appState.currency)}`);
 }
 

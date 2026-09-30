@@ -532,8 +532,8 @@ function renderProducts() {
                     <h5 class="fw-bold text-light mb-2">${item.name}</h5>
                     <p class="small text-muted mb-3">${item.short_summary || '暫無產品簡介'}</p>
                     <div class="card-incard mb-3 p-2 rounded d-flex justify-content-between align-items-center">
-                        <div class="fw-bold text-yellow">${formattedPrice}</div>
-                        <div class="fw-bold text-teal">${Number(item.sv_point).toLocaleString()} SV</div>
+                        <div class="text-price-unit fs-6">${formattedPrice}</div>
+                        <div class="text-sv-unit fs-6">${Number(item.sv_point).toLocaleString()} SV</div>
                     </div>
                     <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">
                         <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>查看產品詳情

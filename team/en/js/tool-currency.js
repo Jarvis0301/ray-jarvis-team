@@ -334,7 +334,7 @@ function renderCart() {
                         <span class="text-secondary-emphasis small">(${prod.package_spec})</span>
                     </div>
                     <div class="text-light-emphasis" style="font-size: 0.75rem;">
-                        SKU: ${prod.product_code} ‧ Unit Price: <span class="text-yellow">NT$ ${prod.price.toLocaleString()}</span> ‧ SV: <span class="text-teal">${prod.sv_point} SV</span>
+                        SKU: ${prod.product_code} ‧ Unit Price: <span class="text-price-unit">NT$ ${prod.price.toLocaleString()}</span> ‧ SV: <span class="text-sv-unit">${prod.sv_point} SV</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -412,15 +412,15 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
 
     if (cashDifferenceTwd > 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-up text-warning me-1"></i> Malaysia recipient subsidy due to Taiwan: <span class="text-warning fw-bold">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-up text-warning me-1"></i> Malaysia recipient subsidy due to Taiwan: <span class="text-profit-positive">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
         `);
     } else if (cashDifferenceTwd < 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-down text-warning me-1"></i> Taiwan sender refund due to Malaysia overpayment: <span class="text-warning fw-bold">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-down text-warning me-1"></i> Taiwan sender refund due to Malaysia overpayment: <span class="text-profit-negative">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
         `);
     } else {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-scale-balanced text-success me-1"></i> Bilateral accounts fully balanced (${rate.toFixed(2)} FX Benchmark)
+            <i class="fa-solid fa-scale-balanced text-success me-1"></i> Bilateral accounts fully balanced (<span class="text-rate">${rate.toFixed(2)}</span> FX Benchmark)
         `);
     }
 }
@@ -476,7 +476,7 @@ function recalculateSolver() {
         </div>
         <div class="mb-2 d-flex flex-wrap">${itemsHtml}</div>
         <div class="d-flex justify-content-between small pt-2 border-top border-secondary border-opacity-25">
-            <span>Total Restock Cost: <b class="text-secondary">NT$ ${totalTWD.toLocaleString()} / RM ${Math.round(totalTWD / rate).toLocaleString()}</b></span>
+            <span>Total Restock Cost: <b class="text-price-total">NT$ ${totalTWD.toLocaleString()} / RM ${Math.round(totalTWD / rate).toLocaleString()}</b></span>
         </div>
     `);
 }
@@ -512,10 +512,10 @@ function formatCrossBorderMatrixRow(code) {
 
     const twInfo = twProd
         ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd.status)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec}</div>`
-        : `<span class="badge badge-danger-subtle">Not Released in TW</span>`;
+        : `<span class="badge badge-danger-subtle">Not Launched in TW</span>`;
 
     const twPrice = twProd 
-        ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(twProd.sv_point).toLocaleString()} SV</span>` 
+        ? `<span class="text-price-unit">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-sv-unit">${Number(twProd.sv_point).toLocaleString()} SV</span>` 
         : `-`;
 
     const myInfo = myProd
@@ -523,18 +523,18 @@ function formatCrossBorderMatrixRow(code) {
         : `<span class="badge badge-danger-subtle">Not Launched in MY</span>`;
 
     const myPrice = myProd 
-        ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(myProd.sv_point).toLocaleString()} SV</span>` 
+        ? `<span class="text-price-unit">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-sv-unit">${Number(myProd.sv_point).toLocaleString()} SV</span>` 
         : `-`;
 
     const twCostPerSv = twProd && twProd.sv_point > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(twProd.price, twProd.sv_point, 2).toFixed(2) : (twProd.price / twProd.sv_point).toFixed(2)) : null;
     const myCostPerSv = myProd && myProd.sv_point > 0 ? (typeof AppCalc !== 'undefined' ? AppCalc.divide(myProd.price, myProd.sv_point, 2).toFixed(2) : (myProd.price / myProd.sv_point).toFixed(2)) : null;
     let costCompare = `-`;
     if (twCostPerSv && myCostPerSv) {
-        costCompare = `<span class="text-secondary small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-secondary small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small tabular-nums">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
     } else if (twCostPerSv) {
-        costCompare = `<span class="text-secondary small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
     } else if (myCostPerSv) {
-        costCompare = `<span class="text-secondary small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
     }
 
     let diffText = `<span class="text-light-emphasis">-</span>`;
@@ -542,8 +542,8 @@ function formatCrossBorderMatrixRow(code) {
         const myConvertedTwd = typeof AppCalc !== 'undefined' ? AppCalc.multiply(myProd.price, rate, 2) : (myProd.price * rate);
         const diff = typeof AppCalc !== 'undefined' ? AppCalc.sub(myConvertedTwd, twProd.price) : (myConvertedTwd - twProd.price);
         diffText = diff >= 0
-            ? `<span class="badge badge-success-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-            : `<span class="badge badge-danger-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+            ? `<span class="text-profit-positive">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+            : `<span class="text-profit-negative">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
     }
 
     const actionBtn = twProd
@@ -553,7 +553,7 @@ function formatCrossBorderMatrixRow(code) {
             : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`);
 
     return {
-        base_code: `<span class="badge badge-secondary-subtle">${code}</span>`,
+        base_code: `<span class="text-key">${code}</span>`,
         tw_info: twInfo,
         tw_price: twPrice,
         my_info: myInfo,
@@ -609,13 +609,13 @@ function formatRawProductRow(prod) {
         ? (typeof UIBadges !== 'undefined' && UIBadges.product && UIBadges.product.launchStatus ? ` ${UIBadges.product.launchStatus(prod.status)}` : ` <span class="badge badge-warning">${prod.status}</span>`)
         : '';
     const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
-    const priceDisplay = `<span class="text-yellow fw-bold">${currPrefix}${Number(prod.price).toLocaleString()}</span>`;
-    const svDisplay = `<span class="text-teal fw-bold">${Number(prod.sv_point).toLocaleString()} SV</span>`;
-    const costDisplay = `<span class="text-secondary small">${Number(costPerSv).toLocaleString()} ${costUnit}</span>`;
+    const priceDisplay = `<span class="text-price-unit">${currPrefix}${Number(prod.price).toLocaleString()}</span>`;
+    const svDisplay = `<span class="text-sv-unit">${Number(prod.sv_point).toLocaleString()} SV</span>`;
+    const costDisplay = `<span class="text-light small tabular-nums">${Number(costPerSv).toLocaleString()} ${costUnit}</span>`;
 
     return {
         region: regionBadge,
-        product_code: `<span class="badge badge-secondary-subtle">${prod.product_code}</span>`,
+        product_code: `<span class="text-key">${prod.product_code}</span>`,
         product_info: prodInfo,
         price_sv: `${priceDisplay} / ${svDisplay}`,
         cost_per_sv: costDisplay,

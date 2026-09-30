@@ -688,8 +688,8 @@ function renderProducts() {
                         </div>
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span>Price: <span class="text-yellow fw-bold">${currencySymbol}${price.toLocaleString()}</span></span>
-                                <span>Points: <span class="text-teal fw-bold">${sv.toLocaleString()} SV</span></span>
+                                <span>Price: <span class="text-price-unit">${currencySymbol}${price.toLocaleString()}</span></span>
+                                <span>Points: <span class="text-sv-unit">${sv.toLocaleString()} SV</span></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <div class="qty-control">
@@ -769,8 +769,8 @@ function renderProducts() {
                         { data: 'name' },
                         { data: 'sub', className: 'text-center' },
                         { data: 'type', className: 'text-center' },
-                        { data: 'price', className: 'text-end text-yellow fw-bold' },
-                        { data: 'sv', className: 'text-end text-teal fw-bold' },
+                        { data: 'price', className: 'text-end text-price-unit' },
+                        { data: 'sv', className: 'text-end text-sv-unit' },
                         { data: 'actions', className: 'text-center', orderable: false }
                     ],
                     language: {
@@ -998,8 +998,8 @@ function updateCartSummary() {
                         </button>
                     </div>
                     <div class="cart-item-price-block">
-                        <div class="text-yellow fw-bold" data-field="price">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
-                        <div class="text-teal" data-field="sv" style="font-size: 0.72rem;">${itemTotalSV.toLocaleString()} SV</div>
+                        <div class="text-price-total" data-field="price">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
+                        <div class="text-sv-total" data-field="sv" style="font-size: 0.72rem;">${itemTotalSV.toLocaleString()} SV</div>
                     </div>
                     <button type="button" class="btn-remove-cart-item" data-id="${product.product_code}" title="Remove Item">
                         <i class="fa-solid fa-trash-can"></i>

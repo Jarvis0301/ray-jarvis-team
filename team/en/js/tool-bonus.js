@@ -232,7 +232,6 @@ function updateTaxRuleInfo(isMyr) {
 // 3. Lifecycle & Event Binding
 // ============================================================================
 window.addEventListener('AppReady', async function () {
-    initBonusTable();
     initDefaultConfigValues();
 
     // Re-evaluate group SV and recalculate on personal SV change
@@ -373,8 +372,8 @@ function renderDownlines() {
                 <td>
                     <input type="number" class="form-control form-control-sm text-end inp-dl-sv" value="${item.sv}" step="100" min="0">
                 </td>
-                <td class="text-end text-secondary cell-diff-rate">0%</td>
-                <td class="text-end text-yellow cell-diff-amount">0</td>
+                <td class="text-end text-secondary tabular-nums cell-diff-rate">0%</td>
+                <td class="text-end text-price-unit cell-diff-amount">0</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-del-downline" data-id="${item.id}" title="Delete Partner">
                         <i class="fa-solid fa-trash-can"></i>
@@ -741,45 +740,42 @@ function recalculateAll() {
 // ============================================================================
 // 6. DataTable.js & Chart.js Integration
 // ============================================================================
-
-/**
- * Initialize DataTable.js for bonus auditing
- */
-function initBonusTable() {
-    bonusDataTableInstance = $('#tblBonusAudit').DataTable({
-        paging: false,
-        searching: false,
-        info: false,
-        ordering: false,
-        data: [],
-        columns: [
-            { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
-            {
-                data: 'amount',
-                className: 'text-end',
-                render: data => {
-                    const val = Number(data) || 0;
-                    return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
-                }
-            },
-            { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
-            { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
-        ],
-        language: {
-            emptyTable: "No audit data available"
-        }
-    });
-}
-
-/**
- * Render dataset to DataTable and update table header currency label
- */
 function renderBonusTableData(dataset, grossTotal) {
-    if (!bonusDataTableInstance) return;
+    const amountColTitle = appState.currency === 'MYR' ? 'Estimated Amount (RM)' : 'Estimated Amount (NT$)';
 
-    $('#tblBonusAudit thead th').eq(1).text(appState.currency === 'MYR' ? 'Estimated Amount (RM)' : 'Estimated Amount (NT$)');
+    // 1. 首次有試算資料時，才正式初始化 DataTable 實例
+    if (!bonusDataTableInstance) {
+        bonusDataTableInstance = $('#tblBonusAudit').DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false,
+            data: dataset,
+            columns: [
+                { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
+                { 
+                    data: 'amount', 
+                    className: 'text-end',
+                    render: data => {
+                        const val = Number(data) || 0;
+                        return `<span class="${val > 0 ? 'text-price-unit' : 'text-muted'}">${formatCurrency(val, appState.currency)}</span>`;
+                    }
+                },
+                { data: 'rate', render: data => `<span class="text-secondary tabular-nums">${data}</span>` },
+                { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
+            ],
+            language: {
+                emptyTable: "No audit data available"
+            }
+        });
+    } else {
+        // 2. 已有實例時，塞入新試算資料重繪並即刻強制校準欄寬
+        bonusDataTableInstance.clear().rows.add(dataset).draw();
+        bonusDataTableInstance.columns.adjust();
+    }
 
-    bonusDataTableInstance.clear().rows.add(dataset).draw();
+    // 同步更新表頭幣別標註與表尾合計
+    //$('.dataTables_scrollHead thead th, #tblBonusAudit thead th').eq(1).text(amountColTitle);
     $("#valTableGrossTotal").text(`${formatCurrency(grossTotal, appState.currency)}`);
 }
 

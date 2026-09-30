@@ -878,14 +878,14 @@ function formatConversionTableRow(cv) {
 
     return {
         customer_name: `<strong class="text-white">${customerName}</strong>`,
-        customer_id: `<span class="text-info-emphasis">${cv.customer_id}</span>`,
-        partner_id: `<span class="text-info-emphasis fw-bold">${cv.converted_partner_id}</span>`,
+        customer_id: `<span class="text-key">${cv.customer_id}</span>`,
+        partner_id: `<span class="text-key">${cv.converted_partner_id}</span>`,
         conversion_type: `<span>${cv.conversion_type}</span>`,
         conversion_date: `<span>${AppDate.toDisplay(cv.conversion_date, '-')}</span>`,
-        contract_no: `<span class="text-primary-emphasis">${cv.contract_no || '-'}</span>`,
+        contract_no: `<span class="text-primary-emphasis text-key-monospace-transparent">${cv.contract_no || '-'}</span>`,
         sponsor: `<span class="text-info fw-bold">${sponsorNameOnly}</span>`,
-        spend: `NT$ ${spend.toLocaleString()}`,
-        sv: `${sv.toLocaleString()} SV`,
+        spend: `<span class="text-price-total">NT$ ${spend.toLocaleString()}</span>`,
+        sv: `<span class="text-sv-total">${sv.toLocaleString()} SV</span>`,
         notes: `<span class="small">${cv.conversion_notes || '-'}</span>`
     };
 }
@@ -906,8 +906,8 @@ function reloadConversionsDataTable(conversionsList) {
                 { data: 'conversion_date', className: 'text-center' },
                 { data: 'contract_no' },
                 { data: 'sponsor' },
-                { data: 'spend', className: 'text-end text-orange fw-bold' },
-                { data: 'sv', className: 'text-end text-teal fw-bold' },
+                { data: 'spend', className: 'text-end text-price-total' },
+                { data: 'sv', className: 'text-end text-sv-total' },
                 { data: 'notes' }
             ]
         });

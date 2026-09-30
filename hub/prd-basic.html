@@ -254,7 +254,7 @@
                                 </label>
                                 <div class="input-group input-group-sm" style="width: 140px;">
                                     <span class="input-group-text">NT$</span>
-                                    <input type="number" class="form-control form-control-sm text-end fw-bold text-warning font-monospace" id="crossBorderFxRateInput" step="0.05" min="0.01" value="8.00" aria-label="結算匯率">
+                                    <input type="number" class="form-control form-control-sm text-end fw-bold text-warning tabular-nums" id="crossBorderFxRateInput" step="0.05" min="0.01" value="8.00" aria-label="結算匯率">
                                 </div>
                             </div>
                         </header>
@@ -302,27 +302,25 @@
                     </header>
 
                     <section class="card p-3 mb-4" aria-label="KPI 摘要卡片">
-                        <div class="row g-3 text-center">
-                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                                <div class="text-muted small"><i class="fa-solid fa-layer-group text-info me-1"></i>品項 SKU</div>
-                                <h4 class="fw-bold text-info mt-1 mb-0" id="statTotalSku">0</h4>
-                                <div class="text-muted small mt-1 font-monospace" id="statRegionBreakdown">TW: 0 / MY: 0</div>
-                            </div>
-                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                                <div class="text-muted small"><i class="fa-solid fa-coins text-yellow me-1"></i>平均售價</div>
-                                <h4 class="fw-bold text-yellow mt-1 mb-0" id="statAvgPrice">NT$0</h4>
-                                <div class="text-muted small mt-1 font-monospace" id="statAvgPriceSub">-</div>
-                            </div>
-                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                                <div class="text-muted small"><i class="fa-solid fa-star text-teal me-1"></i>平均 SV 積分</div>
-                                <h4 class="fw-bold text-teal mt-1 mb-0" id="statAvgSv">0 SV</h4>
-                                <div class="text-muted small mt-1" id="statValidRatio">有效上架率: 0%</div>
-                            </div>
-                            <div class="col-12 col-sm-6 col-xl-3">
-                                <div class="text-muted small"><i class="fa-solid fa-rocket text-accent me-1"></i>最新上市產品</div>
-                                <h6 class="fw-bold text-accent mt-2 mb-0 text-truncate" id="statLatestProduct">-</h6>
-                                <div class="text-muted small mt-1 font-monospace" id="statLatestProductDate">-</div>
-                            </div>
+                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                            <div class="text-muted small"><i class="fa-solid fa-layer-group text-info me-1"></i>品項 SKU</div>
+                            <h4 class="fw-bold text-info tabular-nums mt-1 mb-0" id="statTotalSku">0</h4>
+                            <div class="text-muted small mt-1 tabular-nums" id="statRegionBreakdown">TW: 0 / MY: 0</div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                            <div class="text-muted small"><i class="fa-solid fa-coins text-yellow me-1"></i>平均售價</div>
+                            <h4 class="text-price-total mt-1 mb-0" id="statAvgPrice">NT$0</h4>
+                            <div class="text-muted small mt-1 tabular-nums" id="statAvgPriceSub">-</div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                            <div class="text-muted small"><i class="fa-solid fa-star text-teal me-1"></i>平均 SV 積分</div>
+                            <h4 class="text-sv-total mt-1 mb-0" id="statAvgSv">0 SV</h4>
+                            <div class="text-muted small mt-1 tabular-nums" id="statValidRatio">有效上架率: 0%</div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="text-muted small"><i class="fa-solid fa-rocket text-accent me-1"></i>最新上市產品</div>
+                            <h6 class="fw-bold text-accent mt-2 mb-0 text-truncate" id="statLatestProduct">-</h6>
+                            <div class="text-muted small mt-1 tabular-nums" id="statLatestProductDate">-</div>
                         </div>
                     </section>
 
@@ -453,7 +451,7 @@
                                                 散佈圖落於左上方（斜率愈陡）代表單位現金換點效率愈高之黃金衝分單品
                                             </span>
                                         </div>
-                                        <div class="text-muted small text-md-end font-monospace" id="scatterSummaryStats">
+                                        <div class="text-muted small text-md-end tabular-nums" id="scatterSummaryStats">
                                             <!-- 動態帶入平均每元換點點數 -->
                                         </div>
                                     </header>
@@ -512,11 +510,11 @@
                                         </div>
                                         <div class="col-12 col-xl-3">
                                             <label class="form-label">完整產品編號 <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm font-monospace" name="product_code" placeholder="例：TW0303001" required>
+                                            <input type="text" class="form-control form-control-sm tabular-nums" name="product_code" placeholder="例：TW0303001" required>
                                         </div>
                                         <div class="col-12 col-xl-3">
                                             <label class="form-label">跨國基本編號 <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm font-monospace" name="base_code" placeholder="例：0303001" required>
+                                            <input type="text" class="form-control form-control-sm tabular-nums" name="base_code" placeholder="例：0303001" required>
                                         </div>
                                         <div class="col-12 col-xl-3">
                                             <label class="form-label">產品型態 <span class="text-danger">*</span></label>
@@ -725,10 +723,10 @@
                                     <img id="viewPrdImage" src="" alt="產品圖片" class="img-fluid rounded" style="max-height: 240px; object-fit: contain;">
                                 </div>
                                 <div class="d-flex justify-content-center gap-2 mb-2">
-                                    <span class="badge badge-cyan-subtle font-monospace me-1" id="viewPrdRegion">TW</span>
+                                    <span class="badge badge-cyan-subtle tabular-nums me-1" id="viewPrdRegion">TW</span>
                                     <span class="badge badge-secondary" id="viewPrdCode">CODE</span>
                                 </div>
-                                <div class="text-muted">跨國基本編號：<span class="font-monospace text-light" id="viewPrdBaseCode">-</span></div>
+                                <div class="text-muted">跨國基本編號：<span class="text-key" id="viewPrdBaseCode">-</span></div>
                             </div>
 
                             <!-- 產品主要規格資訊 (電腦版佔 9 欄) -->
@@ -755,17 +753,17 @@
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">重量：</span>
-                                        <span id="viewPrdWeight" class="font-monospace text-light">-</span>
+                                        <span id="viewPrdWeight" class="tabular-nums text-light">-</span>
                                     </div>
                                 </div>
                                 <div class="row g-2 mb-2">
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">包裝規格：</span>
-                                        <span id="viewPrdSpec" class="font-monospace text-light">-</span>
+                                        <span id="viewPrdSpec" class="tabular-nums text-light">-</span>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">最小受控規格：</span>
-                                        <span id="viewPrdPieceSpec" class="font-monospace text-info">-</span>
+                                        <span id="viewPrdPieceSpec" class="tabular-nums text-info">-</span>
                                     </div>
                                     <div class="col-6 col-xl-6">
                                         <span class="text-muted d-block">拆盒散賣規則：</span>
@@ -775,11 +773,11 @@
                                 <div class="row g-2 mb-2">
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">售價：</span>
-                                        <span id="viewPrdPrice" class="text-yellow fw-bold fs-6">0</span>
+                                        <span id="viewPrdPrice" class="text-price-unit fs-6">0</span>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">全球 SV：</span>
-                                        <span id="viewPrdSv" class="text-teal fw-bold fs-6">0 SV</span>
+                                        <span id="viewPrdSv" class="text-sv-unit fs-6">0 SV</span>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">庫存狀態：</span>
@@ -797,15 +795,15 @@
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">上市日期：</span>
-                                        <span id="viewPrdLaunchDate" class="font-monospace text-light">-</span>
+                                        <span id="viewPrdLaunchDate" class="tabular-nums text-light">-</span>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">下市日期：</span>
-                                        <span id="viewPrdDiscontinueDate" class="font-monospace text-light">-</span>
+                                        <span id="viewPrdDiscontinueDate" class="tabular-nums text-light">-</span>
                                     </div>
                                     <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">官方最新異動：</span>
-                                        <span id="viewPrdOfficialUpdateDate" class="font-monospace text-light">-</span>
+                                        <span id="viewPrdOfficialUpdateDate" class="tabular-nums text-light">-</span>
                                     </div>
                                 </div>
                                 <div class="row g-2 mb-2">
@@ -885,7 +883,7 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">唯一代碼 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control form-control-sm font-monospace" name="code" id="taxCode" placeholder="例：01 或 0101" required>
+                                    <input type="text" class="form-control form-control-sm tabular-nums" name="code" id="taxCode" placeholder="例：01 或 0101" required>
                                 </div>
                                 <div class="col-12 col-md-6" id="taxParentCategoryGroup" style="display: none;">
                                     <label class="form-label">歸屬主系列</label>
@@ -905,7 +903,7 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">Font Awesome 圖示 Class</label>
-                                    <input type="text" class="form-control form-control-sm font-monospace" name="icon_class" id="taxIconClass" placeholder="例：fa-solid fa-heart-pulse">
+                                    <input type="text" class="form-control form-control-sm tabular-nums" name="icon_class" id="taxIconClass" placeholder="例：fa-solid fa-heart-pulse">
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">顯示排序權重</label>
@@ -919,7 +917,7 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">標籤背景顏色</label>
-                                    <input type="text" class="form-control form-control-sm font-monospace" name="bg_color" id="taxBgColor" placeholder="#1a122d">
+                                    <input type="text" class="form-control form-control-sm tabular-nums" name="bg_color" id="taxBgColor" placeholder="#1a122d">
                                 </div>
                             </div>
                         </form>

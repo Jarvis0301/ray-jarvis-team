@@ -289,10 +289,10 @@
   --bs-black-rgb: 0, 0, 0;
   --bs-gray-dark-rgb: 24, 24, 27;
   --bs-blue-text-emphasis: #7dd3fc;
-  --bs-indigo-text-emphasis: #a5b4fc;
+  --bs-indigo-text-emphasis: #818cf8;
   --bs-purple-text-emphasis: #d8b4fe;
-  --bs-pink-text-emphasis: #fbcfe8;
-  --bs-red-text-emphasis: #fca5a5;
+  --bs-pink-text-emphasis: #f5a8d4;
+  --bs-red-text-emphasis: #ff9797;
   --bs-orange-text-emphasis: #fdba74;
   --bs-yellow-text-emphasis: #fde047;
   --bs-green-text-emphasis: #6ee7b7;
@@ -457,7 +457,7 @@
   --bs-success-text-emphasis: #34d399;
   --bs-info-text-emphasis: #67e8f9;
   --bs-warning-text-emphasis: #fde047;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #ecfdf5;
   --bs-dark-text-emphasis: #a7f3d0;
   --bs-primary-bg-subtle: #064e3b;
@@ -662,7 +662,7 @@
   --bs-success-text-emphasis: #34d399;
   --bs-info-text-emphasis: #67e8f9;
   --bs-warning-text-emphasis: #fde047;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #f0f9ff;
   --bs-dark-text-emphasis: #bae6fd;
   --bs-primary-bg-subtle: #0c4a6e;
@@ -861,13 +861,13 @@
   --bs-white-rgb: 255, 255, 255;
   --bs-black-rgb: 0, 0, 0;
   --bs-primary-text-emphasis: #c4b5fd;
-  --bs-secondary-text-emphasis: #e9d5ff;
-  --bs-accent-text-emphasis: #fbcfe8;
+  --bs-secondary-text-emphasis: #d8b4fe;
+  --bs-accent-text-emphasis: #f5a8d4;
   --bs-muted-text-emphasis: #d1c4e9;
   --bs-success-text-emphasis: #34d399;
   --bs-info-text-emphasis: #7dd3fc;
   --bs-warning-text-emphasis: #fde047;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #faf5ff;
   --bs-dark-text-emphasis: #e9d5ff;
   --bs-primary-bg-subtle: #4c1d95;
@@ -1072,7 +1072,7 @@
   --bs-success-text-emphasis: #6ee7b7;
   --bs-info-text-emphasis: #bae6fd;
   --bs-warning-text-emphasis: #fef08a;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #fff1f2;
   --bs-dark-text-emphasis: #fecdd3;
   --bs-primary-bg-subtle: #4c0519;
@@ -1277,7 +1277,7 @@
   --bs-success-text-emphasis: #6ee7b7;
   --bs-info-text-emphasis: #bae6fd;
   --bs-warning-text-emphasis: #fef08a;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #fff7ed;
   --bs-dark-text-emphasis: #ffedd5;
   --bs-primary-bg-subtle: #431407;
@@ -1483,7 +1483,7 @@
   --bs-success-text-emphasis: #6ee7b7;
   --bs-info-text-emphasis: #bae6fd;
   --bs-warning-text-emphasis: #fef08a;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #fefce8;
   --bs-dark-text-emphasis: #fef08a;
   --bs-primary-bg-subtle: #422006;
@@ -1688,7 +1688,7 @@
   --bs-success-text-emphasis: #6ee7b7;
   --bs-info-text-emphasis: #cffaff;
   --bs-warning-text-emphasis: #fef08a;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #ecfeff;
   --bs-dark-text-emphasis: #a5f3fc;
   --bs-primary-bg-subtle: #164e63;
@@ -1893,7 +1893,7 @@
   --bs-success-text-emphasis: #6ee7b7;
   --bs-info-text-emphasis: #bae6fd;
   --bs-warning-text-emphasis: #fef08a;
-  --bs-danger-text-emphasis: #fca5a5;
+  --bs-danger-text-emphasis: #ff9797;
   --bs-light-text-emphasis: #f8fafc;
   --bs-dark-text-emphasis: #e2e8f0;
   --bs-primary-bg-subtle: #1e293b;
@@ -7892,7 +7892,7 @@ body {
 /* ==========================================================================
    財務金額、點數與數值排印工具類 (Tabular Figures & Typography)
    ========================================================================== */
-.text-profit-negative, .text-profit-positive, .text-cost, .text-rate, .text-sv-total, .text-sv-unit, .text-price-total, .text-price-unit, .tabular-nums {
+.stat-chip-aurora, .stat-chip-telemetry, .stat-chip-gauge, .stat-chip-cyber, .stat-chip-pill, .stat-chip, .text-key, .text-profit-negative, .text-profit-positive, .text-cost, .text-rate, .text-sv-total, .text-sv-unit, .text-price-total, .text-price-unit, .tabular-nums {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
   letter-spacing: -0.01em;
@@ -7912,8 +7912,7 @@ body {
 /* 2. 點數數值： */
 .text-sv-unit {
   color: var(--bs-teal, #14b8a6) !important;
-  font-weight: 400;
-  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .text-sv-total {
@@ -7924,13 +7923,13 @@ body {
 /* 3. 換算乘數與衍生因子：PV、點值、台馬匯率 */
 .text-rate {
   color: var(--bs-pink-text-emphasis, #fbcfe8) !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* 4. 成本與毛利損益 */
 .text-cost {
   color: var(--bs-blue-text-emphasis, #7dd3fc) !important;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .text-profit-positive {
@@ -7946,6 +7945,17 @@ body {
 /* 5. 全資料表系統受控主外鍵、單號與代碼 (維持純等寬字型，以利字元校驗與對齊) */
 .text-key {
   color: var(--bs-cyan-text-emphasis, #67e8f9) !important;
+  font-weight: 500;
+}
+
+.text-key-monospace {
+  color: var(--bs-cyan-text-emphasis, #67e8f9) !important;
+  font-family: var(--bs-font-monospace);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.text-key-monospace-transparent {
   font-family: var(--bs-font-monospace);
   font-weight: 500;
   letter-spacing: 0.03em;

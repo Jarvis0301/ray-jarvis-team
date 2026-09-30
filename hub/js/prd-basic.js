@@ -587,8 +587,8 @@ function formatMasterTableRow(p) {
         subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
         type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
         spec: `<span class="text-info">${p.package_spec || '-'}</span>`,
-        price: `<span class="text-yellow fw-bold">${formattedPrice}</span>`,
-        sv: `<span class="text-teal fw-bold">${Number(p.sv_point).toLocaleString()} SV</span>`,
+        price: `<span class="text-price-unit">${formattedPrice}</span>`,
+        sv: `<span class="text-sv-unit">${Number(p.sv_point).toLocaleString()} SV</span>`,
         launch_status: `<div>${launchStatus.badge}</div>`,
         stock_status: `<div>${stockBadge}</div>`,
         actions: `
@@ -744,7 +744,7 @@ function renderTaxonomyTables() {
     appState.categories.forEach(c => {
         $catTbody.append(`
             <tr>
-                <td><span class="font-monospace text-secondary">${c.category_code}</span></td>
+                <td><span class="text-key">${c.category_code}</span></td>
                 <td>
                     <div class="fw-bold text-light"><i class="${c.icon_class} text-primary me-1"></i>${c.name_zh}</div>
                     <div class="text-muted small">${c.name_en || '-'}</div>
@@ -770,7 +770,7 @@ function renderTaxonomyTables() {
     appState.subcategories.forEach(s => {
         $subcatTbody.append(`
             <tr>
-                <td><span class="font-monospace text-secondary">${s.subcategory_code}</span></td>
+                <td><span class="text-key">${s.subcategory_code}</span></td>
                 <td>
                     <div class="fw-bold text-light"><i class="${s.icon_class} text-secondary me-1"></i>${s.name_zh}</div>
                     <div class="text-muted small">${s.name_en || '-'}</div>
@@ -796,7 +796,7 @@ function renderTaxonomyTables() {
     appState.types.forEach(t => {
         $typeTbody.append(`
             <tr>
-                <td><span class="font-monospace text-secondary">${t.type_code}</span></td>
+                <td><span class="text-key">${t.type_code}</span></td>
                 <td>
                     <div class="fw-bold text-light"><i class="${t.icon_class} text-info me-1"></i>${t.name_zh}</div>
                     <div class="text-muted small">${t.name_en || '-'}</div>
@@ -1017,10 +1017,10 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
 
     const twInfo = twProd
         ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec || '-'}</div>`
-        : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
+        : `<span class="badge badge-danger-subtle">台灣未上市</span>`;
 
     const twPrice = twProd
-        ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(twProd.sv_point).toLocaleString()} SV</span>`
+        ? `<span class="text-price-unit">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-sv-unit">${Number(twProd.sv_point).toLocaleString()} SV</span>`
         : `-`;
 
     const myInfo = myProd
@@ -1028,7 +1028,7 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
         : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
 
     const myPrice = myProd
-        ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(myProd.sv_point).toLocaleString()} SV</span>`
+        ? `<span class="text-price-unit">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-sv-unit">${Number(myProd.sv_point).toLocaleString()} SV</span>`
         : `-`;
 
     const twCostPerSv = twProd && twProd.sv_point > 0 ? AppCalc.divide(twProd.price, twProd.sv_point, 2) : null;
@@ -1036,20 +1036,20 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
 
     let costCompare = `-`;
     if (twCostPerSv && myCostPerSv) {
-        costCompare = `<span class="text-light small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small tabular-nums">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
     } else if (twCostPerSv) {
-        costCompare = `<span class="text-light small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
     } else if (myCostPerSv) {
-        costCompare = `<span class="text-light small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+        costCompare = `<span class="text-light small tabular-nums">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
     }
 
     let diffText = `<span class="text-muted">-</span>`;
     if (twProd && myProd) {
         const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
-        const diff = AppCalc.sub(myConvertedTwd, twProd.price); // 改用 subtract
+        const diff = AppCalc.sub(myConvertedTwd, twProd.price);
         diffText = diff >= 0
-            ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-            : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+            ? `<span class="text-profit-positive">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+            : `<span class="text-profit-negative">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
     }
 
     const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
@@ -1058,7 +1058,7 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
         : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`;
 
     return {
-        base_code: `<span class="badge badge-secondary-subtle">${code}</span>`,
+        base_code: `<span class="text-key">${code}</span>`,
         tw_info: twInfo,
         tw_price: twPrice,
         my_info: myInfo,

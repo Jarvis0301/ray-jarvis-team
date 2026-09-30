@@ -233,7 +233,7 @@ function renderGridCards(list) {
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="flag-icon ${flagClass}"></span>
-                                    <span class="text-info fw-bold">${w.id}</span>
+                                    <span class="text-key">${w.id}</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1">
                                     ${typeBadge}
@@ -330,7 +330,7 @@ function formatTableRow(w) {
                 <div class="d-flex align-items-center gap-2">
                     <div class="overflow-hidden">
                         <div class="fw-bold text-white">${w.warehouse_name}</div>
-                        <div class="fw-bold text-info small">${w.id}</div>
+                        <div class="text-key small">${w.id}</div>
                     </div>
                 </div>
             `,

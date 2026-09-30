@@ -35,8 +35,7 @@
 .text-sv-unit {
     @extend %tabular-numeric;
     color: var(--bs-teal, #14b8a6) !important;
-    font-weight: 400;
-    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 // 總 SV
@@ -50,7 +49,7 @@
 .text-rate {
     @extend %tabular-numeric;
     color: var(--bs-pink-text-emphasis, #fbcfe8) !important;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* 4. 成本與毛利損益 */
@@ -58,7 +57,7 @@
 .text-cost {
     @extend %tabular-numeric;
     color: var(--bs-blue-text-emphasis, #7dd3fc) !important;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 // 利潤
@@ -76,8 +75,23 @@
 }
 
 /* 5. 全資料表系統受控主外鍵、單號與代碼 (維持純等寬字型，以利字元校驗與對齊) */
+// 字型不變
 .text-key {
+    @extend %tabular-numeric;
     color: var(--bs-cyan-text-emphasis, #67e8f9) !important;
+    font-weight: 500;
+}
+
+// 純等寬字型
+.text-key-monospace {
+    color: var(--bs-cyan-text-emphasis, #67e8f9) !important;
+    font-family: var(--bs-font-monospace);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+// 未著色純等寬
+.text-key-monospace-transparent {
     font-family: var(--bs-font-monospace);
     font-weight: 500;
     letter-spacing: 0.03em;

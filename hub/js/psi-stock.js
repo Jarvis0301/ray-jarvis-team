@@ -459,10 +459,10 @@ function formatStockRow(s) {
     `;
 
     return {
-        id: `<span class="fw-bold text-info-emphasis">${s.id}</span>`,
+        id: `<span class="text-key-monospace">${s.id}</span>`,
         warehouse: `<div><div class="text-white">${getWarehouseName(s.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${s.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(s.product_id)}</div><span class="small text-secondary">${s.product_id}</span></div>`,
-        batch: `<span class="fw-bold text-primary-emphasis">${s.batch_no || '--'}</span>`,
+        batch: `<span class="fw-bold text-primary-emphasis text-key-monospace-transparent">${s.batch_no || '--'}</span>`,
         expiry: `
             <div style="min-width: 110px;">
                 <div>
@@ -475,26 +475,26 @@ function formatStockRow(s) {
         `,
         quantity: `
             <div>
-                <span class="fw-bold text-white">${s.quantity.toLocaleString()}</span> 盒
+                <span class="fw-bold text-white tabular-nums">${s.quantity.toLocaleString()}</span> 盒
                 ${s.pieces_qty > 0 ? `<div class="text-secondary small">${s.pieces_qty.toLocaleString()} 支/條</div>` : ''}
             </div>
         `,
         reserved: `
             <div>
-                <span class="text-warning fw-bold">${s.reserved_qty.toLocaleString()}</span> 盒
+                <span class=" fw-bold text-warning tabular-nums">${s.reserved_qty.toLocaleString()}</span> 盒
                 ${s.reserved_pieces_qty > 0 ? `<div class="text-orange small">${s.reserved_pieces_qty.toLocaleString()} 支/條</div>` : ''}
             </div>
         `,
         available: `
             <div>
-                <span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span> 盒
+                <span class="fw-bold text-success tabular-nums">${s.available_qty.toLocaleString()}</span> 盒
                 ${s.available_pieces_qty > 0 ? `<div class="text-teal small">${s.available_pieces_qty.toLocaleString()} 支/條</div>` : ''}
             </div>
         `,
         cost_sv: `
             <div>
-                <div class="text-orange">${currSym}${s.cost_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
-                <div class="text-teal">${formatSV(s.sv_point, 'INTERNAL')} SV</div>
+                <div class="text-price-unit">${currSym}${s.cost_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
+                <div class="text-sv-unit">${formatSV(s.sv_point, 'INTERNAL')} SV</div>
             </div>
         `,
         status: statusBadge,

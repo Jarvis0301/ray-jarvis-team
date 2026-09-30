@@ -437,12 +437,12 @@ function formatAlertRow(a) {
 
     return {
         checkbox: `<input type="checkbox" class="alert-item-check form-check-input" value="${a.id}">`,
-        id: `<span class="fw-bold text-info-emphasis">${a.id}</span>`,
+        id: `<span class="text-key-monospace">${a.id}</span>`,
         type: typeBadge,
         warehouse: `<div><div class="text-white">${getWarehouseName(a.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${a.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(a.product_id)}</div><span class="small text-secondary">${a.product_id}</span></div>`,
         batch: `<div><span class="small text-light">${a.batch_no || '-'}</span><div class="small text-secondary">${a.expiry_date || '-'}</div></div>`,
-        qty: `<div><span class="fw-bold text-white">${a.current_qty.toLocaleString()}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty !== null ? a.threshold_qty.toLocaleString() : '-'}</span></div>`,
+        qty: `<div><span class="fw-bold text-white tabular-nums">${a.current_qty.toLocaleString()}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty !== null ? a.threshold_qty.toLocaleString() : '-'}</span></div>`,
         days: daysDisplay,
         level: levelBadge,
         status: statusBadge,
@@ -487,10 +487,10 @@ function formatThresholdRow(t) {
     `;
 
     return {
-        id: `<span class="fw-bold text-info">${t.id}</span>`,
+        id: `<span class="text-key-monospace">${t.id}</span>`,
         warehouse: `<div><div class="text-white">${getWarehouseName(t.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${t.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(t.product_id)}</div><span class="small text-secondary">${t.product_id}</span></div>`,
-        qty: `<span class="h6 fw-bold text-warning mb-0">${t.threshold_qty.toLocaleString()} 盒</span>`,
+        qty: `<span class="h6 fw-bold text-warning mb-0 tabular-nums">${t.threshold_qty.toLocaleString()} 盒</span>`,
         monitored: monitoredPill,
         actions: actionButtons
     };

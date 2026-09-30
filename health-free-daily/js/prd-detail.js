@@ -268,7 +268,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.price !== undefined && product.price !== null && product.price !== '') {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-tags text-warning me-1"></i>建議售價：<span class="text-warning fw-bold fs-5">${currencyPrefix}${Number(product.price).toLocaleString()}</span>
+                <i class="fa-solid fa-tags text-warning me-1"></i>建議售價：<span class="text-price-unit fs-5">${currencyPrefix}${Number(product.price).toLocaleString()}</span>
             </p>
         `);
     }
@@ -276,7 +276,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.sv_point !== undefined && product.sv_point !== null && product.sv_point !== '') {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-star text-info me-1"></i>全球積分：<span class="text-info fw-bold">${Number(product.sv_point).toLocaleString()} SV</span>
+                <i class="fa-solid fa-star text-info me-1"></i>全球積分：<span class="text-sv-unit fs-6">${Number(product.sv_point).toLocaleString()} SV</span>
             </p>
         `);
     }
@@ -300,7 +300,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.product_code) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-barcode text-secondary me-1"></i>產品編號：<span class="text-light">${product.product_code}</span>
+                <i class="fa-solid fa-barcode text-secondary me-1"></i>產品編號：<span class="text-key">${product.product_code}</span>
             </p>
         `);
     }

@@ -745,7 +745,7 @@ function renderIncomeBreakdownTable(rebate, groupDiff, groupBonus, managerBonus,
                     <div class="fw-bold ${item.color} small">${item.label}</div>
                     <div class="text-secondary" style="font-size: 0.72rem;">${item.desc}</div>
                 </td>
-                <td class="text-end align-middle fw-bold ${item.amount > 0 ? item.color : 'text-secondary'}">
+                <td class="text-end align-middle fw-bold ${item.amount > 0 ? 'text-price-unit' : 'text-muted'}">
                     ${formatLocalCurrency(item.amount)}
                 </td>
             </tr>
@@ -755,7 +755,7 @@ function renderIncomeBreakdownTable(rebate, groupDiff, groupBonus, managerBonus,
     $tbody.append(`
         <tr class="border-top border-secondary border-opacity-50">
             <td class="fw-bold text-warning">Estimated Total Monthly Earnings</td>
-            <td class="text-end align-middle fw-bold text-warning fs-6">
+            <td class="text-end align-middle text-price-total fs-6">
                 ${formatLocalCurrency(total)}
             </td>
         </tr>
@@ -889,8 +889,8 @@ function renderRankDataTable() {
 
         return {
             rank: badgeHtml,
-            conditions: `<span class="text-light small">${conds.join(' ‧ ') || 'Starter Kit ' + formatMoney(1000)}</span>`,
-            rebate_rate: `<span class="text-warning fw-bold">${Math.round(r.direct_rebate_rate * 100)}%</span>`,
+            conditions: `<span class="text-light small tabular-nums">${conds.join(' ‧ ') || 'Starter Kit ' + formatMoney(1000)}</span>`,
+            rebate_rate: `<span class="text-rate">${Math.round(r.direct_rebate_rate * 100)}%</span>`,
             leadership: r.leadership_gen_depth > 0 ? `${r.leadership_gen_depth} Gen (6%)` : '-',
             rights: `<span class="text-secondary small">${rightsArr.join(' ‧ ') || 'Personal Tiered Rebate'}</span>`
         };

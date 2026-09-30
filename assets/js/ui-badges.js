@@ -391,7 +391,7 @@ const UIBadges = (function () {
                 const no = (typeof target === 'object' && target !== null) ? target.member_no : target;
                 const cleaned = clean(no);
                 if (!cleaned) return '';
-                return `<span class="text-secondary small font-monospace">${cleaned}</span>`;
+                return `<span class="text-secondary small tabular-nums">${cleaned}</span>`;
             }
         },
 
