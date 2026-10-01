@@ -336,11 +336,19 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     }
 
     if (detail.certifications) {
-        specsHtml.push(`
-            <p class="mb-0 text-muted">
-                <i class="fa-solid fa-certificate text-danger me-1"></i>品質認證：<span class="text-light">${detail.certifications}</span>
-            </p>
-        `);
+        const certBadges = detail.certifications.split(',')
+            .map(c => c.trim())
+            .filter(Boolean)
+            .map(c => `<span class="badge badge-info me-1">${c}</span>`)
+            .join('');
+
+        if (certBadges) {
+            specsHtml.push(`
+                <p class="mb-0 text-muted">
+                    <i class="fa-solid fa-certificate text-danger me-1"></i>認證：${certBadges}
+                </p>
+            `);
+        }
     }
 
     $('.specs-list').html(specsHtml.join(''));

@@ -699,7 +699,16 @@ function openDetailModal(productCode) {
     $('#viewPrdLaunchDate').text(AppDate.toDisplay(item.launch_date, '-'));
     $('#viewPrdDiscontinueDate').text(AppDate.toDisplay(item.discontinue_date, '-'));
     $('#viewPrdOfficialUpdateDate').text(AppDate.toDisplay(item.official_update_date, '-'));
-    $('#viewPrdCertifications').text(item.certifications || '無特別標註');
+    if (item.certifications) {
+        const certBadges = item.certifications.split(',')
+            .map(c => c.trim())
+            .filter(Boolean)
+            .map(c => `<span class="badge badge-info me-1 mb-1">${c}</span>`)
+            .join('');
+        $('#viewPrdCertifications').html(certBadges || '<span class="text-muted">無特別標註</span>');
+    } else {
+        $('#viewPrdCertifications').html('<span class="text-muted">無特別標註</span>');
+    }
 
     $('#viewPrdRemarks').text(item.remarks || '-');
 

@@ -16,7 +16,7 @@ const APP_CONFIG = {
         CRM: "1AWPJNZd3d8MstqtwG8OI5RaDWku5a1wK3XV3GORhRyk",        // 05_客戶 (crm)
         FIN: "",        // 06_財務 (fin)
         SYS: "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw",        // 07_系統 (sys)
-        MY: "",        // 08_馬來西亞 (my)
+        MY: "1ggHPMcA3OFTnN62LPl3khTckpaOtHlwnjHKmOHRyTnM",         // 08_馬來西亞 (my)
         PSN: "1RB0czTwlWP1021OUVYHc__-0vtqOcE9ltSPxrY8jH_4"         // 09_人員 (psn)
     },
     // Google Apps Script 部署 ID
@@ -28,7 +28,7 @@ const APP_CONFIG = {
         CRM: "AKfycbw_7r40UQSTCBCGqZC5IbmPMgSmpVOWKUOjSLyQAsX62Z1p5D-2sR45Jvy2Nc-jz5zYXw",      // 05_客戶 (crm)
         FIN: "",        // 06_財務 (fin)
         SYS: "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA",      // 07_系統 (sys)
-        MY: "",        // 08_馬來西亞 (my)
+        MY: "AKfycbw-nz2V9YrTsglhaO-subIDuTjFPLJvXyOb6lcuu8i6Y5SeK85Utaz8_MNbngvRa6EJ",         // 08_馬來西亞 (my)
         PSN: "AKfycbyoUx9tLPkTaUIk7KZOD7ab2aqmTPQrOTvFxLrxi4w8DNLkX_DpLginxvW-SdS99ExB4w"       // 09_人員 (psn)
     },
     // Google 試算表 工作表名稱
