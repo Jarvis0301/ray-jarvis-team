@@ -526,8 +526,10 @@ function formatPersonTableRow(p) {
             </div>
         `,
         identities: `
-            ${UIBadges.person.identityType(p.identity_type)}
-            ${UIBadges.person.usageIdentity(p.usage_identity)}
+            <div>
+                <div>${UIBadges.person.identityType(p.identity_type)}</div>
+                <div>${UIBadges.person.usageIdentity(p.usage_identity)}</div>
+            </div>
         `,
         gender_age: genderAge,
         residence: natResidence,
@@ -535,7 +537,6 @@ function formatPersonTableRow(p) {
         occupation: p.occupation_background || '-',
         health: UIBadges.person.healthStatus(p.health_status),
         financial: UIBadges.person.financialStatus(p.financial_status),
-        met_info: `<div class="text-secondary">${AppDate.toDisplay(p.met_date, '-')}</div><div class="text-truncate small" style="max-width: 140px;">${p.met_reason || '-'}</div>`,
         actions: `
             <div class="d-flex align-items-center justify-content-end gap-1">
                 <button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPersonModalForView('${p.person_id}')" title="檢視"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -566,7 +567,6 @@ function renderDataTableView(list) {
                 { data: 'occupation' },
                 { data: 'health', className: 'text-center' },
                 { data: 'financial', className: 'text-center' },
-                { data: 'met_info' },
                 { data: 'actions', className: 'text-end', orderable: false }
             ]
         });

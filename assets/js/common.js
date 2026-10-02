@@ -307,6 +307,7 @@ function setDataTable() {
             processing: "處理中...",
             loadingRecords: "載入中...",
             lengthMenu: "顯示 _MENU_ 筆結果",
+            emptyTable: "目前沒有任何資料",
             zeroRecords: "沒有符合的結果",
             info: "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
             infoEmpty: "顯示第 0 至 0 筆結果，共 0 筆",

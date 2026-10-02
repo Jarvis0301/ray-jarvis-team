@@ -204,7 +204,7 @@ function renderFilteredAnnouncements(keyword) {
 // 顯示 Loading Spinner
 function showLoadingSpinner() {
     $('#announcement-container').html(`
-        <div id="loading-spinner" class="text-center col-12">
+        <div id="loading-spinner" class="loading-spinner text-center col-12">
             <div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>

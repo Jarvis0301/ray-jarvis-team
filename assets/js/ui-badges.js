@@ -83,7 +83,7 @@ const UIBadges = (function () {
                 const icon = entity.icon || entity.icon_class || 'fa-solid fa-tag';
                 const classAttr = extraClass ? ` ${extraClass}` : '';
 
-                return `<span class="badge${classAttr}" style="color: ${color}; background-color: ${bg}; border: 1px solid ${color}40;"><i class="${icon} me-1"></i>${label}</span>`;
+                return `<span class="badge${classAttr}" style="color: ${color}; background-color: ${bg}; border: 1px solid ${color};"><i class="${icon} me-1"></i>${label}</span>`;
             },
 
             category(entity, regionCode = 'TW') {

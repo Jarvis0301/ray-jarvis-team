@@ -375,7 +375,7 @@ function renderDownlines() {
                 <td class="text-end text-secondary tabular-nums cell-diff-rate">0%</td>
                 <td class="text-end text-price-unit cell-diff-amount">0</td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-del-downline" data-id="${item.id}" title="Delete Partner">
+                    <button type="button" class="btn btn-outline-danger btn-sm btn-del-downline" data-id="${item.id}" title="Delete Partner">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>

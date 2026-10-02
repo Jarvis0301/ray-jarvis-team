@@ -301,8 +301,7 @@ function renderWarehouseDataTable(list) {
                 { data: 'name' },
                 { data: 'type', className: 'text-center' },
                 { data: 'country', className: 'text-center' },
-                { data: 'address' },
-                { data: 'phone' },
+                { data: 'phone_address' },
                 { data: 'hours' },
                 { data: 'status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -336,8 +335,12 @@ function formatTableRow(w) {
             `,
         type: typeBadge,
         country: countryBadge,
-        address: `<div class="text-secondary text-wrap" style="max-width: 250px;">${w.address || '-'}</div>`,
-        phone: `${w.contact_phone || '-'}`,
+        phone_address: `
+            <div>
+                <div>${w.contact_phone || '-'}</div>
+                <div class="text-secondary text-wrap" style="max-width: 350px;">${w.address || '-'}</div>
+            </div>
+        `,
         hours: `<span class="text-secondary text-wrap" style="max-width: 200px;">${w.operating_hours || '-'}</span>`,
         status: activePill,
         actions: actionButtons

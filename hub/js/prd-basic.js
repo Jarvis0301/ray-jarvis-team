@@ -534,13 +534,9 @@ function renderMasterTable() {
                 { data: 'code' },
                 { data: 'name' },
                 { data: 'category' },
-                { data: 'subcategory' },
-                { data: 'type' },
-                { data: 'spec' },
-                { data: 'price', className: 'text-end' },
-                { data: 'sv', className: 'text-end' },
-                { data: 'launch_status', className: 'text-center' },
-                { data: 'stock_status', className: 'text-center' },
+                { data: 'type_spec' },
+                { data: 'price_sv', className: 'text-end' },
+                { data: 'status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
@@ -577,20 +573,38 @@ function formatMasterTableRow(p) {
 
     return {
         thumb: `<img src="${p.primary_image_url}" alt="${p.name}" class="img-thumb-preview" onerror="window.imgError(this, 'product', 42, 42)">`,
-        code: `<div>
-                   <div>${UIBadges.common.country(p.region_code)}</div>
-                   <div class="fw-bold text-light mt-1">${p.product_code}</div>
-               </div>`,
+        code: `
+            <div>
+                <div>${UIBadges.common.country(p.region_code)}</div>
+                <div class="fw-bold text-light mt-1">${p.product_code}</div>
+            </div>
+        `,
         name: `<div class="fw-bold text-light">${p.name}${star}</div>
                ${subTitle ? `<div class="text-primary-emphasis small">${subTitle}</div>` : ''}`,
-        category: UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code),
-        subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
-        type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
-        spec: `<span class="text-info">${p.package_spec || '-'}</span>`,
-        price: `<span class="text-price-unit">${formattedPrice}</span>`,
-        sv: `<span class="text-sv-unit">${Number(p.sv_point).toLocaleString()} SV</span>`,
-        launch_status: `<div>${launchStatus.badge}</div>`,
-        stock_status: `<div>${stockBadge}</div>`,
+        category: `
+            <div>
+                <div>${UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code)}</div>
+                <div>${UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code)}</div>
+            </div>
+        `,
+        type_spec: `
+            <div>
+                <div>${UIBadges.product.type(getTypeByCode(p.type_code), p.region_code)}</div>
+                <div class="text-info">${p.package_spec || '-'}</div>
+            </div>
+        `,
+        price_sv: `
+            <div>
+                <div class="text-price-unit">${formattedPrice}</div>
+                <div class="text-sv-unit">${Number(p.sv_point).toLocaleString()} SV</div>
+            </div>
+        `,
+        status: `
+            <div>
+                <div>${launchStatus.badge}</div>
+                <div>${stockBadge}</div>
+            </div>
+        `,
         actions: `
             <div class="d-flex align-items-center justify-content-end gap-1">
                 <button class="btn btn-outline-info btn-sm" onclick="openDetailModal('${p.product_code}')" title="查看完整產品詳情">
@@ -811,7 +825,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${t.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border-color: ${t.text_color};">
+                    <span class="badge" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border: 1px solid ${t.text_color};">
                         <i class="${t.icon_class} me-1"></i>${t.text_color}
                     </span>
                 </td>
@@ -1063,7 +1077,7 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
 
     const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
     const actionBtn = targetCode
-        ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass me-1"></i>詳情</button>`
+        ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass me-1"></i></button>`
         : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`;
 
     return {

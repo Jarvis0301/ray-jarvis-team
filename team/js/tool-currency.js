@@ -570,8 +570,12 @@ function formatRawProductRow(prod) {
     const costDisplay = `<span class="text-light small tabular-nums">${Number(costPerSv).toLocaleString()} ${costUnit}</span>`;
 
     return {
-        region: regionBadge,
-        product_code: `<span class="text-key">${prod.product_code}</span>`,
+        product_code: `
+            <div>
+                <div>${regionBadge}</div>
+                <div class="text-key">${prod.product_code}</div>
+            </div>
+        `,
         product_info: prodInfo,
         price_sv: `${priceDisplay} / ${svDisplay}`,
         cost_per_sv: costDisplay,
@@ -594,7 +598,6 @@ function renderRawProductTable() {
         rawTableInstance = $('#rawProductTable').DataTable({
             data: formatted,
             columns: [
-                { data: 'region', className: 'text-center' },
                 { data: 'product_code', className: 'text-center' },
                 { data: 'product_info' },
                 { data: 'price_sv', className: 'text-end' },

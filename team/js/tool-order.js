@@ -665,6 +665,7 @@ function renderProducts() {
             const subInfo = getSubcategoryInfo(item.subcategory_code, item.region_code);
             const typeInfo = getTypeInfo(item.type_code, item.region_code);
 
+            const productCodeBadgeHtml = `<span class="badge badge-outline-secondary-subtle">${item.product_code}</span>`;
             const subBadgeHtml = UIBadges.product.subcategory(subInfo, item.region_code);
             const typeBadgeHtml = UIBadges.product.type(typeInfo, item.region_code);
 
@@ -680,7 +681,7 @@ function renderProducts() {
                     <div class="product-item-card">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="product-badge">${item.product_code}</span>
+                                ${productCodeBadgeHtml}
                                 ${subBadgeHtml}
                                 ${typeBadgeHtml}
                             </div>
@@ -733,8 +734,13 @@ function renderProducts() {
                 const price = Number(item.price) || 0;
                 const sv = Number(item.sv_point) || 0;
                 const currencySymbol = item.currency === 'MYR' ? 'RM ' : 'NT$ ';
+
                 const subInfo = getSubcategoryInfo(item.subcategory_code, item.region_code);
                 const typeInfo = getTypeInfo(item.type_code, item.region_code);
+
+                const productCodeBadgeHtml = `<span class="badge badge-outline-secondary-subtle">${item.product_code}</span>`;
+                const subBadgeHtml = UIBadges.product.subcategory(subInfo, item.region_code);
+                const typeBadgeHtml = UIBadges.product.type(typeInfo, item.region_code);
 
                 let nameTagHtml = '';
                 if (item.status === 'COMING_SOON') {
@@ -744,36 +750,40 @@ function renderProducts() {
                 }
 
                 return {
-                    code: `<span class="product-badge">${item.product_code}</span>`,
-                    name: `<span class="fw-bold text-white">${item.name}</span>${nameTagHtml}`,
-                    sub: UIBadges.product.subcategory(subInfo, item.region_code),
-                    type: UIBadges.product.type(typeInfo, item.region_code),
-                    price: `${currencySymbol}${price.toLocaleString()}`,
-                    sv: `${sv.toLocaleString()} SV`,
                     actions: `
                         <div class="qty-control justify-content-center">
                             <button class="btn-qty btn-minus" data-id="${item.product_code}"><i class="fa-solid fa-minus"></i></button>
                             <input type="number" class="qty-input no-spin text-center" value="${qty}" min="0" data-id="${item.product_code}">
                             <button class="btn-qty btn-plus" data-id="${item.product_code}"><i class="fa-solid fa-plus"></i></button>
                         </div>
-                    `
+                    `,
+                    name: `
+                        <div class="align-items-center">
+                            <div>${productCodeBadgeHtml}${nameTagHtml}</div>
+                            <div class="fw-bold text-white">${item.name}</div>
+                        </div>
+                    `,
+                    sub: `${subBadgeHtml}`,
+                    type: `${typeBadgeHtml}`,
+                    price: `${currencySymbol}${price.toLocaleString()}`,
+                    sv: `${sv.toLocaleString()} SV`
                 };
             });
 
-            // 複用既有實例，不再反覆銷毀重建 (修復 Bug 6)
+            // 複用既有實例，不再反覆銷毀重建
             if (dataTableInstance) {
                 dataTableInstance.clear().rows.add(formatted).draw();
             } else {
                 dataTableInstance = $('#productTable').DataTable({
                     data: formatted,
+                    order: [[1, 'asc']],
                     columns: [
-                        { data: 'code', className: 'text-center' },
+                        { data: 'actions', className: 'text-center', orderable: false },
                         { data: 'name' },
                         { data: 'sub', className: 'text-center' },
                         { data: 'type', className: 'text-center' },
                         { data: 'price', className: 'text-end text-price-unit' },
-                        { data: 'sv', className: 'text-end text-sv-unit' },
-                        { data: 'actions', className: 'text-center', orderable: false }
+                        { data: 'sv', className: 'text-end text-sv-unit' }
                     ]
                 });
 

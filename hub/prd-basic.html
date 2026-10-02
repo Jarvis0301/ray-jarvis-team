@@ -135,18 +135,14 @@
                                 <table id="tableMasterProducts" class="table table-dark-custom">
                                     <thead>
                                         <tr>
-                                            <th style="width: 46px;">縮圖</th>
+                                            <th style="width: 50px;">縮圖</th>
                                             <th>地區/編號</th>
                                             <th>產品名稱</th>
-                                            <th>主系列</th>
-                                            <th>次系列</th>
-                                            <th>產品型態</th>
-                                            <th>包裝規格</th>
-                                            <th>價格</th>
-                                            <th>全球 SV</th>
-                                            <th>上市狀態</th>
-                                            <th>庫存狀態</th>
-                                            <th style="width: 120px;">操作</th>
+                                            <th>主系列/次系列</th>
+                                            <th>產品型態/包裝規格</th>
+                                            <th>價格/全球 SV</th>
+                                            <th>狀態</th>
+                                            <th>操作</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -176,7 +172,7 @@
                                                     <th>編號</th>
                                                     <th>名稱</th>
                                                     <th>標籤顏色</th>
-                                                    <th style="width: 80px;">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -202,7 +198,7 @@
                                                     <th>編號</th>
                                                     <th>名稱</th>
                                                     <th>標籤顏色</th>
-                                                    <th style="width: 80px;">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -228,7 +224,7 @@
                                                     <th>編號</th>
                                                     <th>名稱</th>
                                                     <th>標籤顏色</th>
-                                                    <th style="width: 80px;">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -271,7 +267,7 @@
                                                 <th>大馬定價 / SV</th>
                                                 <th>每 SV 現金成本</th>
                                                 <th>兩地價差</th>
-                                                <th style="width: 100px;">操作</th>
+                                                <th>操作</th>
                                             </tr>
                                         </thead>
                                         <tbody id="crossBorderTableBody"></tbody>
@@ -302,25 +298,27 @@
                     </header>
 
                     <section class="card p-3 mb-4" aria-label="KPI 摘要卡片">
-                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                            <div class="text-muted small"><i class="fa-solid fa-layer-group text-info me-1"></i>品項 SKU</div>
-                            <h4 class="fw-bold text-info tabular-nums mt-1 mb-0" id="statTotalSku">0</h4>
-                            <div class="text-muted small mt-1 tabular-nums" id="statRegionBreakdown">TW: 0 / MY: 0</div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                            <div class="text-muted small"><i class="fa-solid fa-coins text-yellow me-1"></i>平均售價</div>
-                            <h4 class="text-price-total mt-1 mb-0" id="statAvgPrice">NT$0</h4>
-                            <div class="text-muted small mt-1 tabular-nums" id="statAvgPriceSub">-</div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
-                            <div class="text-muted small"><i class="fa-solid fa-star text-teal me-1"></i>平均 SV 積分</div>
-                            <h4 class="text-sv-total mt-1 mb-0" id="statAvgSv">0 SV</h4>
-                            <div class="text-muted small mt-1 tabular-nums" id="statValidRatio">有效上架率: 0%</div>
-                        </div>
-                        <div class="col-12 col-sm-6 col-xl-3">
-                            <div class="text-muted small"><i class="fa-solid fa-rocket text-accent me-1"></i>最新上市產品</div>
-                            <h6 class="fw-bold text-accent mt-2 mb-0 text-truncate" id="statLatestProduct">-</h6>
-                            <div class="text-muted small mt-1 tabular-nums" id="statLatestProductDate">-</div>
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-layer-group text-info me-1"></i>品項 SKU</div>
+                                <h4 class="fw-bold text-info tabular-nums mt-1 mb-0" id="statTotalSku">0</h4>
+                                <div class="text-muted small mt-1 tabular-nums" id="statRegionBreakdown">TW: 0 / MY: 0</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-coins text-yellow me-1"></i>平均售價</div>
+                                <h4 class="text-price-total mt-1 mb-0" id="statAvgPrice">NT$0</h4>
+                                <div class="text-muted small mt-1 tabular-nums" id="statAvgPriceSub">-</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-star text-teal me-1"></i>平均 SV 積分</div>
+                                <h4 class="text-sv-total mt-1 mb-0" id="statAvgSv">0 SV</h4>
+                                <div class="text-muted small mt-1 tabular-nums" id="statValidRatio">有效上架率: 0%</div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <div class="text-muted small"><i class="fa-solid fa-rocket text-accent me-1"></i>最新上市產品</div>
+                                <h6 class="fw-bold text-accent mt-2 mb-0 text-truncate" id="statLatestProduct">-</h6>
+                                <div class="text-muted small mt-1 tabular-nums" id="statLatestProductDate">-</div>
+                            </div>
                         </div>
                     </section>
 

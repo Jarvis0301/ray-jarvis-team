@@ -1123,6 +1123,7 @@ function formatPartnerTableRow(p) {
     const coOpName = coOpPartner ? EntityResolver.partner(coOpPartner, partnersList, personMasterList, 1) : (spouseId || '');
     const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
     const memberNoHtml = UIBadges.partner.memberNo(p.member_no);
+    const educationHtml = `${person.highest_education || '-'}${person.graduation_status ? UIBadges.person.graduationStatus(person.graduation_status) : ''}`;
 
     return {
         member: `
@@ -1138,17 +1139,23 @@ function formatPartnerTableRow(p) {
             </div>
         `,
         country: UIBadges.common.country(p.country_code),
-        current_rank: UIBadges.rank.badge(currentRank),
         highest_rank: UIBadges.rank.badge(highestRank),
         mentor: `<span class="text-white">${mentorName || '-'}</span>`,
         residence: `<span class="text-light">${person.current_residence || '-'}</span>`,
-        education: `<span class="text-light">${person.highest_education || '-'}</span>`,
-        occupation: `<span class="text-light">${person.occupation_background || '-'}</span>`,
+        education_occupation: `
+            <div>
+                <div class="text-light">${educationHtml}</div>
+                <div class="text-light">${person.occupation_background || '-'}</div>
+            </div>
+        `,
         health: UIBadges.person.healthStatus(person.health_status),
         financial: UIBadges.person.financialStatus(person.financial_status),
-        relation: UIBadges.partner.relation(p.relation_type, p.partner_id),
-        activity: UIBadges.partner.activityLevel(p.activity_level),
-        member_status: UIBadges.partner.memberStatus(p.member_status),
+        relation_status: `
+            <div>
+                <div>${UIBadges.partner.relation(p.relation_type, p.partner_id)}${UIBadges.partner.activityLevel(p.activity_level)}</div>
+                <div>${UIBadges.partner.memberStatus(p.member_status)}</div>
+            </div>
+        `,
         actions: `
             <div class="d-flex align-items-center justify-content-end gap-1">
                 <button class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -1173,17 +1180,13 @@ function renderDataTableView(list) {
             columns: [
                 { data: 'member' },
                 { data: 'country', className: 'text-center' },
-                { data: 'current_rank', className: 'text-center' },
                 { data: 'highest_rank', className: 'text-center' },
                 { data: 'mentor' },
                 { data: 'residence' },
-                { data: 'education' },
-                { data: 'occupation' },
+                { data: 'education_occupation' },
                 { data: 'health', className: 'text-center' },
                 { data: 'financial', className: 'text-center' },
-                { data: 'relation', className: 'text-center' },
-                { data: 'activity', className: 'text-center' },
-                { data: 'member_status', className: 'text-center' },
+                { data: 'relation_status', className: 'text-center' },
                 { data: 'actions', className: 'text-end', orderable: false }
             ]
         });
