@@ -65,11 +65,12 @@ window.addEventListener('AppReady', async () => {
 // 3. 讀取並關聯該產品之完整資料
 // ==========================================
 async function loadProductDetail(productCode, region) {
+    console.log(productCode, region);
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const targetCodeUpper = productCode.toUpperCase().trim();
-        const baseCodeTarget = targetCodeUpper.replace(/^(TW|MY)/, '');
+        const targetBaseCode = targetCodeUpper.replace(/^(TW|MY)/, '');
 
         const [productsData, detailsData, mainCatsData, subsData, typesData, copywritingData, faqData] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS),
@@ -84,7 +85,8 @@ async function loadProductDetail(productCode, region) {
         const targetProductRow = (productsData || []).find(r => {
             const code = getVal(r, 0).toUpperCase().trim();
             const base = getVal(r, 2).toUpperCase().trim();
-            return code === targetCodeUpper || base === baseCodeTarget;
+            const regionCode = getVal(r, 1).toUpperCase().trim();
+            return (code === targetCodeUpper || base === targetBaseCode) && regionCode === region;
         });
 
         if (!targetProductRow) {
